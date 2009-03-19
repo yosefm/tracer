@@ -8,6 +8,7 @@ from ray_bundle import RayBundle
 
 class TestSingleReflection(unittest.TestCase):
     def runTest(self):
+        """A single beam at 45 degs to the surface reflects correctly"""
         dir = N.array([[0, 1, -1]]).T / math.sqrt(2)
         normal = N.array([[0, 0, 1]]).T
         correct_reflection = N.array([[0, 1, 1]]).T / math.sqrt(2)
@@ -49,7 +50,6 @@ class TestMultipleNormals(unittest.TestCase):
         reflection = optics.reflections(dir, normal)
         self.failUnless(N.allclose(reflection, correct_reflection), 
             "Reflection is\n" + str(reflection) + "\nbut should be\n" + str(correct_reflection))
-        
         
 if __name__ == "__main__":
     unittest.main()
