@@ -18,8 +18,8 @@ class FlatSurface(UniformSurface):
         height - dimension along the surface's local y axis.
         """
         UniformSurface.__init__(self,  location, rotation, absorptivity)
-        self._w = width
-        self._h = height
+        self.set_width(width)
+        self.set_height(height)
     
     def get_width(self):
         return self._w
