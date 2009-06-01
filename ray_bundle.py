@@ -51,8 +51,8 @@ class RayBundle:
         return newbund
 
 # Module stuff:
-from scipy import random,  linalg as LA
-from scipy import c_
+from numpy import random,  linalg as LA
+from numpy import c_
 
 from spatial_geometry import general_axis_rotation
 

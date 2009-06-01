@@ -1,6 +1,6 @@
 # Implements a specularly reflecting, grey surface.
 
-from scipy import linalg as LA
+from numpy import linalg as LA
 import numpy as N
 
 from surface import UniformSurface
