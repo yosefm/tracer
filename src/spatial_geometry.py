@@ -1,3 +1,6 @@
+
+
+
 # Various routines for vector geometry, rotations, etc.
 # References:
 # [1] John J. Craig, Introduction to Robotics, 3rd ed., 2005. 
