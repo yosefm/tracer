@@ -61,9 +61,15 @@ class FlatSurface(UniformSurface):
                 continue
             # Singular matrix (parallel rays to the surface):
             params[:, ray].fill(N.inf)
-        
+            
         # Mark missing rays with infinity:
         missing = (abs(params[0])  > self._w/2.) | (abs(params[1] ) > self._h/2.)
+        
+        # Takes into account a negative depth
+        for coords in range(3):
+            for ray in xrange(N.shape(params[coords])[0]):
+                if params[coords][ray] < 0:  params[coords][ray] = N.inf
+
         params[2, missing] = N.inf
         
         # Storage for later reference:
@@ -80,12 +86,13 @@ class FlatSurface(UniformSurface):
             bundle are still relevant.
         Returns: a RayBundle object with the new bundle, with vertices on the panel
             and directions according to optics laws.
+
         """
         vertices = N.dot(self.get_rotation()[:, :2],  self._current_params[:, selector]) + \
             self.get_location()[:, None]
         dirs = optics.reflections(self._current_bundle.get_directions()[:, selector],  
             self.get_rotation()[:, 2][:,None])
-        
+    
         outg = RayBundle()
         outg.set_vertices(vertices)
         outg.set_directions(dirs)
