@@ -20,13 +20,12 @@ class TracerEngine():
 
     def intersect_ray(self, bundle):
         """
-        Returns objs_param, a list of parameters of intersections for each object, with
-        misses replaces by infinity. Filters out any intersections along a ray that
-        aren't the intersection with the closest object it hits
+        Returns a boolean array indicating whether there was a hit or a miss, organized
+        such that each row of the array matches up to the hits or misses on a single object
         """
         # If there is only a single object, don't need to find minimum distance
         if len(self.objects) == 1:
-            objs_param = [self.objects[0].register_incoming(bundle)]
+            stack = [~N.isinf(self.objects[0].register_incoming(bundle))]
 
         else:
             stack = []
@@ -48,19 +47,16 @@ class TracerEngine():
                 zeros = N.where(stack == 0)
                 stack[zeros] = N.inf
 
-
-            # Find the smallest parameter for each ray, and use that as the final one
+            # Find the smallest parameter for each ray, and use that as the final one,
+            # returns the indices
             params_index = stack.argmin(axis=0)
-
-            objs_param = []
+           
             for obj in xrange(len(objs_hit)):
                 obj_array = N.where(params_index == obj)
-                obj_row = stack[obj]
-                if N.shape(obj_array[0]) != N.shape(obj_row):
-                    obj_row[~obj_array[0]] = N.inf
-                objs_param.append(obj_row)
+                stack[obj][obj_array] = True 
+                stack = (stack == True)
 
-        return objs_param
+        return stack
 
     def ray_tracer(self, bundle, reps):
         """
@@ -78,8 +74,7 @@ class TracerEngine():
         for i in xrange(reps):  
             objs_param = self.intersect_ray(bund)
             for obj in self.objects:
-                obj_hit = objs_param[self.objects.index(obj)]
-                inters = ~N.isinf(obj_hit)
+                inters = objs_param[self.objects.index(obj)]
                 if self.objects.index(obj) == 0:
                     outg = obj.get_outgoing(inters)
                     outg.set_energy(energy[:,inters])
@@ -88,7 +83,7 @@ class TracerEngine():
                     new_outg.set_energy(energy[:,inters]) 
                     outg = outg + new_outg
                 bund = outg 
-        
+
         return bund.get_vertices()
                       
 
