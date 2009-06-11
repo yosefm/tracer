@@ -37,10 +37,17 @@ class TracerEngine():
                 objs_hit.append(obj)
             stack = N.array(stack)
             objs_hit = N.array(objs_hit) 
-    
+
             # Raise an error if any of the parameters are negative
             if (stack < 0).any():
                 raise ValueError("Parameters must all be positive")
+
+            # If parameter == 0, ray does not actually hit object, but originates from there; 
+            # so it should be ignored in considering intersections 
+            if (stack == 0).any():
+                zeros = N.where(stack == 0)
+                stack[zeros] = N.inf
+
 
             # Find the smallest parameter for each ray, and use that as the final one
             params_index = stack.argmin(axis=0)
@@ -55,7 +62,7 @@ class TracerEngine():
 
         return objs_param
 
-    def bundle_driver(self, bundle, reps):
+    def ray_tracer(self, bundle, reps):
         """
         Creates a ray bundle or uses a reflected ray bundle, and intersects it with all
         objects, uses intersect_ray()
@@ -70,7 +77,6 @@ class TracerEngine():
         bund = bundle
         for i in xrange(reps):  
             objs_param = self.intersect_ray(bund)
-
             for obj in self.objects:
                 obj_hit = objs_param[self.objects.index(obj)]
                 inters = ~N.isinf(obj_hit)
@@ -81,8 +87,8 @@ class TracerEngine():
                     new_outg = obj.get_outgoing(inters)
                     new_outg.set_energy(energy[:,inters]) 
                     outg = outg + new_outg
-                                   
-        bund = outg 
+                bund = outg 
+        
         return bund.get_vertices()
                       
 

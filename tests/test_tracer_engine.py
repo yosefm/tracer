@@ -6,7 +6,7 @@ from tracer_engine import TracerEngine
 from ray_bundle import RayBundle
 from flat_surface import FlatSurface
 from spatial_geometry import general_axis_rotation
-
+'''
 class TestTraceProtocol1(unittest.TestCase):
     """ 
     Tests intersect_ray and the bundle driver with a single flat surface, not rotated, with 
@@ -33,8 +33,8 @@ class TestTraceProtocol1(unittest.TestCase):
         self.failUnless(params[0] == N.inf)
         N.testing.assert_array_almost_equal(params[1:], correct_params)
 
-    def test_bundle_driver(self):
-        params = self.engine.bundle_driver(self._bund,1)
+    def test_ray_tracer(self):
+        params = self.engine.ray_tracer(self._bund,1)
         correct_params = N.c_[[0,0,0],[0,0,0],[0,0,0]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -92,12 +92,12 @@ class TestTraceProtocol3(unittest.TestCase):
         self.failUnless(params[1][0] and params[1][1] == N.inf) 
         N.testing.assert_array_almost_equal(params[0],correct_params)    
 
-    def test_bundle_driver1(self):
-        params = self.engine.bundle_driver(self._bund, 1)
+    def test_ray_tracer1(self):
+        params = self.engine.ray_tracer(self._bund, 1)
         correct_params = N.c_[[0,.5,.5],[0,1,1]]
 
         N.testing.assert_array_almost_equal(params,correct_params)
-
+'''
 class TestTraceProtocol4(unittest.TestCase):
     """
     Tests intersect_ray and the bundle driver with two planes, where the rays hit different surfaces
@@ -115,21 +115,23 @@ class TestTraceProtocol4(unittest.TestCase):
         rot1 = general_axis_rotation([1,0,0],N.pi/4)
         energy = N.array([1,1])
         self._bund.set_energy(energy)
-        objects = [FlatSurface(rotation=rot1,width=10,height=10), FlatSurface(width=10,height=10)]
+        objects = [FlatSurface(rotation=rot1,width=10,height=10), 
+                   FlatSurface(width=10,height=10)]
         self.engine = TracerEngine(objects)
-
+    '''
         
-    def test_bundle_driver1(self):
-        params = self.engine.bundle_driver(self._bund, 1)
+    def test_ray_tracer1(self):
+        params = self.engine.ray_tracer(self._bund, 1)
         correct_params = N.c_[[0,1.5,1.5],[0,2,0]]
 
         N.testing.assert_array_almost_equal(params,correct_params)
-'''
-    def test_bundle_driver2(self):
-        params = self.engine.bundle_driver(self._bund, 2)
-        correct_params = N.c_[[0,2,1],[0,2.5,0]]
+    '''
+
+    def test_ray_tracer2(self):
+        params = self.engine.ray_tracer(self._bund, 2)
+        correct_params = N.c_[[0,2,2],[0,3,0]]
 
         N.testing.assert_array_almost_equal(params,correct_params)
-'''
+
 if __name__ == '__main__':
     unittest.main()
