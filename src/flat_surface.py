@@ -52,6 +52,8 @@ class FlatSurface(UniformSurface):
         v = ray_bundle.get_vertices() - self.get_location()[:, None]
         n = ray_bundle.get_num_rays()
         
+        # `params` holds the parametric location of intersections along x axis, 
+        # y-axis and ray, in that order.
         params = N.empty((3, n))
         for ray in xrange(n):
             # Solve the linear equation system of the intersection point:
@@ -64,13 +66,12 @@ class FlatSurface(UniformSurface):
             
         # Mark missing rays with infinity:
         missing = (abs(params[0])  > self._w/2.) | (abs(params[1] ) > self._h/2.)
+        params[2, missing] = N.inf
         
         # Takes into account a negative depth
-        for coords in range(3):
-            for ray in xrange(N.shape(params[coords])[0]):
-                if params[coords][ray] < 0:  params[coords][ray] = N.inf
-
-        params[2, missing] = N.inf
+        # Note that only the 3rd row of params is relevant here!
+        negative = params[2] < 0
+        params[2, negative] = N.Inf
         
         # Storage for later reference:
         self._current_bundle = ray_bundle

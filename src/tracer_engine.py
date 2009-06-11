@@ -29,15 +29,14 @@ class TracerEngine():
             objs_param = [self.objects[0].register_incoming(bundle)]
 
         else:
-            params_final = []
+            stack = []
+            objs_hit = []
             # Bounce rays off each object
             for obj in self.objects:
-                if self.objects.index(obj) == 0:
-                    stack = N.r_[obj.register_incoming(bundle)]
-                    objs_hit = N.c_[obj]
-                else:
-                    objs_hit = N.vstack((objs_hit, obj))
-                    stack = N.vstack((stack, obj.register_incoming(bundle)))
+                stack.append(obj.register_incoming(bundle))
+                objs_hit.append(obj)
+            stack = N.array(stack)
+            objs_hit = N.array(objs_hit) 
     
             # Raise an error if any of the parameters are negative
             if (stack < 0).any():
@@ -47,7 +46,7 @@ class TracerEngine():
             params_index = stack.argmin(axis=0)
 
             objs_param = []
-            for obj in range(N.shape(objs_hit)[0]):
+            for obj in xrange(len(objs_hit)):
                 obj_array = N.where(params_index == obj)
                 obj_row = stack[obj]
                 if N.shape(obj_array[0]) != N.shape(obj_row):
@@ -68,15 +67,8 @@ class TracerEngine():
         """
 
         energy = bundle.get_energy()
+        bund = bundle
         for i in xrange(reps):  
-            # If this is the first ray, use initial source
-            if i == 0:
-                bund = bundle
-
-            # Else, use outgoing rays from previous intersection
-            else: 
-                bund = outg
-
             objs_param = self.intersect_ray(bund)
 
             for obj in self.objects:
@@ -90,19 +82,8 @@ class TracerEngine():
                     new_outg.set_energy(energy[:,inters]) 
                     outg = outg + new_outg
                                    
-        # Non-intersecting rays
-        v = bund.get_vertices()[:, ~inters]
-        d = bund.get_directions()[:, ~inters]
-        #P.quiver(v[0], v[1], d[0], d[1], scale=0.1)
-        
-        # Returning rays
-        v = outg.get_vertices()
-        d = outg.get_directions()
-        #P.quiver(v[0], v[1], d[0], d[1], scale=0.1, color='red')
-
-        #P.show()        
-        
-        return v
+        bund = outg 
+        return bund.get_vertices()
                       
 
 
