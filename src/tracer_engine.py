@@ -66,22 +66,20 @@ class TracerEngine():
         reps - number of times to repeat the simulation (where each simulation represents
         a ray bundle being intersected with a set of objects one time)
         Returns:
-        For the time being, it v, an array of vertices of the most recent intersections
+        For the time being, returns an array of vertices of the most recent intersections,
+        note that the order of the rays within the arrays may change
         """
 
         energy = bundle.get_energy()
         bund = bundle
         for i in xrange(reps):  
             objs_param = self.intersect_ray(bund)
+            outg = bundle.empty_bund()
             for obj in self.objects:
                 inters = objs_param[self.objects.index(obj)]
-                if self.objects.index(obj) == 0:
-                    outg = obj.get_outgoing(inters)
-                    outg.set_energy(energy[:,inters])
-                else:
-                    new_outg = obj.get_outgoing(inters)
-                    new_outg.set_energy(energy[:,inters]) 
-                    outg = outg + new_outg
+                new_outg = obj.get_outgoing(inters)
+                new_outg.set_energy(energy[:,inters]) 
+                outg = outg + new_outg
                 bund = outg 
 
         return bund.get_vertices()

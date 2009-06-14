@@ -50,6 +50,15 @@ class RayBundle:
         newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
         return newbund
 
+    def empty_bund(self):
+        """Create an empty ray bundle"""
+        empty = RayBundle()
+        empty_array = N.array([[],[],[]])
+        empty.set_vertices(empty_array)
+        empty.set_directions(empty_array)
+        empty.set_energy(N.array([]))
+        return empty
+
 # Module stuff:
 from numpy import random,  linalg as LA
 from numpy import c_
