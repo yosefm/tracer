@@ -79,7 +79,7 @@ class FlatSurface(UniformSurface):
         
         return params[2]
     
-    def get_outgoing(self,  selector):
+    def get_outgoing(self,  selector, energy, parent):
         """Generates a new ray bundle, which is the reflections/refractions of the
         user-selected rays out of the incoming ray-bundle that was previously 
         registered.
@@ -93,9 +93,12 @@ class FlatSurface(UniformSurface):
             self.get_location()[:, None]
         dirs = optics.reflections(self._current_bundle.get_directions()[:, selector],  
             self.get_rotation()[:, 2][:,None])
-    
+        new_parent = parent[selector]
         outg = RayBundle()
         outg.set_vertices(vertices)
         outg.set_directions(dirs)
+        outg.set_energy(energy[:,selector])
+        outg.set_parent(new_parent)
+    
         return outg
         

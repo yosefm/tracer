@@ -13,6 +13,7 @@ class RayBundle:
     _direct: a 2D array whose each column is the unit vector composed of the 
         direction cosines of each ray.
     _energy: 1D array with the energy carried by each ray.
+    _parent: 1D array with the index of the parent ray within the previous ray bundle
     """
     def set_vertices(self,  vert):
         """Sets the starting point of each ray, as well as the number of rays."""
@@ -39,15 +40,23 @@ class RayBundle:
     
     def get_num_rays(self):
         return self._vertices.shape[1]
+
+    def set_parent(self, index):
+        self._parent = index
+
+    def get_parent(self):
+        return self._parent
         
     def __add__(self,  added):
         """Merge two energy bundles. return a new bundle with the rays from the 
         two bundles appearing in the order of addition.
         """
+        new_parent = N.append(self.get_parent(), added.get_parent())
         newbund = RayBundle()
         newbund.set_vertices(N.hstack((self.get_vertices(),  added.get_vertices())))
         newbund.set_directions(N.hstack((self.get_directions(),  added.get_directions())))
         newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
+        newbund.set_parent(new_parent)
         return newbund
 
     def empty_bund(self):
@@ -57,6 +66,7 @@ class RayBundle:
         empty.set_vertices(empty_array)
         empty.set_directions(empty_array)
         empty.set_energy(N.array([]))
+        empty.set_parent(N.array([]))
         return empty
 
 # Module stuff:

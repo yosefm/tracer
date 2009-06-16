@@ -15,8 +15,10 @@ class TracerEngine():
         """
         Arguments:
         objects - a list of all the objects
+        tree - an empty list to be used to track parent rays and child rays
         """
         self.objects = objects
+        self.tree = []
 
     def intersect_ray(self, bundle):
         """
@@ -50,7 +52,7 @@ class TracerEngine():
             # Find the smallest parameter for each ray, and use that as the final one,
             # returns the indices
             params_index = stack.argmin(axis=0)
-           
+       
             for obj in xrange(len(objs_hit)):
                 obj_array = N.where(params_index == obj)
                 stack[obj][obj_array] = True 
@@ -72,19 +74,41 @@ class TracerEngine():
 
         energy = bundle.get_energy()
         bund = bundle
-        for i in xrange(reps):  
+        for i in xrange(reps):
+            self.store_branch(bund)  # stores parent branch for purposes of ray tracking
+            bund.set_parent(N.array(range(bund.get_num_rays())))
             objs_param = self.intersect_ray(bund)
             outg = bundle.empty_bund()
+            parent = bund.get_parent()
             for obj in self.objects:
                 inters = objs_param[self.objects.index(obj)]
-                new_outg = obj.get_outgoing(inters)
-                new_outg.set_energy(energy[:,inters]) 
+                new_outg = obj.get_outgoing(inters, energy, parent)
                 outg = outg + new_outg
                 bund = outg 
 
         return bund.get_vertices()
                       
+    def store_branch(self, bundle):
+        """
+        Stores a tree of ray bundles
+        """
+        self.tree.append(bundle)
 
+    def track_ray(self, bundle, index):
+        """
+        Tracks a particular ray from the most recent bundle, given the bundle 
+        it is in and its index within that bundle
+        """
+        i = len(self.tree) - 1
+        return self.track_ray_helper(bundle, index, i)
 
+    def track_ray_helper(self, bundle, index, i):
+        parent_list = bundle.get_parent()
+        parent = parent_list[index]
+        bundle = self.tree[i]
+        while i < 0:
+            i = i-1
+            self.track_ray_helper(self, bundle, parent, i)
+        return parent
 
 
