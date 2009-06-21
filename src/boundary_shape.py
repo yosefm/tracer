@@ -1,39 +1,25 @@
-class BoundaryShape():
-    
+# Implements a sphere as a bounding shape to a surface
 
-class Plane(BoundaryShape):
-    def __init__(self, a, b, c, d):
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
+import numpy as N
 
-    def inters_sphere(self, obj):
+class BoundarySphere():
+    def __init__(self, center,  radius):
+        """Arguments:
+        center - a 1D array
+        radius - a float
         """
-        Determines the points of intersection of the plane and a sphere
-        """
-        # Intersect with a sphere with its center at the origin, then translate
-        
-        
-
-class Sphere(BoundaryShape):
-    def __init__(self, location,  radius):
-        self.location = location
+        self.center = center
         self.radius = radius
-    
-    def inters_sphere(self, obj):
+            
+    def in_bounds(self, bund_vertices):
         """
-        Determines the points of intersection of the sphere and another sphere
+        Returns a boolean array for whether or not a ray intersection was within the 
+        bounding sphere
+        Arguments: bund_vertices - an array of the vertices
         """
-        
-    def inters_parabola(self, obj):
-        """
-        Determines the points of intersection of the sphere and a parabolic surface
-        """
-    
-    def inters_plane(self, obj):
-        """
-        Determines the points of intersection of the sphere and a planar surface
+        selector = []
+        for ray in range(N.shape(bund_vertices)[1]):
+            selector.append((self.radius >= N.linalg.norm(bund_vertices[:,ray] - self.center)))
+        return N.array(selector)
 
-        """
-        
+ 
