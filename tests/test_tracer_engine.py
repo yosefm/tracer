@@ -6,6 +6,8 @@ from tracer_engine import TracerEngine
 from ray_bundle import RayBundle
 from flat_surface import FlatSurface
 from spatial_geometry import general_axis_rotation
+from sphere_surface import SphereSurface
+from boundary_shape import BoundarySphere
 
 class TestTraceProtocol1(unittest.TestCase):
     """ 
@@ -127,6 +129,51 @@ class TestTraceProtocol4(unittest.TestCase):
         correct_params = N.c_[[0,2,2],[0,3,0]]
 
         N.testing.assert_array_almost_equal(params,correct_params)
+
+class TestTraceProtocol5(unittest.TestCase):
+    """
+    Tests a spherical surface
+    """
+    def setUp(self):
+        boundary = BoundarySphere(N.array([0,1.,0]), 1.)
+        surface = SphereSurface(center=N.array([0,0,0]), boundary=boundary)
+        self._bund = RayBundle()
+        self._bund.set_vertices(N.c_[[0,-2.,0],[0,0,0]])
+        self._bund.set_directions(N.c_[[0,1,0],[1,0,0]])
+        self._bund.set_energy(N.r_[[1,1]])
+        objects = [surface]
+
+        self.engine = TracerEngine(objects)
+
+    def test_ray_tracer1(self):
+        params = self.engine.ray_tracer(self._bund, 1)
+        correct_params = N.c_[[0,1,0]]
+         
+        N.testing.assert_array_almost_equal(params,correct_params)
+
+class TestTraceProtocol6(unittest.TestCase):
+    """
+    Tests a spherical surface
+    """
+    def setUp(self):
+        boundary1 = BoundarySphere(N.array([0,2.,0]),3.)
+        surface1 = SphereSurface(center=N.array([0,0,0]), radius=2, boundary=boundary1)
+        boundary2 = BoundarySphere(N.array([0,-5,0]),3)
+        surface2 = SphereSurface(center=N.array([0,-2,0]), radius=2, boundary=boundary2)
+        self._bund = RayBundle()
+        self._bund.set_vertices(N.c_[[0,-1,0]])
+        self._bund.set_directions(N.c_[[0,1,0]])
+        self._bund.set_energy(N.r_[[1]])
+        objects = [surface1, surface2]
+
+        self.engine = TracerEngine(objects)
+        
+    def test_ray_tracers1(self):
+        params = self.engine.ray_tracer(self._bund, 1)
+        correct_params = N.c_[[0,2,0]]
+
+        N.testing.assert_array_almost_equal(params,correct_params)
+
 
 if __name__ == '__main__':
     unittest.main()
