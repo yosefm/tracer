@@ -138,16 +138,16 @@ class TestTraceProtocol5(unittest.TestCase):
         boundary = BoundarySphere(N.array([0,1.,0]), 1.)
         surface = SphereSurface(center=N.array([0,0,0]), boundary=boundary)
         self._bund = RayBundle()
-        self._bund.set_vertices(N.c_[[0,-2.,0],[0,0,0]])
-        self._bund.set_directions(N.c_[[0,1,0],[1,0,0]])
-        self._bund.set_energy(N.r_[[1,1]])
+        self._bund.set_vertices(N.c_[[0,-2.,0],[0,0,0],[0,2,0]])
+        self._bund.set_directions(N.c_[[0,1,0],[0,1,0],[0,-1,0]])
+        self._bund.set_energy(N.r_[[1,1,1]])
         objects = [surface]
 
         self.engine = TracerEngine(objects)
 
     def test_ray_tracer1(self):
         params = self.engine.ray_tracer(self._bund, 1)
-        correct_params = N.c_[[0,1,0]]
+        correct_params = N.c_[[0,1,0],[0,1,0]]
          
         N.testing.assert_array_almost_equal(params,correct_params)
 

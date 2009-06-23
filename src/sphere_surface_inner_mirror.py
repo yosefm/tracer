@@ -48,7 +48,7 @@ class SphereSurface(UniformSurface):
 
         for ray in xrange(n):
             # Solve the equations to find the intersection point:
-            A = d[0,ray]**2 + d[1,ray]**2 + d[2,ray]**2 
+            A = d[0,ray]**2 + d[1,ray]**2 + d[2,ray]**2  # simpler way to write and solve this?
             B = 2*(d[0,ray]*(v[0,ray] - c[0])
                    +d[1,ray]*(v[1,ray] - c[1])
                    +d[2,ray]*(v[2,ray] - c[2]))
@@ -60,55 +60,35 @@ class SphereSurface(UniformSurface):
 
             if (B**2 - 4*A*C) < 0:
                 params.append(N.inf)
-
             else:
                 t0 = (-B - N.sqrt(B**2 - 4*A*C))/(2*A)
                 t1 = (-B + N.sqrt(B**2 - 4*A*C))/(2*A)
                 coords = N.c_[v[:,ray] + d[:,ray]*t0, v[:,ray] + d[:,ray]*t1]
                 hits = N.r_[[t0,t1]]
-
-                is_positive = N.where(hits > 0)
-            
-                # If both are negative, it is a miss
-                if N.shape(is_positive)[1] == 0:
-                    params.append(N.inf)
-                    vertices.append(N.empty([3,1]))
                 
-                else:
-                    # If both are positive, us the smaller one
-                    if N.shape(is_positive)[1] == 2:
-                        param = N.argmin(hits)
-                                                
-                    # If either one is negative, use the positive one
-                    else:
-                        param = is_positive[0][0]
-                        
-                    verts = N.c_[coords[:,param]]
-                    
-                    # Define normal based on whether it is hitting an inner or
-                    # an outer surface of the sphere
+                # Check if it is hitting the inside surface
+                for param in xrange(2):
                     dot = N.vdot(c-coords[:,param], N.c_[coords[:,param]-vertex])
-                    if dot <= 0:  # it hits an inner surface
+                    if dot <= 0 and hits[param] > 0:
+                        verts = N.c_[coords[:,param]]
                         normal = N.c_[c-coords[:,param]]
-                    else:  # it hits an outer surface
-                        normal = N.c_[coords[:,param]-c]
-                       
-                    # Check if it is hitting within the boundary
-                    selector = self.boundary.in_bounds(verts)
-                    if selector[0]:
-                        params.append(hits[param])
-                        vertices.append(verts)
-                        norm.append(normal)
-                    else:
-                        params.append(N.inf)
-                        vertices.append(N.empty([3,1]))
-                    
+                   
+                        # Check if it is hitting within the boundary
+                        selector = self.boundary.in_bounds(verts)
+                        if selector[0]:
+                            params.append(hits[param])
+                            vertices.append(verts)
+                            norm.append(normal)
+                        else:
+                            params.append(N.inf)
+                            vertices.append(N.empty([3,1]))
+                            
         # Storage for later reference:
         n = len(vertices)
         self._vertices = N.array(vertices).reshape(-1,3).T  
         self._current_bundle = ray_bundle
         self._norm = N.array(norm).reshape(-1,3).T
-    
+        
         return params
 
     def get_outgoing(self, selector, energy, parent):
