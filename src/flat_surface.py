@@ -93,6 +93,7 @@ class FlatSurface(UniformSurface):
             self.get_location()[:, None]
         dirs = optics.reflections(self._current_bundle.get_directions()[:, selector],  
             self.get_rotation()[:, 2][:,None])
+        
         new_parent = parent[selector]
         outg = RayBundle()
         outg.set_vertices(vertices)

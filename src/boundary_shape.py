@@ -20,6 +20,7 @@ class BoundarySphere():
         selector = []
         for ray in range(N.shape(bund_vertices)[1]):
             selector.append((self.radius >= N.linalg.norm(bund_vertices[:,ray] - self.center)))
+           
         return N.array(selector)
 
  

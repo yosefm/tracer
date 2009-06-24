@@ -7,7 +7,7 @@ from flat_surface import FlatSurface
 # Create ray bundle
 dir = N.array([0., 0, -1])
 center = N.array([0,  0, 2]).reshape(-1, 1)
-bund = ray_bundle.solar_disk_bundle(5000,  center,  dir,  2,  N.pi/1000.)
+bund = ray_bundle.solar_disk_bundle(5000,  center,  dir,  1,  N.pi/1000.)
 
 # Intersect the bundle with a flat surface
 surf = FlatSurface()
