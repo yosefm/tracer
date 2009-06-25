@@ -41,9 +41,7 @@ class Receiver(FlatSurface):
         Plots the energy distribution on the receiving surface                              
         """
         coords = self._coordinates[0]
-        coords_rot = N.dot(self.get_rotation(), coords)
-#        rot = N.array([[1,1,0],[0,.707,-.707],[0,.707,.707]])
-#        coords_rot = N.dot(rot, coords)
+        coords_rot = N.dot(self.get_rotation().T, coords)
         energy = N.array(self._energy)
     
         x = coords_rot[0]  # this should be by row is there is more than one
