@@ -15,18 +15,21 @@ class SphereSurface(UniformSurface):
         Arguments:
         location of center, rotation, absorptivity - passed along to the base class.
         boundary - boundary shape defining the surface
-        mirrored - either 'in' or 'out', for whether the inner or outer surface is mirrored 
+        Private attributes:
+        _rad - radius of the sphere
+        _center - center of the sphere
+        _boundary - boundary shape defining the surface
         """
         UniformSurface.__init__(self, center, None,  absorptivity)
         self.set_radius(radius)
-        self.center = center
-        self.boundary = boundary
+        self._center = center
+        self._boundary = boundary
 
     def get_radius(self):
         return self._rad
 
     def get_center(self):
-        return self.center
+        return self._center
     
     def set_radius(self, rad):
         if rad <= 0:
@@ -37,6 +40,10 @@ class SphereSurface(UniformSurface):
     def register_incoming(self, ray_bundle):
         """
         Deals wih a ray bundle intersecting with a sphere
+        Arguments:
+        ray_bundle - the incoming bundle 
+        Returns a 1D array with the parametric position of intersection along
+        each ray.  Rays that miss the surface return +infinity
         """
         d = ray_bundle.get_directions()
         v = ray_bundle.get_vertices()
@@ -58,9 +65,14 @@ class SphereSurface(UniformSurface):
 
             vertex = v[:,ray]
 
+            # If the discriminant is less than zero, the solution is not real,
+            # and it misses the surface, so the parametric position of that
+            # ray is returned as +infinity
             if (B**2 - 4*A*C) < 0:
                 params.append(N.inf)
 
+            # If the discriminant is not less than zero, we must use the quadratic
+            # equation to solve for the possible parametric solutions, t0 and t1
             else:
                 t0 = (-B - N.sqrt(B**2 - 4*A*C))/(2*A)
                 t1 = (-B + N.sqrt(B**2 - 4*A*C))/(2*A)
@@ -75,7 +87,7 @@ class SphereSurface(UniformSurface):
                     vertices.append(N.empty([3,1]))
                 
                 else:
-                    # If both are positive, us the smaller one
+                    # If both are positive, use the smaller one (where the ray first intersected)
                     if N.shape(is_positive)[1] == 2:
                         param = N.argmin(hits)
                                                 
@@ -94,7 +106,7 @@ class SphereSurface(UniformSurface):
                         normal = N.c_[coords[:,param]-c]
                        
                     # Check if it is hitting within the boundary
-                    selector = self.boundary.in_bounds(verts)
+                    selector = self._boundary.in_bounds(verts)
                     if selector[0]:
                         params.append(hits[param])
                         vertices.append(verts)
@@ -111,7 +123,14 @@ class SphereSurface(UniformSurface):
     
         return params
 
-    def get_outgoing(self, selector, energy, parent):
+    def get_outgoing(self, selector):
+        """
+        Generates a new ray bundle, which is the reflection of the user selected rays out of
+        the incoming ray bundle that was previously registered.
+        Arguments:
+        selector - a boolean array specifying which rays of the incoming bundle are still relevant
+        Returns: a new RayBundle object with the new bundle, with vertices where it intersected with the surface, and directions according to the optic laws
+        """
         dirs = optics.reflections(self._current_bundle.get_directions()[:,selector],
                                   self._norm)
         new_parent = parent[selector]

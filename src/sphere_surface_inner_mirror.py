@@ -1,4 +1,4 @@
-# Implements spherical mirrored surface 
+# Implements spherical mirrored surface with only the inner surface being mirrored 
 
 from surface import UniformSurface
 import optics
@@ -8,25 +8,27 @@ import numpy as N
 
 class SphereSurface(UniformSurface):
     """
-    Implements the geometry of a spherical mirror surface.  
+    Implements the geometry of a spherical mirror surface with only the inner surface mirrored.  
     """
     def __init__(self, center=None, absorptivity=0., radius=1., boundary=None):
-        """
-        Arguments:
-        location of center, rotation, absorptivity - passed along to the base class.
-        boundary - boundary shape defining the surface
-        mirrored - either 'in' or 'out', for whether the inner or outer surface is mirrored 
+        """                                                                                          Arguments:                                                                         
+        location of center, rotation, absorptivity - passed along to the base class.        
+        boundary - boundary shape defining the surface                                      
+        Private attributes:                                                                 
+        _rad - radius of the sphere                                                         
+        _center - center of the sphere                                                      
+        _boundary - boundary shape defining the surface                                     
         """
         UniformSurface.__init__(self, center, None,  absorptivity)
         self.set_radius(radius)
-        self.center = center
-        self.boundary = boundary
+        self._center = center
+        self._boundary = boundary
 
     def get_radius(self):
         return self._rad
 
     def get_center(self):
-        return self.center
+        return self._center
     
     def set_radius(self, rad):
         if rad <= 0:
@@ -48,7 +50,7 @@ class SphereSurface(UniformSurface):
 
         for ray in xrange(n):
             # Solve the equations to find the intersection point:
-            A = d[0,ray]**2 + d[1,ray]**2 + d[2,ray]**2  # simpler way to write and solve this?
+            A = d[0,ray]**2 + d[1,ray]**2 + d[2,ray]**2 
             B = 2*(d[0,ray]*(v[0,ray] - c[0])
                    +d[1,ray]*(v[1,ray] - c[1])
                    +d[2,ray]*(v[2,ray] - c[2]))
@@ -74,7 +76,7 @@ class SphereSurface(UniformSurface):
                         normal = N.c_[c-coords[:,param]]
                    
                         # Check if it is hitting within the boundary
-                        selector = self.boundary.in_bounds(verts)
+                        selector = self._boundary.in_bounds(verts)
                         if selector[0]:
                             params.append(hits[param])
                             vertices.append(verts)
@@ -91,7 +93,17 @@ class SphereSurface(UniformSurface):
         
         return params
 
-    def get_outgoing(self, selector, energy, parent):
+    def get_outgoing(self, selector):
+     """                                                                                  
+        Generates a new ray bundle, which is the reflection of the user selected rays out of
+        the incoming ray bundle that was previously registered.                              
+        Arguments:                                                                           
+        selector - a boolean array specifying which rays of the incoming bundle are still re\
+levant                                                                                       
+        Returns: a new RayBundle object with the new bundle, with vertices where it intersec\
+ted with the surface, and directions according to the optic laws                             
+        """
+
         dirs = optics.reflections(self._current_bundle.get_directions()[:,selector],
                                   self._norm)
         new_parent = parent[selector]
