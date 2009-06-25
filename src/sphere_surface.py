@@ -133,12 +133,11 @@ class SphereSurface(UniformSurface):
         """
         dirs = optics.reflections(self._current_bundle.get_directions()[:,selector],
                                   self._norm)
-        new_parent = parent[selector]
-
+        new_parent =self._current_bundle.get_parent()[selector]
         outg = RayBundle()
         outg.set_vertices(self._vertices[:,selector])
         outg.set_directions(dirs)
-        outg.set_energy(energy[:,selector])
+        outg.set_energy(self._current_bundle.get_energy()[:,selector])
         outg.set_parent(new_parent)
 
         return outg

@@ -8,6 +8,7 @@ from flat_surface import FlatSurface
 from spatial_geometry import general_axis_rotation
 from sphere_surface import SphereSurface
 from boundary_shape import BoundarySphere
+from receiver import Receiver
 
 class TestTraceProtocol1(unittest.TestCase):
     """ 
@@ -114,20 +115,21 @@ class TestTraceProtocol4(unittest.TestCase):
         rot1 = general_axis_rotation([1,0,0],N.pi/4)
         energy = N.array([1,1])
         self._bund.set_energy(energy)
-        objects = [FlatSurface(rotation=rot1,width=10,height=10), 
+        objects = [FlatSurface(rotation=rot1, width=10, height=10),
                    FlatSurface(width=10,height=10)]
         self.engine = TracerEngine(objects)
         
     def test_ray_tracer1(self):
         params = self.engine.ray_tracer(self._bund, 1)
         correct_params = N.c_[[0,1.5,1.5],[0,2,0]]
-
+        
         N.testing.assert_array_almost_equal(params,correct_params)
 
     def test_ray_tracer2(self):
         params = self.engine.ray_tracer(self._bund, 2)
         correct_params = N.c_[[0,2,2],[0,3,0]]
 
+#        print self.engine.track_ray(self._bund, 1)
         N.testing.assert_array_almost_equal(params,correct_params)
 
 class TestTraceProtocol5(unittest.TestCase):

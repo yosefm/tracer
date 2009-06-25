@@ -25,8 +25,8 @@ class Receiver(FlatSurface):
         points of intersection on the receiving surface
         Returns: the outgoing ray 
         """
-        outg = self.get_outgoing(selector)
-        self.collect_energy(outg)
+        outg = FlatSurface.get_outgoing(self,selector)
+        self.collect_energy(outg) 
         return outg
 
     def collect_energy(self, bundle):
