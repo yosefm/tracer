@@ -1,4 +1,4 @@
-# Implements a sphere as a bounding shape to a surface
+# Implements a sphere as a bounding shape to a surface to define the exact shape of the surface
 
 import numpy as N
 

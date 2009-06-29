@@ -15,18 +15,21 @@ class SphereSurface(UniformSurface):
         Arguments:
         location of center, rotation, absorptivity - passed along to the base class.
         boundary - boundary shape defining the surface
-        mirrored - either 'in' or 'out', for whether the inner or outer surface is mirrored 
+        Private attributes:
+        _rad - radius of the sphere
+        _center - center of the sphere
+        _boundary - boundary shape defining the surface
         """
         UniformSurface.__init__(self, center, None,  absorptivity)
         self.set_radius(radius)
-        self.center = center
-        self.boundary = boundary
+        self._center = center
+        self._boundary = boundary
 
     def get_radius(self):
         return self._rad
 
     def get_center(self):
-        return self.center
+        return self._center
     
     def set_radius(self, rad):
         if rad <= 0:
@@ -37,6 +40,10 @@ class SphereSurface(UniformSurface):
     def register_incoming(self, ray_bundle):
         """
         Deals wih a ray bundle intersecting with a sphere
+        Arguments:
+        ray_bundle - the incoming bundle 
+        Returns a 1D array with the parametric position of intersection along
+        each ray.  Rays that miss the surface return +infinity
         """
         d = ray_bundle.get_directions()
         v = ray_bundle.get_vertices()
@@ -106,15 +113,21 @@ class SphereSurface(UniformSurface):
     
         return params
 
-    def get_outgoing(self, selector, energy, parent):
+    def get_outgoing(self, selector):
+        """
+        Generates a new ray bundle, which is the reflection of the user selected rays out of
+        the incoming ray bundle that was previously registered.
+        Arguments:
+        selector - a boolean array specifying which rays of the incoming bundle are still relevant
+        Returns: a new RayBundle object with the new bundle, with vertices where it intersected with the surface, and directions according to the optic laws
+        """
         dirs = optics.reflections(self._current_bundle.get_directions()[:,selector],
                                   self._norm)
-        new_parent = parent[selector]
-
+        new_parent =self._current_bundle.get_parent()[selector]
         outg = RayBundle()
         outg.set_vertices(self._vertices[:,selector])
         outg.set_directions(dirs)
-        outg.set_energy(energy[:,selector])
+        outg.set_energy(self._current_bundle.get_energy()[:,selector])
         outg.set_parent(new_parent)
 
         return outg
