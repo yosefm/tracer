@@ -55,10 +55,10 @@ class SphereSurface(UniformSurface):
 
         # Solve the equations to find the intersection point:
         A = (d**2).sum(axis=0)
-        B = (2*d*v - c[:,None]).sum(axis=0)
+        B = 2*(d*(v - c[:,None])).sum(axis=0)
         C = ((v - c[:,None])**2).sum(axis=0) - self.get_radius()**2
         delta = B**2 - 4*A*C
-        
+
         for ray in xrange(n):
             vertex = v[:,ray]
 
@@ -68,7 +68,7 @@ class SphereSurface(UniformSurface):
                 norm.append(N.empty([3,1]))    
                 continue
             
-            hits = -B[ray] + N.r_[-1, 1]*N.sqrt(delta[ray])/(2*A[ray])
+            hits = (-B[ray] + N.r_[-1, 1]*N.sqrt(delta[ray]))/(2*A[ray])
             coords = vertex + d[:,ray]*hits[:,None]
 
             is_positive = N.where(hits > 0)[0]
@@ -96,7 +96,7 @@ class SphereSurface(UniformSurface):
             normal = ((coords[param,:] - c) if dot <= 0 else  (c - coords[param,:]))[:,None]
             
             # Check if it is hitting within the boundary
-            selector = self.boundary.in_bounds(verts)
+            selector = self._boundary.in_bounds(verts)
             if selector[0]:
                 params.append(hits[param])
                 vertices.append(verts)
