@@ -14,38 +14,44 @@ class RayBundle:
         direction cosines of each ray.
     _energy: 1D array with the energy carried by each ray.
     _parent: 1D array with the index of the parent ray within the previous ray bundle
+    _ref_index: a 1D array with the refraction index of the material a ray is traveling through
     """
     def set_vertices(self,  vert):
-        """Sets the starting point of each ray, as well as the number of rays."""
+        """Sets the starting point of each ray."""
+       # if vert.shape != (3,  self.get_num_rays()):
+       #     raise ValueError("Number of vertices != number of rays")
         self._vertices = vert
     
     def get_vertices(self):
         return self._vertices
     
     def set_directions(self,  directions):
-        if directions.shape != (3,  self.get_num_rays()):
-            raise ValueError("Number of directions != number of rays")
+        """Sets the number of rays as well at the directions"""
         self._direct = directions
     
     def get_directions(self):
         return self._direct
     
     def set_energy(self,  energy):
-        if energy.shape != (self.get_num_rays(), ):
-            raise ValueError("Number of directions != number of rays")
         self._energy = energy
     
     def get_energy(self):
         return self._energy
     
     def get_num_rays(self):
-        return self._vertices.shape[1]
+        return self._direct.shape[1]
 
     def set_parent(self, index):
         self._parent = index
 
     def get_parent(self):
         return self._parent
+
+    def set_ref_index(self, ref_index):
+        self._ref_index = ref_index
+        
+    def get_ref_index(self):
+        return self._ref_index
         
     def __add__(self,  added):
         """Merge two energy bundles. return a new bundle with the rays from the 
@@ -53,20 +59,22 @@ class RayBundle:
         """
         new_parent = N.append(self.get_parent(), added.get_parent())
         newbund = RayBundle()
-        newbund.set_vertices(N.hstack((self.get_vertices(),  added.get_vertices())))
         newbund.set_directions(N.hstack((self.get_directions(),  added.get_directions())))
+        newbund.set_vertices(N.hstack((self.get_vertices(),  added.get_vertices())))
         newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
         newbund.set_parent(new_parent)
+        newbund.set_ref_index(N.hstack((self._ref_index, added.get_ref_index()))) 
         return newbund
 
     def empty_bund(self):
         """Create an empty ray bundle"""
         empty = RayBundle()
         empty_array = N.array([[],[],[]])
-        empty.set_vertices(empty_array)
         empty.set_directions(empty_array)
+        empty.set_vertices(empty_array)
         empty.set_energy(N.array([]))
         empty.set_parent(N.array([]))
+        empty.set_ref_index(N.array([]))
         return empty
 
 # Module stuff:

@@ -1,7 +1,7 @@
 # Implements spherical mirrored surface 
 
 from surface import UniformSurface
-import optics
+from optics import Optics
 from ray_bundle import RayBundle
 from boundary_shape import BoundarySphere
 import numpy as N
@@ -10,7 +10,8 @@ class SphereSurface(UniformSurface):
     """
     Implements the geometry of a spherical mirror surface.  
     """
-    def __init__(self, center=None, absorptivity=0., radius=1., boundary=None):
+    def __init__(self, center=None, absorptivity=0., polar='none', n=1., 
+                 radius=1., boundary=None):
         """
         Arguments:
         location of center, rotation, absorptivity - passed along to the base class.
@@ -24,6 +25,9 @@ class SphereSurface(UniformSurface):
         self.set_radius(radius)
         self._center = center
         self._boundary = boundary
+        self._abs = absorptivity
+        self._polar = polar
+        self._ref_index = n
 
     def get_radius(self):
         return self._rad
@@ -35,6 +39,9 @@ class SphereSurface(UniformSurface):
         if rad <= 0:
             raise ValuError("Radius must be positive")
         self._rad = rad
+
+    def get_ref_index(self):
+        return self._ref_index
 
     # Ray handling protocol:
     def register_incoming(self, ray_bundle):
@@ -121,14 +128,14 @@ class SphereSurface(UniformSurface):
         selector - a boolean array specifying which rays of the incoming bundle are still relevant
         Returns: a new RayBundle object with the new bundle, with vertices where it intersected with the surface, and directions according to the optic laws
         """
-        dirs = optics.reflections(self._current_bundle.get_directions()[:,selector],
-                                  self._norm)
-        new_parent =self._current_bundle.get_parent()[selector]
-        outg = RayBundle()
-        outg.set_vertices(self._vertices[:,selector])
-        outg.set_directions(dirs)
-        outg.set_energy(self._current_bundle.get_energy()[:,selector])
-        outg.set_parent(new_parent)
+        optics = Optics(self._current_bundle, self._norm, selector)
+        outg = optics.fresnel(self._polar, self._abs, self._ref_index) 
+
+        if N.shape(outg.get_directions())[1] != N.shape(self._current_bundle.
+                                                        get_directions())[1]:
+           outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))
+                            # BROADCAST?
+        else: outg.set_vertices(self._vertices[:,selector])
 
         return outg
 

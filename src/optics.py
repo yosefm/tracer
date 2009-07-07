@@ -7,12 +7,13 @@ class Optics():
     """A class that performs optics functions on ray bundles
     Attributes: self._bund - the ray bundle to perform the funtions on
     normals - the normals at the points of intersection
-    """
-    def __init__(self, bundle, normals):
-        self.bund = bundle
+    """  
+    def __init__(self, bund, normals, selector):
+        self.bund = bund
         self.normals = normals
-        self.ray_dirs_unit = self.normalize(self.bund.get_directions())
-         
+        self.selector = selector
+        self.ray_dirs_unit = self.normalize(self.bund.get_directions())[:,selector]
+
     def fresnel(self, polar, absorptivity, n):
         """Determines what ratio of the ray bundle is reflected and what is refracted, 
         and the performs the appropriate functions on them.
@@ -20,13 +21,16 @@ class Optics():
         absorptivity - of the material
         n - refraction index of the material the ray is intersecting with 
 
-        Returns:  a 3-row array whose columns are the ray directions of the
-          reflected and refracted rays 
+        Returns:  a tuple with a 3-row array whose columns are the ray directions of the
+          reflected and refracted rays, and a 1-D array with the new energies of the bundle 
         """
-        n1 = bund.get_ref_index()
+        if N.shape(self.ray_dirs_unit)[1] == 0:
+            return self.bund.empty_bund()
+
+        n1 = self.bund.get_ref_index()[self.selector]
         n2 = n
         foo = N.cos(self.theta_in) 
-        bar = N.sqrt(1 - (n1/n2 * N.sin(self.theta_in))**2)
+        bar = N.sqrt(N.ones_like(self.theta_in) - (n1/n2 * N.sin(self.theta_in))**2)
 
         Rs = ((n1*foo - n2*bar)/(n1*foo + n2*bar))**2 
         Rp = ((n1*bar - n2*foo)/(n1*bar + n2*foo))**2
@@ -34,29 +38,28 @@ class Optics():
         if polar == 'p': R = Rp 
         elif polar == 's': R = Rs 
         else: R = (Rs + Rp)/2
+        T = 1 - (R+absorptivity)
 
-        reflected = self.reflections()
-        if R + absorptivity > .99:
-            return reflected
-        else:
-            index = int(R*len(reflected))
-            reflected = reflected[:,:index]  
-            refracted = self.refractions(n)
-            
-            return N.hstack((reflected, refracted[:,index:]))
-                                                             
-    def normalize(self, ray_dirs):
+        # Split the ray bundle in two assuming it is refracted
+        empty = self.bund.empty_bund()
+        self.bund_new = self.bund + empty
+
+        refracted = self.refractions(n, T)
+        reflected = self.reflections(R)
+
+        return self.bund + self.bund_new
+               
+    def normalize(self, vector):
         """Normalizes the direction vectors"""
-        
-        ray_dirs_unit = N.empty_like(ray_dirs)
-        theta_in = N.empty_like(ray_dirs[1]) 
-        for ray in xrange(ray_dirs.shape[1]):
-            ray_dirs_unit[:,ray] = ray_dirs[:,ray]/N.linalg.norm(ray_dirs[:,ray])
-            theta_in[ray] = -N.arcsin(N.dot(self.normals[:,ray], ray_dirs_unit[:,ray]))
-        self.theta_in = theta_in
-        return ray_dirs_unit
+        unit = N.empty_like(vector)
+        theta_in = N.empty_like(vector[1]) 
+        for ray in xrange(vector.shape[1]):
+            unit[:,ray] = vector[:,ray]/N.linalg.norm(vector[:,ray])
+            theta_in[ray] = -N.arcsin(N.dot(self.normals[:,ray], unit[:,ray]))
+        self.theta_in = theta_in[self.selector]
+        return unit
 
-    def reflections(self):  
+    def reflections(self, R):  
         """Generate directions of rays reflecting according to the reflection law.
         Arguments: ray_dirs - a 3-row array whose columns are direction vectors 
               of incoming rays. It is assumed that their projection on the normal is
@@ -66,18 +69,24 @@ class Optics():
                column, it will be broadcast to the correct shape.
         Returns: a 3-row array whose columns are the reflected ray directions.
             """
-        ray_dirs = self.bund.get_directions()
+        ray_dirs = self.bund.get_directions()[:,self.selector]
         vertical = N.empty_like(ray_dirs)
         # The case of one normal for all rays necessitates replication to make 
         # the loop work.
         if self.normals.shape[1] == 1:
             self.normals = N.tile(self.normals, (1, ray_dirs.shape[1]))
-        
+
+        energy = R*self.bund.get_energy()[self.selector]
+        self.bund.set_energy(energy)
+
         for ray in xrange(ray_dirs.shape[1]):
             vertical[:,ray] = N.inner(ray_dirs[:,ray],  self.normals[:,ray]).T*self.normals[:,ray]
-        return ray_dirs - 2*vertical
+        self.bund.set_directions(ray_dirs - 2*vertical)
+        self.bund.set_parent(self.bund.get_parent()[self.selector]) 
  
-    def refractions(self, n):
+        return self.bund
+
+    def refractions(self, n, T):
         """Generates directions of rays refracted according to Snells's law.
         Arguments: ray_dirs_unit, normals - see reflections()  
             coords - the point of intersection of the incoming ray
@@ -88,25 +97,33 @@ class Optics():
                the rays exits the material and a 3-row array whose columns are the 
                refracted ray directions  
         """ 
-        normals_unit = self.normalize(self.normals)
-        n1n2 = self.bund.get_ref_index()/n
+        energy = T*self.bund_new.get_energy()[self.selector]
+        self.bund_new.set_energy(energy) 
+
+        normals_unit = self.normalize(self.normals)[:,self.selector]
+        n1n2 = self.bund_new.get_ref_index()/n
+
         cos1 = N.vdot(-normals_unit, self.ray_dirs_unit) 
         self.cos2 = N.sqrt(1 - (n1n2**2)*(1 - cos1**2)) 
-        ray_dirs = (n1n2*self.ray_dirs_unit) + (n1n2*cos1 - self.cos2)*normals_unit        
-        self.bund.set_ref_index(n)
-        return ray_dirs  
 
+        ray_dirs = (n1n2[:,None]*self.ray_dirs_unit) + (n1n2*cos1 - self.cos2)[:,None]*normals_unit        
+        self.bund_new.set_ref_index(n)
+        self.bund_new.set_parent(self.bund_new.get_parent()[self.selector])
+        self.bund_new.set_directions(ray_dirs)
+
+        return self.bund_new
+
+'''
 bund = RayBundle()
 bund.set_vertices(N.c_[[0,1.,0]])
 bund.set_directions(N.c_[[-1.,-1,0]])
 bund.set_energy(N.r_[[1.]])
 bund.set_parent(N.r_[[1.]])
-bund.set_ref_index(1)
-optics = Optics(bund, N.c_[[0,1.,0]])
+bund.set_ref_index(N.r_[[1.]])
+optics = Optics(bund, N.c_[[0,1.,0]], N.r_[[True]])
 ans = optics.fresnel('none', 0, 1.5)
 print 
 print ans
-print N.arctan(ans[0]/ans[1])
-print N.arcsin(N.sin(N.pi/4)/1.5)
+'''
  
 
