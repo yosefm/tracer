@@ -131,11 +131,9 @@ class SphereSurface(UniformSurface):
         optics = Optics(self._current_bundle, self._norm, selector)
         outg = optics.fresnel(self._polar, self._abs, self._ref_index) 
 
-        if N.shape(outg.get_directions())[1] != N.shape(self._current_bundle.
-                                                        get_directions())[1]:
-           outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))
-                            # BROADCAST?
-        else: outg.set_vertices(self._vertices[:,selector])
-
+        # Set the vertices copy twice as long as the original length, since the 
+        # rays have split into the refracted and reflected portions
+        outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))
+        
         return outg
 

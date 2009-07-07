@@ -7,6 +7,7 @@ class Optics():
     """A class that performs optics functions on ray bundles
     Attributes: self._bund - the ray bundle to perform the funtions on
     normals - the normals at the points of intersection
+    selector - selects which rays to consider
     """  
     def __init__(self, bund, normals, selector):
         self.bund = bund
@@ -20,9 +21,7 @@ class Optics():
         Arguments: polar - the type of polarisation
         absorptivity - of the material
         n - refraction index of the material the ray is intersecting with 
-
-        Returns:  a tuple with a 3-row array whose columns are the ray directions of the
-          reflected and refracted rays, and a 1-D array with the new energies of the bundle 
+        Returns:  a new ray bundle 
         """
         if N.shape(self.ray_dirs_unit)[1] == 0:
             return self.bund.empty_bund()
@@ -39,7 +38,7 @@ class Optics():
         elif polar == 's': R = Rs 
         else: R = (Rs + Rp)/2
         T = 1 - (R+absorptivity)
-
+        
         # Split the ray bundle in two assuming it is refracted
         empty = self.bund.empty_bund()
         self.bund_new = self.bund + empty
@@ -61,13 +60,8 @@ class Optics():
 
     def reflections(self, R):  
         """Generate directions of rays reflecting according to the reflection law.
-        Arguments: ray_dirs - a 3-row array whose columns are direction vectors 
-              of incoming rays. It is assumed that their projection on the normal is
-              negative.
-           normals - a 3-row array containing for each ray in ray_dirs, a corresponding
-               unit normal to the surface where that ray hit. If <normals> is a 2D 
-               column, it will be broadcast to the correct shape.
-        Returns: a 3-row array whose columns are the reflected ray directions.
+        Arguments: R - the reflectance
+        Returns: a new ray bundle
             """
         ray_dirs = self.bund.get_directions()[:,self.selector]
         vertical = N.empty_like(ray_dirs)
@@ -76,6 +70,7 @@ class Optics():
         if self.normals.shape[1] == 1:
             self.normals = N.tile(self.normals, (1, ray_dirs.shape[1]))
 
+        # Sets the energy of the reflected rays based on Fresnel's equations
         energy = R*self.bund.get_energy()[self.selector]
         self.bund.set_energy(energy)
 
@@ -88,15 +83,11 @@ class Optics():
 
     def refractions(self, n, T):
         """Generates directions of rays refracted according to Snells's law.
-        Arguments: ray_dirs_unit, normals - see reflections()  
-            coords - the point of intersection of the incoming ray
-            ref_index - a tuple containing n1, n2, n3 the refractive index of the 
-               material the ray is exiting, passing through, and entering, respectively
-            depth - thickness of the material  
-        Returns: a tuple containing a 3-row array whose columns are the points where 
-               the rays exits the material and a 3-row array whose columns are the 
-               refracted ray directions  
+        Arguments: T - the transmittance 
+            n - the refractive index of the material the ray is passing through
+        Returns: a new ray bundle
         """ 
+        # Sets the energy of the refracted rays based on Fresnel's equations
         energy = T*self.bund_new.get_energy()[self.selector]
         self.bund_new.set_energy(energy) 
 
@@ -107,6 +98,8 @@ class Optics():
         self.cos2 = N.sqrt(1 - (n1n2**2)*(1 - cos1**2)) 
 
         ray_dirs = (n1n2[:,None]*self.ray_dirs_unit) + (n1n2*cos1 - self.cos2)[:,None]*normals_unit        
+        
+        # Set new refractive indices since the rays are travelling through a new material
         self.bund_new.set_ref_index(n)
         self.bund_new.set_parent(self.bund_new.get_parent()[self.selector])
         self.bund_new.set_directions(ray_dirs)
