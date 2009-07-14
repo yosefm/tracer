@@ -1,7 +1,7 @@
 # Implements spherical mirrored surface 
 
 from surface import UniformSurface
-from optics import Optics
+import optics
 from ray_bundle import RayBundle
 from boundary_shape import BoundarySphere
 import numpy as N
@@ -10,7 +10,7 @@ class SphereSurface(UniformSurface):
     """
     Implements the geometry of a spherical mirror surface.  
     """
-    def __init__(self, center=None, absorptivity=0., polar='none', n=1., 
+    def __init__(self, center=None, absorptivity=0., n=1., 
                  radius=1., boundary=None):
         """
         Arguments:
@@ -26,7 +26,6 @@ class SphereSurface(UniformSurface):
         self._center = center
         self._boundary = boundary
         self._abs = absorptivity
-        self._polar = polar
         self._ref_index = n
 
     def get_radius(self):
@@ -128,12 +127,20 @@ class SphereSurface(UniformSurface):
         selector - a boolean array specifying which rays of the incoming bundle are still relevant
         Returns: a new RayBundle object with the new bundle, with vertices where it intersected with the surface, and directions according to the optic laws
         """
-        optics = Optics(self._current_bundle, self._norm, selector)
-        outg = optics.fresnel(self._polar, self._abs, self._ref_index) 
-
-        # Set the vertices copy twice as long as the original length, since the 
-        # rays have split into the refracted and reflected portions
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], self._ref_index,self._current_bundle.get_ref_index()[selector])
+        outg = RayBundle()  
         outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))
-        
+        outg.set_directions(fresnel[0])
+        outg.set_energy(fresnel[1])
+        outg.set_parent(N.hstack((self._current_bundle.get_parent()[selector], 
+                                 self._current_bundle.get_parent()[selector])))
+        outg.set_ref_index(N.hstack((self._current_bundle.get_ref_index()[selector],
+                                    self._current_bundle.get_ref_index()[selector])))
+                
+        # Delete rays with negligible energies 
+        delete = N.where(outg.get_energy() <= .05)[0]
+        if N.shape(delete)[0] != 0:
+            outg = outg.delete_rays(delete)
+            
         return outg
 

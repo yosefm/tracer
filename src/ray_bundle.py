@@ -1,4 +1,5 @@
 import numpy as N
+import pdb
 
 class RayBundle:
     """Contains information about a ray bundle, using equal-length arrays, the
@@ -76,6 +77,16 @@ class RayBundle:
         empty.set_parent(N.array([]))
         empty.set_ref_index(N.array([]))
         return empty
+
+    def delete_rays(self, selector):
+        """Deletes rays"""
+        outg = RayBundle()
+        outg.set_directions(N.delete(self.get_directions(), selector, axis=1))
+        outg.set_vertices(N.delete(self.get_vertices(), selector, axis=1))
+        outg.set_energy(N.delete(self.get_energy(), selector))
+        outg.set_parent(N.delete(self.get_parent(), selector))
+        outg.set_ref_index(N.delete(self.get_ref_index(), selector)) 
+        return outg 
 
 # Module stuff:
 from numpy import random,  linalg as LA

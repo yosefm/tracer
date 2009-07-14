@@ -11,8 +11,8 @@ class FlatSurface(UniformSurface):
     """Implements the geometry of a flat mirror surface. 
     The local coordinates take Z to be the plane normal.
     """
-    def __init__(self,  location=None,  rotation=None,  absorptivity=0.,  width=1.,  height=1.):
-        """Arguments:
+    def __init__(self,  location=None,  rotation=None,  absorptivity=0., n=1., width=1.,  height=1.):
+        """Arguments: 
         location, rotation, absorptivity - passed along to the base class.
         width - dimension along the surface's local x axis.
         height - dimension along the surface's local y axis.
@@ -20,7 +20,9 @@ class FlatSurface(UniformSurface):
         UniformSurface.__init__(self,  location, rotation, absorptivity)
         self.set_width(width)
         self.set_height(height)
-    
+        self._abs = absorptivity 
+        self._ref_index = n
+
     def get_width(self):
         return self._w
     
@@ -89,17 +91,25 @@ class FlatSurface(UniformSurface):
             and directions according to optics laws.
 
         """
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self.get_rotation()[:, 2][:,None], self._abs, self._current_bundle.get_energy()[selector], self._ref_index, self._current_bundle.get_ref_index()[selector])
+        outg = RayBundle() 
+
         vertices = N.dot(self.get_rotation()[:, :2],  self._current_params[:, selector]) + \
             self.get_location()[:, None]
-        dirs = optics.reflections(self._current_bundle.get_directions()[:, selector],  
-            self.get_rotation()[:, 2][:,None])
+
+        outg.set_vertices(N.hstack((vertices, vertices)))
+        outg.set_directions(fresnel[0])
+        outg.set_energy(fresnel[1]) 
+        outg.set_parent(N.hstack((self._current_bundle.get_parent()[selector],
+                                 self._current_bundle.get_parent()[selector])))
+        outg.set_ref_index(N.hstack((self._current_bundle.get_ref_index()[selector],
+                                    self._current_bundle.get_ref_index()[selector])))
+
+        # Delete rays with negligible energies
         
-        new_parent = self._current_bundle.get_parent()[selector]
-        outg = RayBundle()
-        outg.set_vertices(vertices)
-        outg.set_directions(dirs)
-        outg.set_energy(self._current_bundle.get_energy()[:,selector])
-        outg.set_parent(new_parent)
-    
+        delete = N.where(outg.get_energy() <= .05)[0]
+        if N.shape(delete)[0] != 0:
+            outg = outg.delete_rays(delete)
+
         return outg
         
