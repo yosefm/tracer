@@ -7,10 +7,12 @@ from ray_bundle import RayBundle
 def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2):
     """Determines what ratio of the ray bundle is reflected and what is refracted, 
     and the performs the appropriate functions on them.
-    Arguments: polar - the type of polarisation
+    Arguments: ray_dirs - the directions of the ray bundle
     absorptivity - of the material
-    n - refraction index of the material the ray is intersecting with 
-    Returns:  a new ray bundle 
+    energy - of the ray bundle
+    n1 - refraction index of the material the ray is leaving
+    n2 - refraction index of the material the ray is entering
+    Returns:  a tuple containing the new ray directions and energy
     """
     
     if N.shape(ray_dirs)[1] == 0:
@@ -40,7 +42,8 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2):
 def reflections(R, ray_dirs, normals):  
     """Generate directions of rays reflecting according to the reflection law.
     Arguments: R - the reflectance
-    Returns: a new ray bundle
+    ray_dirs, normals - passed from fresnel()
+    Returns: new ray directions as the result of reflection
     """
     vertical = N.empty_like(ray_dirs)
     # The case of one normal for all rays necessitates replication to make 
@@ -57,8 +60,8 @@ def reflections(R, ray_dirs, normals):
 def refractions(n1, n2, T, ray_dirs, normals):
     """Generates directions of rays refracted according to Snells's law.
     Arguments: T - the transmittance 
-    n - the refractive index of the material the ray is passing through
-    Returns: a new ray bundle
+    n1, n2, ray_dirs, normals - passed from fresnel
+    Returns: new ray directions as the result of refraction
     """ 
     for ray in xrange(N.shape(normals)[1]):
         cos1 = N.vdot(-normals[:,ray], ray_dirs[:,ray]) 
@@ -66,8 +69,6 @@ def refractions(n1, n2, T, ray_dirs, normals):
     cos2 = N.sqrt(1 - (n1/n2**2)*(1 - cos1**2)) 
     
     ray_dirs = ((n1/n2).T*ray_dirs) + (n1/n2*cos1 - cos2).T*normals        
-    
-    # Set new refractive indices since the rays are travelling through a new material
     
     return ray_dirs
 
