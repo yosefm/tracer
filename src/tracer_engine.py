@@ -93,7 +93,7 @@ class TracerEngine():
                 bund = outg 
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
 
-        return bund.get_vertices()
+        return bund.get_vertices(), bund.get_directions()
                       
     def store_branch(self, bundle):
         """

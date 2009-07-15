@@ -127,7 +127,7 @@ class SphereSurface(UniformSurface):
         selector - a boolean array specifying which rays of the incoming bundle are still relevant
         Returns: a new RayBundle object with the new bundle, with vertices where it intersected with the surface, and directions according to the optic laws
         """
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], self._ref_index,self._current_bundle.get_ref_index()[selector])
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], self._current_bundle.get_ref_index()[selector], self._ref_index)
         outg = RayBundle()  
         outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))
         outg.set_directions(fresnel[0])

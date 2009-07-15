@@ -38,6 +38,7 @@ class FlatSurface(UniformSurface):
         if h <= 0:
             raise ValueError("Height must be positive")
         self._h = h
+                
     
     # Ray handling protocol:
     def register_incoming(self,  ray_bundle):
@@ -65,7 +66,7 @@ class FlatSurface(UniformSurface):
                 continue
             # Singular matrix (parallel rays to the surface):
             params[:, ray].fill(N.inf)
-            
+
         # Mark missing rays with infinity:
         missing = (abs(params[0])  > self._w/2.) | (abs(params[1] ) > self._h/2.)
         params[2, missing] = N.inf
@@ -78,7 +79,7 @@ class FlatSurface(UniformSurface):
         # Storage for later reference:
         self._current_bundle = ray_bundle
         self._current_params = params[:2]
-        
+
         return params[2]
     
     def get_outgoing(self,  selector):
@@ -91,7 +92,8 @@ class FlatSurface(UniformSurface):
             and directions according to optics laws.
 
         """
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self.get_rotation()[:, 2][:,None], self._abs, self._current_bundle.get_energy()[selector], self._ref_index, self._current_bundle.get_ref_index()[selector])
+
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self.get_rotation()[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], self._current_bundle.get_ref_index()[selector], self._ref_index)  
         outg = RayBundle() 
 
         vertices = N.dot(self.get_rotation()[:, :2],  self._current_params[:, selector]) + \
@@ -112,4 +114,6 @@ class FlatSurface(UniformSurface):
             outg = outg.delete_rays(delete)
 
         return outg
+
+    
         

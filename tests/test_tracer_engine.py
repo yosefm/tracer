@@ -9,7 +9,8 @@ from spatial_geometry import general_axis_rotation
 from sphere_surface import SphereSurface
 from boundary_shape import BoundarySphere
 from receiver import Receiver
-'''
+import pdb
+
 class TestTraceProtocol1(unittest.TestCase):
     """ 
     Tests intersect_ray and the bundle driver with a single flat surface, not rotated, with 
@@ -36,7 +37,7 @@ class TestTraceProtocol1(unittest.TestCase):
         N.testing.assert_array_almost_equal(params, correct_params)
 
     def test_ray_tracer(self):
-        params = self.engine.ray_tracer(self._bund,1)
+        params = self.engine.ray_tracer(self._bund,1)[0]
         correct_params = N.c_[[0,0,0],[0,0,0],[0,0,0]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -64,7 +65,7 @@ class TestTraceProtocol2(unittest.TestCase):
         correct_params = N.r_[[False, True, False]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
-'''
+
 class TestTraceProtocol3(unittest.TestCase):
     """
     Tests intersect_ray and the bundle driver with two rotated planes, with a single iteration
@@ -95,8 +96,7 @@ class TestTraceProtocol3(unittest.TestCase):
         N.testing.assert_array_almost_equal(params,correct_params)    
 
     def test_ray_tracer1(self):
-        print 'error'
-        params = self.engine.ray_tracer(self._bund, 1)
+        params = self.engine.ray_tracer(self._bund, 1)[0]
         correct_params = N.c_[[0,.5,.5],[0,1,1]]
 
         N.testing.assert_array_almost_equal(params,correct_params)
@@ -124,13 +124,13 @@ class TestTraceProtocol4(unittest.TestCase):
         self.engine = TracerEngine(objects)
         
     def test_ray_tracer1(self):
-        params = self.engine.ray_tracer(self._bund, 1)
+        params = self.engine.ray_tracer(self._bund, 1)[0]
         correct_params = N.c_[[0,1.5,1.5],[0,2,0]]
         
         N.testing.assert_array_almost_equal(params,correct_params)
 
     def test_ray_tracer2(self):
-        params = self.engine.ray_tracer(self._bund, 2)
+        params = self.engine.ray_tracer(self._bund, 2)[0]
         correct_params = N.c_[[0,2,2],[0,3,0]]
 
 #        print self.engine.track_ray(self._bund, 1)
@@ -153,7 +153,7 @@ class TestTraceProtocol5(unittest.TestCase):
         self.engine = TracerEngine(objects)
 
     def test_ray_tracer1(self):
-        params = self.engine.ray_tracer(self._bund, 1)
+        params = self.engine.ray_tracer(self._bund, 1)[0]
         correct_params = N.c_[[0,1,0],[0,1,0]]
          
         N.testing.assert_array_almost_equal(params,correct_params)
@@ -177,13 +177,35 @@ class TestTraceProtocol6(unittest.TestCase):
         self.engine = TracerEngine(objects)
         
     def test_ray_tracers1(self):
-        params = self.engine.ray_tracer(self._bund, 1)
+        params = self.engine.ray_tracer(self._bund, 1)[0]
         correct_params = N.c_[[0,2,0]]
 
         N.testing.assert_array_almost_equal(params,correct_params)
 
+class TestRefraction(unittest.TestCase):
+    """Tests refractive properties of a flat surface""" 
+    def setUp(self):
+        self.x = 1/(math.sqrt(2))
+        dir = N.c_[[0,0,-1],[0,-self.x,-self.x]]
+        position = N.c_[[0,0,1],[0,1,1]]
 
-
+        self._bund = RayBundle()
+        self._bund.set_vertices(position)
+        self._bund.set_directions(dir)
+        self._bund.set_energy(N.r_[[1,1]])
+        self._bund.set_ref_index(N.r_[[1,1]])  
+        
+        objects = [FlatSurface(n=1.5)]
+        self.engine = TracerEngine(objects)
+                       
+    def test_intersect_ray1(self):  
+       
+        correct_params = N.r_[.4908826, 0, -0.785398 ]  
+        ans = self.engine.ray_tracer(self._bund, 1)
+        params = N.arctan(ans[1][1]/ans[1][2])
+       
+        N.testing.assert_array_almost_equal(params, correct_params)
+        
 
 if __name__ == '__main__':
     unittest.main()
