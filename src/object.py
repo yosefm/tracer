@@ -16,6 +16,7 @@ class AssembledObject(Assembly):
         """
         """ 
         self.surfaces = []
+        self.boundaries = []
 
     def get_surfaces(self):
         return self.surfaces
@@ -25,9 +26,23 @@ class AssembledObject(Assembly):
         Arguments:  surface - a surface object
         """
         self.surfaces.append(surface)
+        surface.set_parent_object(self)
+
+    def add_boundary(self, boundary):
+        """Adds a boundary to the object. Surfaces not enclosed by the boundary
+        sphere will not count as hit.
+        Arguments: boundary - a spherical boundary objects
+        """
+        self.boundaries.append(boundary)
+
+    def get_boundaries(self):
+        return self.boundaries
 
     def transform_object(self, assembly_transform):
         """Transforms an object if the assembly is transformed""" 
-        for surface in xrange(len(self.surfaces)):
-            self.surfaces[surface].transform_frame(N.dot(self.transform, assembly_transform))
+        for surface in self.surfaces:
+            surface.transform_frame(N.dot(self.transform, assembly_transform))
+        for boundary in self.boundaries:
+            boundary.transform_frame(N.dot(self.transform, assembly_transform))
 
+            

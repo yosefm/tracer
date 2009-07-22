@@ -44,6 +44,9 @@ class Surface(object):
             raise ValueError("rotation must be a 3x3 array")
         self._rot = rotation
 
+    def set_parent_object(self, object):
+        self.parent_object = object
+
 class UniformSurface(Surface):
     """Implements an abstract surface whose material properties are independent of
     location.

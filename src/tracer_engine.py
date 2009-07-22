@@ -12,15 +12,15 @@ class TracerEngine():
     Tracer Engine implements that actual ray tracing. It keeps track of the number
     of objects, and determines which rays intersected which object.
     """
-    def __init__(self,surfaces, n1, n2):
+    def __init__(self, parent_assembly, n1, n2):
         """
         Arguments:
-        surfaces - a list of all the surfaces
+        parent_assembly - the highest level assembly
         tree - an empty list to be used to track parent rays and child rays. When 
         a ray branches, it simply means that both of the child rays point back to 
         the same index representing that same parent ray
         """
-        self.surfaces = surfaces
+        self.surfaces = parent_assembly.get_surfaces()
         self.tree = []
         self.n1 = n1
         self.n2 = n2

@@ -11,7 +11,7 @@ class SphereSurface(UniformSurface):
     Implements the geometry of a spherical surface.  
     """
     def __init__(self, center=None, absorptivity=0., n=1., 
-                 radius=1., boundary=None):
+                 radius=1.):
         """
         Arguments:
         location of center, rotation, absorptivity - passed along to the base class.
@@ -25,7 +25,6 @@ class SphereSurface(UniformSurface):
         self.set_radius(radius)
         self._center = N.append(center, N.c_[[1]])
         self._temp_center = self._center
-        self._boundary = boundary
         self._abs = absorptivity
         self._transform = N.hstack((N.array(([1,0,0],[0,1,0],[0,0,1],[0,0,0])), self._center[:,None]))
 
@@ -45,7 +44,6 @@ class SphereSurface(UniformSurface):
 
     def transform_frame(self, transform):
         self._temp_center = N.dot(transform, self._center)
-        self._boundary.transform_frame(transform)
     
     # Ray handling protocol:
     def register_incoming(self, ray_bundle):
@@ -60,10 +58,11 @@ class SphereSurface(UniformSurface):
         v = ray_bundle.get_vertices()
         n = ray_bundle.get_num_rays()
         c = self._temp_center[:3]
+        
         params = []
         vertices = []
         norm = []
-
+        
         # Solve the equations to find the intersection point:
         A = (d**2).sum(axis=0)
         B = 2*(d*(v - c[:,None])).sum(axis=0)
@@ -108,16 +107,17 @@ class SphereSurface(UniformSurface):
             normal = ((coords[param,:] - c) if dot <= 0 else  (c - coords[param,:]))[:,None]
             normal = normal/N.linalg.norm(normal)
 
-            # Check if it is hitting within the boundary
-            selector = self._boundary.in_bounds(verts)
-            if selector[0]:
-                params.append(hits[param])
-                vertices.append(verts)
-                norm.append(normal)
-            else:
-                params.append(N.inf)
-                vertices.append(N.empty([3,1]))
-                norm.append(N.empty([3,1]))    
+            # Check if it is hitting within the boundaries
+            for boundary in self.parent_object.get_boundaries():
+                selector = boundary.in_bounds(verts)
+                if selector[0]:
+                    params.append(hits[param])
+                    vertices.append(verts)
+                    norm.append(normal)
+                else:
+                    params.append(N.inf)
+                    vertices.append(N.empty([3,1]))
+                    norm.append(N.empty([3,1]))    
             
         # Storage for later reference:
         self._vertices = N.hstack(vertices)
