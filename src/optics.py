@@ -14,18 +14,18 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2):
     n2 - refraction index of the material the ray is entering
     Returns:  a tuple containing the new ray directions and energy
     """
-    
     if N.shape(ray_dirs)[1] == 0:
         return ray_dirs, energy
 
     theta_in = N.empty_like(ray_dirs[1])
     normals = normals*N.ones_like(ray_dirs)  # for flat surfaces which return only a single value for a normal, make the array the same size as ray_dirs
+
     for ray in xrange(ray_dirs.shape[1]):
         theta_in[ray] = -N.arcsin(N.dot(normals[:,ray], ray_dirs[:,ray]))
 
     foo = N.cos(theta_in) 
     bar = N.sqrt(1 - (n1/n2 * N.sin(theta_in))**2)
-
+    
     Rs = ((n1*foo - n2*bar)/(n1*foo + n2*bar))**2 
     Rp = ((n1*bar - n2*foo)/(n1*bar + n2*foo))**2
 
@@ -62,7 +62,7 @@ def refractions(n1, n2, T, ray_dirs, normals):
     Arguments: T - the transmittance 
     n1, n2, ray_dirs, normals - passed from fresnel
     Returns: new ray directions as the result of refraction
-    """ 
+    """
     for ray in xrange(N.shape(normals)[1]):
         cos1 = N.vdot(-normals[:,ray], ray_dirs[:,ray]) 
     

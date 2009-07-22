@@ -11,7 +11,7 @@ class FlatSurface(UniformSurface):
     """Implements the geometry of a flat mirror surface. 
     The local coordinates take Z to be the plane normal.
     """
-    def __init__(self,  location=None,  rotation=None,  absorptivity=0., n=1., width=1.,  height=1.):
+    def __init__(self,  location=None,  rotation=None,  absorptivity=0., width=1.,  height=1.):
         """Arguments: 
         location, rotation, absorptivity - passed along to the base class.
         width - dimension along the surface's local x axis.
@@ -21,7 +21,8 @@ class FlatSurface(UniformSurface):
         self.set_width(width)
         self.set_height(height)
         self._abs = absorptivity 
-        self._ref_index = n
+        self._temp_frame
+        self._frame
 
     def get_width(self):
         return self._w
@@ -39,7 +40,6 @@ class FlatSurface(UniformSurface):
             raise ValueError("Height must be positive")
         self._h = h
                 
-    
     # Ray handling protocol:
     def register_incoming(self,  ray_bundle):
         """This is the first phase of dealing with an energy bundle. The surface
@@ -82,7 +82,7 @@ class FlatSurface(UniformSurface):
 
         return params[2]
     
-    def get_outgoing(self,  selector):
+    def get_outgoing(self,  selector, n1, n2):
         """Generates a new ray bundle, which is the reflections/refractions of the
         user-selected rays out of the incoming ray-bundle that was previously 
         registered.
@@ -93,7 +93,7 @@ class FlatSurface(UniformSurface):
 
         """
 
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self.get_rotation()[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], self._current_bundle.get_ref_index()[selector], self._ref_index)  
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self.get_rotation()[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1, n2)  
         outg = RayBundle() 
 
         vertices = N.dot(self.get_rotation()[:, :2],  self._current_params[:, selector]) + \

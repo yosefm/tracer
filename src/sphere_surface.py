@@ -1,4 +1,4 @@
-# Implements spherical mirrored surface 
+# Implements spherical surface 
 
 from surface import UniformSurface
 import optics
@@ -8,7 +8,7 @@ import numpy as N
 
 class SphereSurface(UniformSurface):
     """
-    Implements the geometry of a spherical mirror surface.  
+    Implements the geometry of a spherical surface.  
     """
     def __init__(self, center=None, absorptivity=0., n=1., 
                  radius=1., boundary=None):
@@ -23,10 +23,11 @@ class SphereSurface(UniformSurface):
         """
         UniformSurface.__init__(self, center, None,  absorptivity)
         self.set_radius(radius)
-        self._center = center
+        self._center = N.append(center, N.c_[[1]])
+        self._temp_center = self._center
         self._boundary = boundary
         self._abs = absorptivity
-        self._ref_index = n
+        self._transform = N.hstack((N.array(([1,0,0],[0,1,0],[0,0,1],[0,0,0])), self._center[:,None]))
 
     def get_radius(self):
         return self._rad
@@ -38,10 +39,14 @@ class SphereSurface(UniformSurface):
         if rad <= 0:
             raise ValuError("Radius must be positive")
         self._rad = rad
+     
+    def get_transform(self):
+         return self._transform
 
-    def get_ref_index(self):
-        return self._ref_index
-
+    def transform_frame(self, transform):
+        self._temp_center = N.dot(transform, self._center)
+        self._boundary.transform_frame(transform)
+    
     # Ray handling protocol:
     def register_incoming(self, ray_bundle):
         """
@@ -50,11 +55,11 @@ class SphereSurface(UniformSurface):
         ray_bundle - the incoming bundle 
         Returns a 1D array with the parametric position of intersection along
         each ray.  Rays that miss the surface return +infinity
-        """
+        """ 
         d = ray_bundle.get_directions()
         v = ray_bundle.get_vertices()
         n = ray_bundle.get_num_rays()
-        c = self.get_center()
+        c = self._temp_center[:3]
         params = []
         vertices = []
         norm = []
@@ -83,7 +88,7 @@ class SphereSurface(UniformSurface):
             if N.shape(is_positive) == (0,):
                 params.append(N.inf)
                 vertices.append(N.empty([3,1]))
-                norm.append(N.empty([3,1]))    
+                norm.append(N.empty([3,1]))
                 continue
                 
             # If both are positive, us the smaller one
@@ -98,9 +103,11 @@ class SphereSurface(UniformSurface):
             
             # Define normal based on whether it is hitting an inner or
             # an outer surface of the sphere
-            dot = N.vdot(c - coords[param,:], d[:,ray])
+
+            dot = N.vdot(c.T - coords[param,:], d[:,ray])
             normal = ((coords[param,:] - c) if dot <= 0 else  (c - coords[param,:]))[:,None]
-            
+            normal = normal/N.linalg.norm(normal)
+
             # Check if it is hitting within the boundary
             selector = self._boundary.in_bounds(verts)
             if selector[0]:
@@ -116,10 +123,10 @@ class SphereSurface(UniformSurface):
         self._vertices = N.hstack(vertices)
         self._current_bundle = ray_bundle
         self._norm = N.hstack(norm)
-    
-        return params
 
-    def get_outgoing(self, selector):
+        return params
+    
+    def get_outgoing(self, selector, n1, n2):
         """
         Generates a new ray bundle, which is the reflection of the user selected rays out of
         the incoming ray bundle that was previously registered.
@@ -127,7 +134,7 @@ class SphereSurface(UniformSurface):
         selector - a boolean array specifying which rays of the incoming bundle are still relevant
         Returns: a new RayBundle object with the new bundle, with vertices where it intersected with the surface, and directions according to the optic laws
         """
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], self._current_bundle.get_ref_index()[selector], self._ref_index)
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])
         outg = RayBundle()  
         outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))
         outg.set_directions(fresnel[0])
@@ -141,6 +148,6 @@ class SphereSurface(UniformSurface):
         delete = N.where(outg.get_energy() <= .05)[0]
         if N.shape(delete)[0] != 0:
             outg = outg.delete_rays(delete)
-            
+
         return outg
 
