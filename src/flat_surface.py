@@ -61,9 +61,9 @@ class FlatSurface(UniformSurface):
         Returns: a 1D array with the parametric position of intersection along each 
             of the rays. Rays that missed the surface return +infinity.
         """
-        xy = self._temp_rotation[:2][:,:2]
+        xy = self._temp_rotation[:,:2]
         d = -ray_bundle.get_directions()
-        v = ray_bundle.get_vertices() - self._temp_location
+        v = ray_bundle.get_vertices() - self._temp_location[:,None]
         n = ray_bundle.get_num_rays()
         
         # `params` holds the parametric location of intersections along x axis, 
@@ -104,11 +104,11 @@ class FlatSurface(UniformSurface):
 
         """
 
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation()[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])  
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])  
         outg = RayBundle() 
 
-        vertices = N.dot(self._temp_rotation()[:, :2],  self._current_params[:, selector]) + \
-            self._temp_location()[:, None]
+        vertices = N.dot(self._temp_rotation[:, :2],  self._current_params[:, selector]) + \
+            self._temp_location[:, None]
 
         outg.set_vertices(N.hstack((vertices, vertices)))
         outg.set_directions(fresnel[0])
