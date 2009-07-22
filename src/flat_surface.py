@@ -21,8 +21,10 @@ class FlatSurface(UniformSurface):
         self.set_width(width)
         self.set_height(height)
         self._abs = absorptivity 
-        self._temp_frame
-        self._frame
+        self._transform = N.vstack((N.hstack((self.get_rotation(), self.get_location()[:,None])), N.r_[[0,0,0,1]]))
+        self._temp_frame = self._transform
+        self._temp_rotation = self._temp_frame[:3][:,:3]
+        self._temp_location = self._temp_frame[:3][:,3]
 
     def get_width(self):
         return self._w
@@ -40,6 +42,15 @@ class FlatSurface(UniformSurface):
             raise ValueError("Height must be positive")
         self._h = h
                 
+    def set_transform(self, transform):
+        self._transform = transform
+
+    def get_transform(self):
+        return self._transform
+
+    def transform_frame(self, transform):
+        self._temp_frame = N.dot(transform, self._transform)
+
     # Ray handling protocol:
     def register_incoming(self,  ray_bundle):
         """This is the first phase of dealing with an energy bundle. The surface
@@ -50,9 +61,9 @@ class FlatSurface(UniformSurface):
         Returns: a 1D array with the parametric position of intersection along each 
             of the rays. Rays that missed the surface return +infinity.
         """
-        xy = self.get_rotation()[:, :2]
+        xy = self._temp_rotation[:2][:,:2]
         d = -ray_bundle.get_directions()
-        v = ray_bundle.get_vertices() - self.get_location()[:, None]
+        v = ray_bundle.get_vertices() - self._temp_location
         n = ray_bundle.get_num_rays()
         
         # `params` holds the parametric location of intersections along x axis, 
@@ -93,11 +104,11 @@ class FlatSurface(UniformSurface):
 
         """
 
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self.get_rotation()[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1, n2)  
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation()[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])  
         outg = RayBundle() 
 
-        vertices = N.dot(self.get_rotation()[:, :2],  self._current_params[:, selector]) + \
-            self.get_location()[:, None]
+        vertices = N.dot(self._temp_rotation()[:, :2],  self._current_params[:, selector]) + \
+            self._temp_location()[:, None]
 
         outg.set_vertices(N.hstack((vertices, vertices)))
         outg.set_directions(fresnel[0])
@@ -115,5 +126,4 @@ class FlatSurface(UniformSurface):
 
         return outg
 
-    
         

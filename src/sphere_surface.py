@@ -20,6 +20,11 @@ class SphereSurface(UniformSurface):
         _rad - radius of the sphere
         _center - center of the sphere
         _boundary - boundary shape defining the surface
+        _temp_center - holds the value of a temporarily transformed center, for use of 
+        calculations by trace engine
+        _transform - the transformation of the sphere surface into the frame of the parent
+        object. Within it's own local coordinate system the sphere is assume to be centered
+        about the origin
         """
         UniformSurface.__init__(self, center, None,  absorptivity)
         self.set_radius(radius)
