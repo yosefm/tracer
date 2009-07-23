@@ -41,7 +41,7 @@ class TestObjectBuilding1(unittest.TestCase):
         """Tests that the assembly heirarchy works at a basic level"""
         self.engine = TracerEngine(self.assembly, N.r_[[1,1]], N.r_[[1,1]])
 
-        params =  self.engine.ray_tracer(self._bund,1)
+        params =  self.engine.ray_tracer(self._bund,1)[0]
         correct_params = N.c_[[0,0,2],[0,0,-2]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -53,7 +53,7 @@ class TestObjectBuilding1(unittest.TestCase):
 
         self.engine = TracerEngine(self.assembly, N.r_[[1,1]], N.r_[[1,1]])
 
-        params =  self.engine.ray_tracer(self._bund,1)
+        params =  self.engine.ray_tracer(self._bund,1)[0]
         correct_params = N.c_[[0,0,3],[0,0,-1]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -71,7 +71,7 @@ class TestObjectBuilding1(unittest.TestCase):
 
         self.engine = TracerEngine(self.assembly, N.r_[[1,1]], N.r_[[1,1]])
 
-        params =  self.engine.ray_tracer(self._bund,1)
+        params =  self.engine.ray_tracer(self._bund,1)[0]
         correct_params = N.c_[[0,-2,1]]
 
         N.testing.assert_array_almost_equal(params, correct_params)

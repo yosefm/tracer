@@ -37,7 +37,7 @@ class TracerEngine():
         # If there is only a single object, don't need to find minimum distance and
         # can just return a boolean array based on whether the hit missed or did not
         if len(self.surfaces) == 1:
-            stack = [~N.isinf(self.objects[0].register_incoming(bundle))]
+            stack = [~N.isinf(self.surfaces[0].register_incoming(bundle))]
             
         else:
             stack = []
@@ -97,7 +97,7 @@ class TracerEngine():
                 bund = outg 
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
 
-        return bund.get_vertices()
+        return bund.get_vertices(), bund.get_directions()
                       
     def store_branch(self, bundle):
         """

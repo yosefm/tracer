@@ -63,7 +63,7 @@ class SphereSurface(UniformSurface):
         v = ray_bundle.get_vertices()
         n = ray_bundle.get_num_rays()
         c = self._temp_center[:3]
-        
+
         params = []
         vertices = []
         norm = []
@@ -102,7 +102,7 @@ class SphereSurface(UniformSurface):
             # If either one is negative, use the positive one
             else:
                 param = is_positive[0]
-                
+
             verts = N.c_[coords[param,:]]
             
             # Define normal based on whether it is hitting an inner or
