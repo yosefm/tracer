@@ -8,6 +8,7 @@
 # All surfaces are grey.
 
 import numpy as N
+import pdb
 
 class Surface(object):
     """Defines the base of surfaces that interact with rays.
@@ -46,6 +47,41 @@ class Surface(object):
 
     def set_parent_object(self, object):
         self.parent_object = object
+
+    def set_inner_n(self, n):
+        self._inner_n = n
+
+    def set_outer_n(self, n):
+        self._outer_n = n
+
+    def get_inner_n(self):
+        return self._inner_n
+
+    def get_outer_n(self):
+        return self._outer_n
+
+    def set_transform(self, transform):
+        self._transform = transform
+
+    def get_transform(self):
+        return self._transform
+
+    def transform_frame(self, transform):
+        self._temp_frame = N.dot(transform, self._transform)
+
+    def get_ref_index(self, n):
+        """                                                                                  
+        Determines which refractive index to use based on the refractive index               
+        the ray is currently travelling through                                              
+        Also sets the new values for the ray bundle                                           
+        Arguments: n - an array of the refractive indices of the materials each of             
+        the rays in a ray bundle                                                              
+        """
+        for ray in xrange(N.shape(n)[0]):
+            if n[ray] == self.get_inner_n(): n[ray] = self.get_outer_n() 
+            else: n[ray] = self.get_inner_n()
+        self._current_bundle.set_ref_index(n)
+        return n
 
 class UniformSurface(Surface):
     """Implements an abstract surface whose material properties are independent of

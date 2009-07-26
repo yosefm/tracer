@@ -23,3 +23,12 @@ def general_axis_rotation(axis,  angle):
                             [axis[2],  0,          -axis[0]], 
                             [-axis[1], axis[0],  0        ] ])
     return N.multiply.outer(axis,  axis)*v + N.eye(3)*c + add*s
+
+def generate_transform(axis, angle, translation):
+    """Generates a transformation matrix                                                      
+    Arguments: axis - a 1D array giving the unit vector to rotate about                       
+    angle - angle of rotation about the given axis in the parent frame                         
+    translation - a 2D column vector giving the translation along the parent frame                    
+    """
+    rot = general_axis_rotation(axis, angle)
+    return N.vstack((N.hstack((rot, translation)), N.r_[[0,0,0,1]]))

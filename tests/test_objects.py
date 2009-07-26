@@ -5,6 +5,7 @@ import math
 from tracer_engine import TracerEngine
 from ray_bundle import RayBundle
 from spatial_geometry import general_axis_rotation
+from spatial_geometry import generate_transform
 from sphere_surface import SphereSurface
 from boundary_shape import BoundarySphere
 from receiver import Receiver
@@ -39,7 +40,7 @@ class TestObjectBuilding1(unittest.TestCase):
 
     def test_object(self):
         """Tests that the assembly heirarchy works at a basic level"""
-        self.engine = TracerEngine(self.assembly, N.r_[[1,1]], N.r_[[1,1]])
+        self.engine = TracerEngine(self.assembly)
 
         params =  self.engine.ray_tracer(self._bund,1)[0]
         correct_params = N.c_[[0,0,2],[0,0,-2]]
@@ -51,7 +52,7 @@ class TestObjectBuilding1(unittest.TestCase):
         trans = N.array([[1,0,0,0],[0,1,0,0],[0,0,1,1],[0,0,0,1]])
         self.assembly.transform_assembly(trans)
 
-        self.engine = TracerEngine(self.assembly, N.r_[[1,1]], N.r_[[1,1]])
+        self.engine = TracerEngine(self.assembly)
 
         params =  self.engine.ray_tracer(self._bund,1)[0]
         correct_params = N.c_[[0,0,3],[0,0,-1]]
@@ -66,10 +67,10 @@ class TestObjectBuilding1(unittest.TestCase):
         self._bund.set_energy(N.r_[[1,1]])
         self._bund.set_ref_index(N.r_[[1,1]])
 
-        trans = assembly.generate_transform(N.r_[[1,0,0]], N.pi/2, N.c_[[0,0,1]])
+        trans = generate_transform(N.r_[[1,0,0]], N.pi/2, N.c_[[0,0,1]])
         self.assembly.transform_assembly(trans)
 
-        self.engine = TracerEngine(self.assembly, N.r_[[1,1]], N.r_[[1,1]])
+        self.engine = TracerEngine(self.assembly)
 
         params =  self.engine.ray_tracer(self._bund,1)[0]
         correct_params = N.c_[[0,-2,1]]

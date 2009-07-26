@@ -25,6 +25,9 @@ class FlatSurface(UniformSurface):
         self._temp_frame = self._transform
         self._temp_rotation = self._temp_frame[:3][:,:3]
         self._temp_location = self._temp_frame[:3][:,3]
+        self._inner_n = 1.
+        self._outer_n = 1.
+
 
     def get_width(self):
         return self._w
@@ -41,16 +44,7 @@ class FlatSurface(UniformSurface):
         if h <= 0:
             raise ValueError("Height must be positive")
         self._h = h
-                
-    def set_transform(self, transform):
-        self._transform = transform
-
-    def get_transform(self):
-        return self._transform
-
-    def transform_frame(self, transform):
-        self._temp_frame = N.dot(transform, self._transform)
-
+      
     # Ray handling protocol:
     def register_incoming(self,  ray_bundle):
         """This is the first phase of dealing with an energy bundle. The surface
@@ -93,7 +87,7 @@ class FlatSurface(UniformSurface):
 
         return params[2]
     
-    def get_outgoing(self,  selector, n1, n2):
+    def get_outgoing(self,  selector):
         """Generates a new ray bundle, which is the reflections/refractions of the
         user-selected rays out of the incoming ray-bundle that was previously 
         registered.
@@ -101,9 +95,11 @@ class FlatSurface(UniformSurface):
             bundle are still relevant.
         Returns: a RayBundle object with the new bundle, with vertices on the panel
             and directions according to optics laws.
-
         """
-
+        # Note that n1 is a copy for get_ref_index() since assigning n2 changes the value
+        # of the current bundle's refractive index  
+        n1 = self._current_bundle.get_ref_index().copy()
+        n2 = self.get_ref_index(self._current_bundle.get_ref_index())
         fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])  
         outg = RayBundle() 
 

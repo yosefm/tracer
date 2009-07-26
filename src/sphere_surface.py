@@ -32,11 +32,13 @@ class SphereSurface(UniformSurface):
         self._temp_center = self._center
         self._abs = absorptivity
         self._transform = N.hstack((N.array(([1,0,0],[0,1,0],[0,0,1],[0,0,0])), self._center[:,None]))
+        self._inner_n = 1.
+        self._outer_n = 1.
 
     def get_radius(self):
         return self._rad
 
-    def get_center(self):
+    def get_location(self):
         return self._center
     
     def set_radius(self, rad):
@@ -98,7 +100,7 @@ class SphereSurface(UniformSurface):
             # If both are positive, us the smaller one
             if len(is_positive) == 2:
                 param = N.argmin(hits)
-                                        
+                                                        
             # If either one is negative, use the positive one
             else:
                 param = is_positive[0]
@@ -131,7 +133,7 @@ class SphereSurface(UniformSurface):
 
         return params
     
-    def get_outgoing(self, selector, n1, n2):
+    def get_outgoing(self, selector):
         """
         Generates a new ray bundle, which is the reflection of the user selected rays out of
         the incoming ray bundle that was previously registered.
@@ -139,6 +141,8 @@ class SphereSurface(UniformSurface):
         selector - a boolean array specifying which rays of the incoming bundle are still relevant
         Returns: a new RayBundle object with the new bundle, with vertices where it intersected with the surface, and directions according to the optic laws
         """
+        n1 = self._current_bundle.get_ref_index().copy()
+        n2 = self.get_ref_index(self._current_bundle.get_ref_index())
         fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])
         outg = RayBundle()  
         outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))

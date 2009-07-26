@@ -12,7 +12,7 @@ class TracerEngine():
     Tracer Engine implements that actual ray tracing. It keeps track of the number
     of objects, and determines which rays intersected which object.
     """
-    def __init__(self, parent_assembly, n1, n2):
+    def __init__(self, parent_assembly):
         """
         Arguments:
         parent_assembly - the highest level assembly
@@ -22,8 +22,6 @@ class TracerEngine():
         """
         self.surfaces = parent_assembly.get_surfaces()
         self.tree = []
-        self.n1 = n1
-        self.n2 = n2
 
     def intersect_ray(self, bundle):
         """
@@ -92,7 +90,7 @@ class TracerEngine():
             outg = bundle.empty_bund()
             for obj in self.surfaces:
                 inters = objs_param[self.surfaces.index(obj)]
-                new_outg = obj.get_outgoing(inters, self.n1, self.n2)
+                new_outg = obj.get_outgoing(inters)
                 outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
                 bund = outg 
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
