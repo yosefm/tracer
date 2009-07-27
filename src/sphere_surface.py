@@ -5,20 +5,20 @@ import optics
 from ray_bundle import RayBundle
 from boundary_shape import BoundarySphere
 import numpy as N
+import pdb
 
 class SphereSurface(UniformSurface):
     """
     Implements the geometry of a spherical surface.  
     """
-    def __init__(self, center=None, absorptivity=0., n=1., 
-                 radius=1.):
+    def __init__(self, location=None, absorptivity=0., radius=1.):
         """
         Arguments:
         location of center, rotation, absorptivity - passed along to the base class.
         boundary - boundary shape defining the surface
         Private attributes:
         _rad - radius of the sphere
-        _center - center of the sphere
+        _loc - location of the center of the sphere
         _boundary - boundary shape defining the surface
         _temp_center - holds the value of a temporarily transformed center, for use of 
         calculations by trace engine
@@ -26,20 +26,17 @@ class SphereSurface(UniformSurface):
         object. Within it's own local coordinate system the sphere is assume to be centered
         about the origin
         """
-        UniformSurface.__init__(self, center, None,  absorptivity)
+        UniformSurface.__init__(self, location, None,  absorptivity)
         self.set_radius(radius)
-        self._center = N.append(center, N.c_[[1]])
-        self._temp_center = self._center
+        self._loc = N.append(self._loc, N.c_[[1]])
+        self._temp_loc = self._loc
         self._abs = absorptivity
-        self._transform = N.hstack((N.array(([1,0,0],[0,1,0],[0,0,1],[0,0,0])), self._center[:,None]))
+        self._transform = N.hstack((N.array(([1,0,0],[0,1,0],[0,0,1],[0,0,0])), self._loc[:,None]))
         self._inner_n = 1.
         self._outer_n = 1.
 
     def get_radius(self):
         return self._rad
-
-    def get_location(self):
-        return self._center
     
     def set_radius(self, rad):
         if rad <= 0:
@@ -50,7 +47,7 @@ class SphereSurface(UniformSurface):
          return self._transform
 
     def transform_frame(self, transform):
-        self._temp_center = N.dot(transform, self._center)
+        self._temp_loc = N.dot(transform, self._loc)
     
     # Ray handling protocol:
     def register_incoming(self, ray_bundle):
@@ -64,7 +61,7 @@ class SphereSurface(UniformSurface):
         d = ray_bundle.get_directions()
         v = ray_bundle.get_vertices()
         n = ray_bundle.get_num_rays()
-        c = self._temp_center[:3]
+        c = self._temp_loc[:3]
 
         params = []
         vertices = []

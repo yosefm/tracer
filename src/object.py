@@ -45,7 +45,7 @@ class AssembledObject(Assembly):
         for boundary in self.boundaries:
             boundary.transform_frame(N.dot(self.transform, assembly_transform))
             
-    def set_n(self, surfaces, n):
+    def set_ref_index(self, surfaces, n):
         """Sets the refractive indices between the given surfaces. Tells the surface
         what the refractive index is on the inside and outside of the surface, where 
         inside and outside are defined by how the object defines the normal.

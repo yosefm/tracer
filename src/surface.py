@@ -80,8 +80,8 @@ class Surface(object):
         for ray in xrange(N.shape(n)[0]):
             if n[ray] == self.get_inner_n(): n[ray] = self.get_outer_n() 
             else: n[ray] = self.get_inner_n()
-        self._current_bundle.set_ref_index(n)
-        return n
+        self._current_bundle.set_temp_ref_index(n)
+        return n  
 
 class UniformSurface(Surface):
     """Implements an abstract surface whose material properties are independent of

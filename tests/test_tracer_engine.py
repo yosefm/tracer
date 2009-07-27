@@ -12,7 +12,7 @@ from receiver import Receiver
 from assembly import Assembly
 from object import AssembledObject
 import pdb
-'''
+
 class TestTraceProtocol1(unittest.TestCase):
     """ 
     Tests intersect_ray and the bundle driver with a single flat surface, not rotated, with 
@@ -135,7 +135,7 @@ class TestTraceProtocol4(unittest.TestCase):
         energy = N.array([1,1])
         self._bund.set_energy(energy)
 
-        surf1 = FlatSurface(rotation=rot1,width=10,height=10)
+        surf1 = FlatSurface(rotation=rot1, width=10,height=10)
         surf2 = FlatSurface(width=10,height=10)
         assembly = Assembly()
         object = AssembledObject()
@@ -164,7 +164,7 @@ class TestTraceProtocol5(unittest.TestCase):
     """
     def setUp(self):
         boundary = BoundarySphere(N.array([0,1.,0]), 1.)
-        surface = SphereSurface(center=N.array([0,0,0]))
+        surface = SphereSurface(location=N.array([0,0,0]))
         self._bund = RayBundle()
         self._bund.set_directions(N.c_[[0,1,0],[0,1,0],[0,-1,0]])
         self._bund.set_vertices(N.c_[[0,-2.,0],[0,0,0],[0,2,0]])
@@ -191,9 +191,9 @@ class TestTraceProtocol6(unittest.TestCase):
     """
     def setUp(self):
         boundary1 = BoundarySphere(N.array([0,2.,0]),3.)
-        surface1 = SphereSurface(center=N.array([0,0,0]), radius=2)
+        surface1 = SphereSurface(location=N.array([0,0,0]), radius=2)
         boundary2 = BoundarySphere(N.array([0,-5,0]),3)
-        surface2 = SphereSurface(center=N.array([0,-2,0]), radius=2)
+        surface2 = SphereSurface(location=N.array([0,-2,0]), radius=2)
         self._bund = RayBundle()
         self._bund.set_directions(N.c_[[0,1,0]])
         self._bund.set_vertices(N.c_[[0,-1,0]])
@@ -217,7 +217,7 @@ class TestTraceProtocol6(unittest.TestCase):
         correct_params = N.c_[[0,2,0]]
 
         N.testing.assert_array_almost_equal(params,correct_params)
-'''
+
 class TestRefraction(unittest.TestCase):
     """Tests refractive properties of a flat surface""" 
     def setUp(self):
@@ -234,7 +234,7 @@ class TestRefraction(unittest.TestCase):
         assembly = Assembly()
         object = AssembledObject()
         object.add_surface(FlatSurface())
-        object.set_n(object.get_surfaces(), 1.5)
+        object.set_ref_index(object.get_surfaces(), 1.5)
         assembly.add_object(object)
 
         self.engine = TracerEngine(assembly)

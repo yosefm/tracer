@@ -53,6 +53,12 @@ class RayBundle:
         
     def get_ref_index(self):
         return self._ref_index
+
+    def set_temp_ref_index(self, ref_index):
+        self._temp_ref_index = ref_index
+
+    def get_temp_ref_index(self):
+        return self._temp_ref_index
         
     def __add__(self,  added):
         """Merge two energy bundles. return a new bundle with the rays from the 

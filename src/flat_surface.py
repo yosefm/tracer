@@ -97,7 +97,7 @@ class FlatSurface(UniformSurface):
             and directions according to optics laws.
         """
         # Note that n1 is a copy for get_ref_index() since assigning n2 changes the value
-        # of the current bundle's refractive index  
+        # of the current bundle's refractive index 
         n1 = self._current_bundle.get_ref_index().copy()
         n2 = self.get_ref_index(self._current_bundle.get_ref_index())
         fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])  

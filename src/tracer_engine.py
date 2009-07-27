@@ -94,7 +94,8 @@ class TracerEngine():
                 outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
                 bund = outg 
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
-
+            bund.set_ref_index(bund.get_temp_ref_index()) # Changes the refractive indices for the ray bundle
+   
         return bund.get_vertices(), bund.get_directions()
                       
     def store_branch(self, bundle):
