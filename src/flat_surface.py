@@ -75,7 +75,7 @@ class FlatSurface(UniformSurface):
         # Mark missing rays with infinity:
         missing = (abs(params[0])  > self._w/2.) | (abs(params[1] ) > self._h/2.)
         params[2, missing] = N.inf
-        
+
         # Takes into account a negative depth
         # Note that only the 3rd row of params is relevant here!
         negative = params[2] < 0
@@ -98,10 +98,10 @@ class FlatSurface(UniformSurface):
         """
         # Note that n1 is a copy for get_ref_index() since assigning n2 changes the value
         # of the current bundle's refractive index 
+        outg = RayBundle()
         n1 = self._current_bundle.get_ref_index().copy()
-        n2 = self.get_ref_index(self._current_bundle.get_ref_index())
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])  
-        outg = RayBundle() 
+        n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])   
 
         vertices = N.dot(self._temp_rotation[:, :2],  self._current_params[:, selector]) + \
             self._temp_location[:, None]

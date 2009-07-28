@@ -53,7 +53,7 @@ class TracerEngine():
 
             # If parameter == 0, ray does not actually hit object, but originates from there; 
             # so it should be ignored in considering intersections 
-            if (stack == 0).any():
+            if (stack == 0).any():  
                 zeros = N.where(stack == 0)
                 stack[zeros] = N.inf
 
@@ -90,11 +90,12 @@ class TracerEngine():
             outg = bundle.empty_bund()
             for obj in self.surfaces:
                 inters = objs_param[self.surfaces.index(obj)]
-                new_outg = obj.get_outgoing(inters)
+                new_outg = obj.get_outgoing(inters) 
                 outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
                 bund = outg 
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
-            bund.set_ref_index(bund.get_temp_ref_index()) # Changes the refractive indices for the ray bundle
+            bund.set_ref_index(bund.get_temp_ref_index())
+                                     # Changes the refractive indices for the ray bundle
    
         return bund.get_vertices(), bund.get_directions()
                       

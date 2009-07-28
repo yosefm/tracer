@@ -85,8 +85,9 @@ class SphereSurface(UniformSurface):
             hits = (-B[ray] + N.r_[-1, 1]*N.sqrt(delta[ray]))/(2*A[ray])
             coords = vertex + d[:,ray]*hits[:,None]
 
+            print coords
             is_positive = N.where(hits > 0)[0]
-        
+
             # If both are negative, it is a miss
             if N.shape(is_positive) == (0,):
                 params.append(N.inf)
@@ -138,10 +139,10 @@ class SphereSurface(UniformSurface):
         selector - a boolean array specifying which rays of the incoming bundle are still relevant
         Returns: a new RayBundle object with the new bundle, with vertices where it intersected with the surface, and directions according to the optic laws
         """
-        n1 = self._current_bundle.get_ref_index().copy()
-        n2 = self.get_ref_index(self._current_bundle.get_ref_index())
+        outg = RayBundle()
+        n1 = self._current_bundle.get_ref_index().copy()  
+        n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
         fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])
-        outg = RayBundle()  
         outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))
         outg.set_directions(fresnel[0])
         outg.set_energy(fresnel[1])

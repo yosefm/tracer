@@ -14,7 +14,7 @@ from object import AssembledObject
 from assembly import Assembly
 import assembly
 import pdb
-
+'''
 class TestObjectBuilding1(unittest.TestCase):
     """Tests an object composed of surfaces"""
     def setUp(self):
@@ -77,47 +77,46 @@ class TestObjectBuilding1(unittest.TestCase):
         correct_params = N.c_[[0,-2,1]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
-
+'''
 
 class TestObjectBuilding2(unittest.TestCase):
     """Tests an object composed of two surfaces"""
     def setUp(self):
         self.assembly = Assembly()
-        surface1 = FlatSurface(location=N.array([0,0,-1.]))
-        surface2 = FlatSurface(location=N.array([0,0,1.])) 
-
+        surface1 = FlatSurface(location=N.array([0,0,-1.]), width=5., height=5.)
+        surface2 = FlatSurface(location=N.array([0,0,1.]), width=5., height=5.) 
+ 
         self.object = AssembledObject()
         self.object.add_surface(surface1)
         self.object.add_surface(surface2)
         self.object.set_ref_index([surface1, surface2], 1.5)
         self.assembly.add_object(self.object)
         
-        dir = N.c_[[0,0,1.],[0,1,1.],[0,-1.,-1.]]
-        position = N.c_[[0,0,-3.],[0,0,0],[0,1,-2.]]
+        x = 1/(math.sqrt(2))
+        dir = N.c_[[0,-x,x]]
+        position = N.c_[[0,1,-2.]]
         
         self._bund = RayBundle()
         self._bund.set_vertices(position)
         self._bund.set_directions(dir)
-        self._bund.set_energy(N.r_[[1.,1.,1.]])
-        self._bund.set_ref_index(N.r_[[1.,1.5,1.]])
+        self._bund.set_energy(N.r_[[1.]])
+        self._bund.set_ref_index(N.r_[[1.]])
 
     def test_refraction1(self):
         """Tests the refractive functions after a single intersection"""
         self.engine = TracerEngine(self.assembly)
         ans =  self.engine.ray_tracer(self._bund,1)
         params = N.arctan(ans[1][1]/ans[1][2])
-        correct_params = N.r_[0., 0.7853981, .4908826]
+        correct_params = N.r_[-.4908826, 0.785398163]
 
         N.testing.assert_array_almost_equal(params, correct_params)
 
     def test_refraction2(self):
         """Tests the refractive functions after two intersections"""
         self.engine = TracerEngine(self.assembly)
-       
         ans = self.engine.ray_tracer(self._bund,2)
         params = N.arctan(ans[1][1]/ans[1][2])
-        correct_params = N.r_[0., 0.7853981, 0.785398017]
-
+        correct_params = N.r_[-0.7853981]
         N.testing.assert_array_almost_equal(params, correct_params)
 
 class TestAssemblyBuilding3(unittest.TestCase):
@@ -125,8 +124,8 @@ class TestAssemblyBuilding3(unittest.TestCase):
     def setUp(self):  
         self.assembly = Assembly()
 
-        surface1 = FlatSurface(location=N.array([0,0,-1.]))
-        surface2 = FlatSurface(location=N.array([0,0,1.]))
+        surface1 = FlatSurface(location=N.array([0,0,-1.]), width=5., height=5.)
+        surface2 = FlatSurface(location=N.array([0,0,1.]), width=5., height=5.)
         self.object1 = AssembledObject()
         self.object1.add_surface(surface1)
         self.object1.add_surface(surface2)
@@ -149,16 +148,17 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self._bund.set_vertices(position)
         self._bund.set_directions(dir)
         self._bund.set_energy(N.r_[[1.,1.,1.]])
-        self._bund.set_ref_index(N.r_[[1.,1.5,1.]])
+        self._bund.set_ref_index(N.r_[[1.,1.,1.]])
         
     def test_assembly1(self):
         """Tests the assembly"""
+        print 'test'
         self.engine = TracerEngine(self.assembly)
 
         ans =  self.engine.ray_tracer(self._bund,1)
         params = N.arctan(ans[1][1]/ans[1][2])
         correct_params = N.r_[N.pi, -0.7853981, 0]
-
+        print 'end test'
         N.testing.assert_array_almost_equal(params, correct_params)
 '''
     def test_assembly2(self):

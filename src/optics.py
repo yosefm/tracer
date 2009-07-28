@@ -21,7 +21,7 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2):
     normals = normals*N.ones_like(ray_dirs)  # for flat surfaces which return only a single value for a normal, make the array the same size as ray_dirs
 
     for ray in xrange(ray_dirs.shape[1]):
-        theta_in[ray] = -N.arcsin(N.dot(normals[:,ray], ray_dirs[:,ray]))
+        theta_in[ray] = N.pi/2-N.arcsin(N.dot(normals[:,ray], ray_dirs[:,ray]))
 
     foo = N.cos(theta_in) 
     bar = N.sqrt(1 - (n1/n2 * N.sin(theta_in))**2)
@@ -37,6 +37,7 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2):
 
     ray_dirs = N.hstack((refracted, reflected))
     energy = N.hstack((energy*T, energy*R))
+
     return ray_dirs, energy  
                
 def reflections(R, ray_dirs, normals):  
@@ -63,13 +64,18 @@ def refractions(n1, n2, T, ray_dirs, normals):
     n1, n2, ray_dirs, normals - passed from fresnel
     Returns: new ray directions as the result of refraction
     """
+    direction = N.vdot(normals, ray_dirs)
+
     for ray in xrange(N.shape(normals)[1]):
-        cos1 = N.vdot(-normals[:,ray], ray_dirs[:,ray]) 
-    
-    cos2 = N.sqrt(1 - (n1/n2**2)*(1 - cos1**2)) 
-    
-    ray_dirs = ((n1/n2).T*ray_dirs) + (n1/n2*cos1 - cos2).T*normals        
-    
+        cos1 = N.vdot(normals[:,ray], -ray_dirs[:,ray]) 
+
+    cos2 = N.sqrt(1 - ((n1/n2)**2)*(1 - cos1**2)) 
+
+    if cos1 >= 0:
+        ray_dirs = ((n1/n2).T*ray_dirs) + (n1/n2*cos1 - cos2).T*normals        
+    else:
+        ray_dirs = ((n1/n2).T*ray_dirs) + (n1/n2*cos1 + cos2).T*normals 
+
     return ray_dirs
 
 

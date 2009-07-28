@@ -17,6 +17,9 @@ class RayBundle:
     _parent: 1D array with the index of the parent ray within the previous ray bundle
     _ref_index: a 1D array with the refraction index of the material a ray is traveling through
     """
+    def __init__(self):
+        self._temp_ref_index = N.array([])
+
     def set_vertices(self,  vert):
         """Sets the starting point of each ray."""
        # if vert.shape != (3,  self.get_num_rays()):
@@ -71,6 +74,7 @@ class RayBundle:
         newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
         newbund.set_parent(new_parent)
         newbund.set_ref_index(N.hstack((self._ref_index, added.get_ref_index()))) 
+        newbund.set_temp_ref_index(N.hstack((self._temp_ref_index, added.get_temp_ref_index())))
         return newbund
 
     def empty_bund(self):
@@ -82,6 +86,7 @@ class RayBundle:
         empty.set_energy(N.array([]))
         empty.set_parent(N.array([]))
         empty.set_ref_index(N.array([]))
+        empty.set_temp_ref_index(N.array([]))
         return empty
 
     def delete_rays(self, selector):
@@ -91,7 +96,8 @@ class RayBundle:
         outg.set_vertices(N.delete(self.get_vertices(), selector, axis=1))
         outg.set_energy(N.delete(self.get_energy(), selector))
         outg.set_parent(N.delete(self.get_parent(), selector))
-        outg.set_ref_index(N.delete(self.get_ref_index(), selector)) 
+        outg.set_ref_index(N.delete(self.get_ref_index(), selector))
+        outg.set_temp_ref_index(N.delete(self.get_ref_index(), selector))
         return outg 
 
 # Module stuff:

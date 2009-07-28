@@ -59,7 +59,7 @@ class Surface(object):
 
     def get_outer_n(self):
         return self._outer_n
-
+    
     def set_transform(self, transform):
         self._transform = transform
 
@@ -69,7 +69,7 @@ class Surface(object):
     def transform_frame(self, transform):
         self._temp_frame = N.dot(transform, self._transform)
 
-    def get_ref_index(self, n):
+    def get_ref_index(self, n, bund, selector):
         """                                                                                  
         Determines which refractive index to use based on the refractive index               
         the ray is currently travelling through                                              
@@ -80,9 +80,9 @@ class Surface(object):
         for ray in xrange(N.shape(n)[0]):
             if n[ray] == self.get_inner_n(): n[ray] = self.get_outer_n() 
             else: n[ray] = self.get_inner_n()
-        self._current_bundle.set_temp_ref_index(n)
+        bund.set_temp_ref_index(N.hstack((n[selector],n[selector])))
         return n  
-
+    
 class UniformSurface(Surface):
     """Implements an abstract surface whose material properties are independent of
     location.
