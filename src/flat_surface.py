@@ -101,7 +101,6 @@ class FlatSurface(UniformSurface):
         n1 = self._current_bundle.get_ref_index().copy()
         n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
         fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector], self.mirror)   
-
         vertices = N.dot(self._temp_rotation[:, :2],  self._current_params[:, selector]) + \
             self._temp_location[:, None]
 
@@ -115,7 +114,7 @@ class FlatSurface(UniformSurface):
 
         # Delete rays with negligible energies
         
-        delete = N.where(outg.get_energy() <= .05)[0]
+        delete = N.where(outg.get_energy() <= .05)[0] 
         if N.shape(delete)[0] != 0:
             outg = outg.delete_rays(delete)
 

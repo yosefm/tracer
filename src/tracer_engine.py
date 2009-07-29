@@ -43,13 +43,11 @@ class TracerEngine():
             # Bounce rays off each object
             for obj in self.surfaces:
                 stack.append(obj.register_incoming(bundle))
-#                objs_hit.append(obj)
             stack = N.array(stack)
-#            objs_hit = N.array(objs_hit) 
             # Raise an error if any of the parameters are negative
             if (stack < 0).any():
                 raise ValueError("Parameters must all be positive")
- 
+
             # If parameter == 0, ray does not actually hit object, but originates from there; 
             # so it should be ignored in considering intersections 
             if (stack <= 1e-10).any():   
@@ -66,7 +64,7 @@ class TracerEngine():
                 obj_array = N.where(params_index == obj)
                 stack[obj][obj_array] = True
                 stack = (stack == True)
-    
+
         return stack
     
     def ray_tracer(self, bundle, reps):
@@ -89,7 +87,7 @@ class TracerEngine():
             outg = bundle.empty_bund()
             for obj in self.surfaces:
                 inters = objs_param[self.surfaces.index(obj)]
-                new_outg = obj.get_outgoing(inters) 
+                new_outg = obj.get_outgoing(inters)
                 outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
                 bund = outg 
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking

@@ -159,17 +159,15 @@ class TestAssemblyBuilding3(unittest.TestCase):
         correct_params = N.r_[-0, 0.7853981]
 
         N.testing.assert_array_almost_equal(params, correct_params)
-'''
+
     def test_assembly2(self):
         """Tests the assembly"""
-        print 'test'
         self.engine = TracerEngine(self.assembly)
 
         params = self.engine.ray_tracer(self._bund,2)[0]
-        correct_params = N.c_[[0,-1,1],[0,0,1]]
-        print 'end test'
+        correct_params = N.c_[[0,0,1],[0,-1,1],[0,-1,1]]
         N.testing.assert_array_almost_equal(params, correct_params)
-'''
+
 if __name__ == '__main__':
     unittest.main()
 
