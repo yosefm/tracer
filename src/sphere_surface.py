@@ -20,11 +20,15 @@ class SphereSurface(UniformSurface):
         _rad - radius of the sphere
         _loc - location of the center of the sphere
         _boundary - boundary shape defining the surface
-        _temp_center - holds the value of a temporarily transformed center, for use of 
+        _temp_loc - holds the value of a temporarily transformed center, for use of 
         calculations by trace engine
         _transform - the transformation of the sphere surface into the frame of the parent
         object. Within it's own local coordinate system the sphere is assume to be centered
         about the origin
+        _inner_n & _outer_n - describe the refractive indices on either side of the surface;
+        note that nothing defines the inside or outside of a surface and it is arbitrarily
+        assigned to the surface that is already facing the air
+        _mirror - indicates if the surface is fully reflective
         """
         UniformSurface.__init__(self, location, None,  absorptivity, mirror)
         self.set_radius(radius)

@@ -25,7 +25,6 @@ class Surface(object):
             location = N.zeros(3)
         if rotation is None:
             rotation = N.eye(3)  
-        
         self.set_location(location)
         self.set_rotation(rotation)
     
@@ -36,11 +35,13 @@ class Surface(object):
         return self._rot
     
     def set_location(self,  location):
+        """Sets the location within the object"""
         if location.shape != (3, ):
             raise ValueError("location must be a 1D 3-component array")
         self._loc = location
     
     def set_rotation(self,  rotation):
+        """Sets the rotation within the object"""
         if  rotation.shape != (3, 3):
             raise ValueError("rotation must be a 3x3 array")
         self._rot = rotation

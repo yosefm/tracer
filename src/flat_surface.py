@@ -16,6 +16,16 @@ class FlatSurface(UniformSurface):
         location, rotation, absorptivity - passed along to the base class.
         width - dimension along the surface's local x axis.
         height - dimension along the surface's local y axis.
+        Attributes:
+        _transform - the transformation of the surface into the frame of the parent object  
+        object. Within it's own local coordinate system the sphere is assume to be centered  
+        about the origin
+        _self._temp_frame & self._temp_rotation - used to store values for the next iteration
+        of intersections
+        _inner_n & _outer_n - describe the refractive indices on either side of the surface;  
+        note that nothing defines the inside or outside of a surface and it is arbitrarily   
+        assigned to the surface that is already facing the air                               
+        _mirror - indicates if the surface is fully reflective   
         """
         UniformSurface.__init__(self,  location, rotation, absorptivity, mirror)
         self.set_width(width)
@@ -27,7 +37,7 @@ class FlatSurface(UniformSurface):
         self._temp_location = self._temp_frame[:3][:,3]
         self._inner_n = 1.
         self._outer_n = 1.
-
+        
     def get_width(self):
         return self._w
     
