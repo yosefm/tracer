@@ -11,13 +11,13 @@ class FlatSurface(UniformSurface):
     """Implements the geometry of a flat mirror surface. 
     The local coordinates take Z to be the plane normal.
     """
-    def __init__(self,  location=None,  rotation=None,  absorptivity=0., width=1.,  height=1.):
+    def __init__(self,  location=None,  rotation=None,  absorptivity=0., width=1.,  height=1., mirror=None):
         """Arguments: 
         location, rotation, absorptivity - passed along to the base class.
         width - dimension along the surface's local x axis.
         height - dimension along the surface's local y axis.
         """
-        UniformSurface.__init__(self,  location, rotation, absorptivity)
+        UniformSurface.__init__(self,  location, rotation, absorptivity, mirror)
         self.set_width(width)
         self.set_height(height)
         self._abs = absorptivity 
@@ -27,7 +27,6 @@ class FlatSurface(UniformSurface):
         self._temp_location = self._temp_frame[:3][:,3]
         self._inner_n = 1.
         self._outer_n = 1.
-
 
     def get_width(self):
         return self._w
@@ -59,7 +58,7 @@ class FlatSurface(UniformSurface):
         d = -ray_bundle.get_directions()
         v = ray_bundle.get_vertices() - self._temp_location[:,None]
         n = ray_bundle.get_num_rays()
-        
+    
         # `params` holds the parametric location of intersections along x axis, 
         # y-axis and ray, in that order.
         params = N.empty((3, n))
@@ -71,7 +70,7 @@ class FlatSurface(UniformSurface):
                 continue
             # Singular matrix (parallel rays to the surface):
             params[:, ray].fill(N.inf)
-
+            
         # Mark missing rays with infinity:
         missing = (abs(params[0])  > self._w/2.) | (abs(params[1] ) > self._h/2.)
         params[2, missing] = N.inf
@@ -101,7 +100,7 @@ class FlatSurface(UniformSurface):
         outg = RayBundle()
         n1 = self._current_bundle.get_ref_index().copy()
         n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])   
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector], self.mirror)   
 
         vertices = N.dot(self._temp_rotation[:, :2],  self._current_params[:, selector]) + \
             self._temp_location[:, None]

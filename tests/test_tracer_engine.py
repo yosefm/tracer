@@ -42,6 +42,7 @@ class TestTraceProtocol1(unittest.TestCase):
         N.testing.assert_array_almost_equal(params, correct_params)
 
     def test_ray_tracer(self):
+        
         params = self.engine.ray_tracer(self._bund,1)[0]
         correct_params = N.c_[[0,0,0],[0,0,0],[0,0,0]]
         
@@ -233,18 +234,16 @@ class TestRefraction(unittest.TestCase):
         
         assembly = Assembly()
         object = AssembledObject()
-        object.add_surface(FlatSurface())
+        object.add_surface(FlatSurface(mirror=False))
         object.set_ref_index(object.get_surfaces(), 1.5)
         assembly.add_object(object)
 
         self.engine = TracerEngine(assembly)
                        
     def test_intersect_ray1(self):  
-        
-        correct_params = N.r_[.4908826, 0, -0.785398 ]  
+        correct_params = N.r_[0, .4908826, -0.785398 ]  
         ans = self.engine.ray_tracer(self._bund, 1)
         params = N.arctan(ans[1][1]/ans[1][2])
-
         N.testing.assert_array_almost_equal(params, correct_params)
   
 

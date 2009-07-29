@@ -11,7 +11,7 @@ class SphereSurface(UniformSurface):
     """
     Implements the geometry of a spherical surface.  
     """
-    def __init__(self, location=None, absorptivity=0., radius=1.):
+    def __init__(self, location=None, absorptivity=0., radius=1., mirror=True):
         """
         Arguments:
         location of center, rotation, absorptivity - passed along to the base class.
@@ -26,12 +26,12 @@ class SphereSurface(UniformSurface):
         object. Within it's own local coordinate system the sphere is assume to be centered
         about the origin
         """
-        UniformSurface.__init__(self, location, None,  absorptivity)
+        UniformSurface.__init__(self, location, None,  absorptivity, mirror)
         self.set_radius(radius)
         self._loc = N.append(self._loc, N.c_[[1]])
-        self._temp_loc = self._loc
-        self._abs = absorptivity
         self._transform = N.hstack((N.array(([1,0,0],[0,1,0],[0,0,1],[0,0,0])), self._loc[:,None]))
+        self._temp_loc = self._loc*self.get_transform()
+        self._abs = absorptivity
         self._inner_n = 1.
         self._outer_n = 1.
 
@@ -43,9 +43,6 @@ class SphereSurface(UniformSurface):
             raise ValuError("Radius must be positive")
         self._rad = rad
      
-    def get_transform(self):
-         return self._transform
-
     def transform_frame(self, transform):
         self._temp_loc = N.dot(transform, self._loc)
     
@@ -62,7 +59,7 @@ class SphereSurface(UniformSurface):
         v = ray_bundle.get_vertices()
         n = ray_bundle.get_num_rays()
         c = self._temp_loc[:3]
-
+        
         params = []
         vertices = []
         norm = []
@@ -72,7 +69,7 @@ class SphereSurface(UniformSurface):
         B = 2*(d*(v - c[:,None])).sum(axis=0)
         C = ((v - c[:,None])**2).sum(axis=0) - self.get_radius()**2
         delta = B**2 - 4*A*C
-
+        
         for ray in xrange(n):
             vertex = v[:,ray]
 
@@ -84,8 +81,7 @@ class SphereSurface(UniformSurface):
             
             hits = (-B[ray] + N.r_[-1, 1]*N.sqrt(delta[ray]))/(2*A[ray])
             coords = vertex + d[:,ray]*hits[:,None]
-
-            print coords
+            
             is_positive = N.where(hits > 0)[0]
 
             # If both are negative, it is a miss
@@ -142,7 +138,7 @@ class SphereSurface(UniformSurface):
         outg = RayBundle()
         n1 = self._current_bundle.get_ref_index().copy()  
         n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector], self.mirror)
         outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))
         outg.set_directions(fresnel[0])
         outg.set_energy(fresnel[1])

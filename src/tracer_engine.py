@@ -43,33 +43,32 @@ class TracerEngine():
             # Bounce rays off each object
             for obj in self.surfaces:
                 stack.append(obj.register_incoming(bundle))
-                objs_hit.append(obj)
+#                objs_hit.append(obj)
             stack = N.array(stack)
-            objs_hit = N.array(objs_hit) 
-
+#            objs_hit = N.array(objs_hit) 
             # Raise an error if any of the parameters are negative
             if (stack < 0).any():
                 raise ValueError("Parameters must all be positive")
-
+ 
             # If parameter == 0, ray does not actually hit object, but originates from there; 
             # so it should be ignored in considering intersections 
-            if (stack == 0).any():  
-                zeros = N.where(stack == 0)
+            if (stack <= 1e-10).any():   
+                zeros = N.where(stack <= 1e-10)
                 stack[zeros] = N.inf
 
             # Find the smallest parameter for each ray, and use that as the final one,
-            # returns the indices.  If an entire row of the stack is N.inf (no hits
-            # on an object), then delete that row
+            # returns the indices.  If an entire column of the stack is N.inf (the ray misses
+            # any surfaces), then delete that column
             hit = ~N.all(stack == N.inf, axis=0)
-            params_index = stack[N.where(hit)[0]].argmin(axis=1)
-
+            params_index = stack[:,N.where(hit)[0]].argmin(axis=0)
+            
             for obj in xrange(N.shape(stack)[0]):
                 obj_array = N.where(params_index == obj)
                 stack[obj][obj_array] = True
                 stack = (stack == True)
-
+    
         return stack
-
+    
     def ray_tracer(self, bundle, reps):
         """
         Creates a ray bundle or uses a reflected ray bundle, and intersects it with all
@@ -94,9 +93,9 @@ class TracerEngine():
                 outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
                 bund = outg 
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
-            bund.set_ref_index(bund.get_temp_ref_index())
+            bund.set_ref_index(bund.get_temp_ref_index())  
                                      # Changes the refractive indices for the ray bundle
-   
+            
         return bund.get_vertices(), bund.get_directions()
                       
     def store_branch(self, bundle):

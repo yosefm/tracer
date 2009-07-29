@@ -17,6 +17,7 @@ class AssembledObject(Assembly):
         """ 
         self.surfaces = []
         self.boundaries = []
+        self.transform = N.eye(4)
 
     def get_surfaces(self):
         return self.surfaces

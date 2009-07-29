@@ -14,7 +14,7 @@ from object import AssembledObject
 from assembly import Assembly
 import assembly
 import pdb
-'''
+
 class TestObjectBuilding1(unittest.TestCase):
     """Tests an object composed of surfaces"""
     def setUp(self):
@@ -77,14 +77,13 @@ class TestObjectBuilding1(unittest.TestCase):
         correct_params = N.c_[[0,-2,1]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
-'''
 
 class TestObjectBuilding2(unittest.TestCase):
     """Tests an object composed of two surfaces"""
     def setUp(self):
         self.assembly = Assembly()
-        surface1 = FlatSurface(location=N.array([0,0,-1.]), width=5., height=5.)
-        surface2 = FlatSurface(location=N.array([0,0,1.]), width=5., height=5.) 
+        surface1 = FlatSurface(location=N.array([0,0,-1.]), width=5., height=5., mirror=False)
+        surface2 = FlatSurface(location=N.array([0,0,1.]), width=5., height=5., mirror=False) 
  
         self.object = AssembledObject()
         self.object.add_surface(surface1)
@@ -108,7 +107,6 @@ class TestObjectBuilding2(unittest.TestCase):
         ans =  self.engine.ray_tracer(self._bund,1)
         params = N.arctan(ans[1][1]/ans[1][2])
         correct_params = N.r_[-.4908826, 0.785398163]
-
         N.testing.assert_array_almost_equal(params, correct_params)
 
     def test_refraction2(self):
@@ -124,15 +122,15 @@ class TestAssemblyBuilding3(unittest.TestCase):
     def setUp(self):  
         self.assembly = Assembly()
 
-        surface1 = FlatSurface(location=N.array([0,0,-1.]), width=5., height=5.)
-        surface2 = FlatSurface(location=N.array([0,0,1.]), width=5., height=5.)
-        self.object1 = AssembledObject()
+        surface1 = FlatSurface(location=N.array([0,0,-1.]), width=5., height=5., mirror=False)
+        surface2 = FlatSurface(location=N.array([0,0,1.]), width=5., height=5., mirror=False)
+        self.object1 = AssembledObject() 
         self.object1.add_surface(surface1)
         self.object1.add_surface(surface2)
         self.object1.set_ref_index([surface1, surface2], 1.5)
         
         surface3 = SphereSurface(radius=2.)
-        boundary = BoundarySphere(radius=3.)
+        boundary = BoundarySphere(location=N.r_[0,0,3], radius=3.)
         self.object2 = AssembledObject()
         self.object2.add_surface(surface3)
         self.object2.add_boundary(boundary)
@@ -141,8 +139,9 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self.assembly.add_object(self.object1)
         self.assembly.add_object(self.object2, self.transform)
 
-        dir = N.c_[[0,0,1.],[0,1,1.],[0,1.,0]]
-        position = N.c_[[0,2,0],[0,2,0],[0,2,0.]]
+        x = 1/(math.sqrt(2))
+        dir = N.c_[[0,0,1.],[0,x,x],[0,1.,0]]
+        position = N.c_[[0,0,2.],[0,0,2.],[0,0.,2.]]
         
         self._bund = RayBundle()
         self._bund.set_vertices(position)
@@ -152,22 +151,23 @@ class TestAssemblyBuilding3(unittest.TestCase):
         
     def test_assembly1(self):
         """Tests the assembly"""
-        print 'test'
-        self.engine = TracerEngine(self.assembly)
 
+        self.engine = TracerEngine(self.assembly)
+        
         ans =  self.engine.ray_tracer(self._bund,1)
         params = N.arctan(ans[1][1]/ans[1][2])
-        correct_params = N.r_[N.pi, -0.7853981, 0]
-        print 'end test'
+        correct_params = N.r_[-0, 0.7853981]
+
         N.testing.assert_array_almost_equal(params, correct_params)
 '''
     def test_assembly2(self):
         """Tests the assembly"""
+        print 'test'
         self.engine = TracerEngine(self.assembly)
 
         params = self.engine.ray_tracer(self._bund,2)[0]
         correct_params = N.c_[[0,-1,1],[0,0,1]]
-
+        print 'end test'
         N.testing.assert_array_almost_equal(params, correct_params)
 '''
 if __name__ == '__main__':

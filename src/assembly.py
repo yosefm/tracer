@@ -40,7 +40,7 @@ class Assembly():
         if transform == None:
             transform = N.eye(4)
         self.objects.append(object)
-        object.set_transform(transform)
+        object.transform_object(transform)
 
     def add_assembly(self, assembly, transform=None):
         """Adds an assembly to the current assembly.
@@ -51,7 +51,7 @@ class Assembly():
         if transform == None:
             transform = N.eye(4)
         self.assemblies.append(assembly)
-        assembly.set_transform(transform)
+        assembly.transform_assembly(transform)
 
     def set_transform(self, transform):
         self.transform = transform

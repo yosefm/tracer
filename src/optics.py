@@ -4,7 +4,7 @@ import numpy as N
 from ray_bundle import RayBundle 
 
         
-def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2):
+def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
     """Determines what ratio of the ray bundle is reflected and what is refracted, 
     and the performs the appropriate functions on them.
     Arguments: ray_dirs - the directions of the ray bundle
@@ -13,16 +13,20 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2):
     n1 - refraction index of the material the ray is leaving
     n2 - refraction index of the material the ray is entering
     Returns:  a tuple containing the new ray directions and energy
-    """
+    """ 
     if N.shape(ray_dirs)[1] == 0:
         return ray_dirs, energy
-
+    
     theta_in = N.empty_like(ray_dirs[1])
     normals = normals*N.ones_like(ray_dirs)  # for flat surfaces which return only a single value for a normal, make the array the same size as ray_dirs
 
-    for ray in xrange(ray_dirs.shape[1]):
-        theta_in[ray] = N.pi/2-N.arcsin(N.dot(normals[:,ray], ray_dirs[:,ray]))
+    if mirror != False: 
+        reflected = reflections(N.ones_like(n1), ray_dirs, normals)
+        return N.hstack((reflected, reflected)), N.hstack((energy, N.zeros_like(energy)))
 
+    for ray in xrange(ray_dirs.shape[1]):
+        theta_in[ray] = N.arccos(N.abs(N.dot(normals[:,ray], ray_dirs[:,ray])))
+        
     foo = N.cos(theta_in) 
     bar = N.sqrt(1 - (n1/n2 * N.sin(theta_in))**2)
     
@@ -31,7 +35,7 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2):
 
     R = (Rs + Rp)/2
     T = 1 - (R+absorptivity)
-        
+
     refracted = refractions(n1, n2, T, ray_dirs, normals)
     reflected = reflections(R, ray_dirs, normals)
 

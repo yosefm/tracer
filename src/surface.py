@@ -24,7 +24,7 @@ class Surface(object):
         if location is None:
             location = N.zeros(3)
         if rotation is None:
-            rotation = N.eye(3)
+            rotation = N.eye(3)  
         
         self.set_location(location)
         self.set_rotation(rotation)
@@ -77,20 +77,26 @@ class Surface(object):
         Arguments: n - an array of the refractive indices of the materials each of             
         the rays in a ray bundle                                                              
         """
+        new_n = n.copy()
         for ray in xrange(N.shape(n)[0]):
-            if n[ray] == self.get_inner_n(): n[ray] = self.get_outer_n() 
-            else: n[ray] = self.get_inner_n()
-        bund.set_temp_ref_index(N.hstack((n[selector],n[selector])))
-        return n  
+            if n[ray] == self.get_inner_n(): new_n[ray] = self.get_outer_n() 
+            else: new_n[ray] = self.get_inner_n()
+        # Prepares a new set of refractive indices for the next ray bundle. It includes
+        # the new ref indices when a ray enters a material, and the same ref indices
+        # if the ray is reflected. The new set of ref indices are not used until the
+        # first iteration is done
+        bund.set_temp_ref_index(N.hstack((new_n[selector], n[selector])))
+        return new_n   
     
 class UniformSurface(Surface):
     """Implements an abstract surface whose material properties are independent of
     location.
     Currently only absorptivity is tracked.
     """
-    def __init__(self,  location=None,  rotation=None,  absorptivity=0.):
+    def __init__(self,  location=None,  rotation=None,  absorptivity=0., mirror=True):
         Surface.__init__(self,  location,  rotation)
         self.set_absorptivity(absorptivity)
+        self.mirror = mirror
     
     def get_absorptivity(self):
         return self._absorpt
