@@ -130,16 +130,16 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self.object1.set_ref_index([surface1, surface2], 1.5)
         
         surface3 = SphereSurface(radius=2.)
-        boundary = BoundarySphere(location=N.r_[0,0,3], radius=3.)
+        boundary = BoundarySphere(location=N.r_[0,0.,3], radius=3.)
         self.object2 = AssembledObject()
         self.object2.add_surface(surface3)
         self.object2.add_boundary(boundary)
         
-        self.transform = generate_transform(N.r_[0,0,0],0.,N.c_[[0,0,2]])
+        self.transform = generate_transform(N.r_[0,0.,0],0.,N.c_[[0.,0,2]])
         self.assembly.add_object(self.object1)
         self.assembly.add_object(self.object2, self.transform)
 
-        x = 1/(math.sqrt(2))
+        x = 1./(math.sqrt(2))
         dir = N.c_[[0,0,1.],[0,x,x],[0,1.,0]]
         position = N.c_[[0,0,2.],[0,0,2.],[0,0.,2.]]
         
@@ -150,7 +150,7 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self._bund.set_ref_index(N.r_[[1.,1.,1.]])
         
     def test_assembly1(self):
-        """Tests the assembly"""
+        """Tests the assembly after one iteration"""
 
         self.engine = TracerEngine(self.assembly)
         
@@ -161,11 +161,18 @@ class TestAssemblyBuilding3(unittest.TestCase):
         N.testing.assert_array_almost_equal(params, correct_params)
 
     def test_assembly2(self):
-        """Tests the assembly"""
+        """Tests the assembly after two iterations"""
         self.engine = TracerEngine(self.assembly)
 
         params = self.engine.ray_tracer(self._bund,2)[0]
         correct_params = N.c_[[0,0,1],[0,-1,1],[0,-1,1]]
+        N.testing.assert_array_almost_equal(params, correct_params)
+
+    def test_assembly3(self):
+        """Tests the assembly after three iterations"""
+        self.engine = TracerEngine(self.assembly)
+        params = self.engine.ray_tracer(self._bund, 3)[0]
+        correct_params = N.c_[[0,0,-1],[0,-2.069044,-1],[0,0,-1]]
         N.testing.assert_array_almost_equal(params, correct_params)
 
 if __name__ == '__main__':

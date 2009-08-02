@@ -64,7 +64,7 @@ class TracerEngine():
                 obj_array = N.where(params_index == obj)
                 stack[obj][obj_array] = True
                 stack = (stack == True)
-
+                
         return stack
     
     def ray_tracer(self, bundle, reps):

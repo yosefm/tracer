@@ -68,7 +68,7 @@ class FlatSurface(UniformSurface):
         d = -ray_bundle.get_directions()
         v = ray_bundle.get_vertices() - self._temp_location[:,None]
         n = ray_bundle.get_num_rays()
-    
+                
         # `params` holds the parametric location of intersections along x axis, 
         # y-axis and ray, in that order.
         params = N.empty((3, n))
