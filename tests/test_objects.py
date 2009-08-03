@@ -13,6 +13,7 @@ from receiver import Receiver
 from object import AssembledObject
 from assembly import Assembly
 import assembly
+from paraboloid import Paraboloid
 import pdb
 
 class TestObjectBuilding1(unittest.TestCase):
@@ -151,9 +152,7 @@ class TestAssemblyBuilding3(unittest.TestCase):
         
     def test_assembly1(self):
         """Tests the assembly after one iteration"""
-
         self.engine = TracerEngine(self.assembly)
-        
         ans =  self.engine.ray_tracer(self._bund,1)
         params = N.arctan(ans[1][1]/ans[1][2])
         correct_params = N.r_[-0, 0.7853981]
@@ -163,7 +162,7 @@ class TestAssemblyBuilding3(unittest.TestCase):
     def test_assembly2(self):
         """Tests the assembly after two iterations"""
         self.engine = TracerEngine(self.assembly)
-
+        
         params = self.engine.ray_tracer(self._bund,2)[0]
         correct_params = N.c_[[0,0,1],[0,-1,1],[0,-1,1]]
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -174,6 +173,38 @@ class TestAssemblyBuilding3(unittest.TestCase):
         params = self.engine.ray_tracer(self._bund, 3)[0]
         correct_params = N.c_[[0,0,-1],[0,-2.069044,-1],[0,0,-1]]
         N.testing.assert_array_almost_equal(params, correct_params)
+
+class TestAssemblyBuilding4(unittest.TestCase):
+    """Tests an assembly composed of objects"""
+    def setUp(self):
+        self.assembly = Assembly()
+
+        surface1 = Paraboloid()
+        boundary = BoundarySphere(radius=3.)
+        
+        self.object = AssembledObject()
+        self.object.add_surface(surface1)
+        self.object.add_boundary(boundary)
+
+        self.assembly.add_object(self.object)
+       
+        x = 1./(math.sqrt(2))
+        dir = N.c_[[0,0,-1.]]
+        position = N.c_[[0,0,1.]]
+
+        self._bund = RayBundle()
+        self._bund.set_vertices(position)
+        self._bund.set_directions(dir)
+        self._bund.set_energy(N.r_[[1.]])
+        self._bund.set_ref_index(N.r_[[1.]])
+
+    def test_paraboloid1(self):  
+        """Tests a paraboloid"""
+        self.engine = TracerEngine(self.assembly)
+        params =  self.engine.ray_tracer(self._bund,1)[1]
+        correct_params = N.c_[[0,0,1]]
+        N.testing.assert_array_almost_equal(params, correct_params)
+
 
 if __name__ == '__main__':
     unittest.main()
