@@ -82,7 +82,7 @@ class TracerEngine():
         bund = bundle
         self.store_branch(bund)
         for i in xrange(reps):
-            bund.set_parent(N.array(range(bund.get_num_rays())))  # set the parent for the purposes of ray tracking
+            bund.set_parent(N.array(range(bund.get_num_rays())))  # set the parent for the purposes of ray tracking   
             objs_param = self.intersect_ray(bund)
             outg = bundle.empty_bund()
             for obj in self.surfaces:

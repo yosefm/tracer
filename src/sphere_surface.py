@@ -35,7 +35,7 @@ class SphereSurface(QuadricSurface):
         self._temp_loc = N.dot(transform, self._loc)
 
     def get_normal(self, dot, hit, c):
-       """Finds the normal by taking the derivative and rotating it, returns the               
+        """Finds the normal by taking the derivative and rotating it, returns the            
         information to the quadric class for calculations                                  
         Arguments:                                                                      
         dot - the dot product of the normal vector and the incoming ray, used to determine 
