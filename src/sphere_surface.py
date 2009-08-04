@@ -19,17 +19,6 @@ class SphereSurface(QuadricSurface):
         boundary - boundary shape defining the surface
         Private attributes:
         _rad - radius of the sphere
-        _loc - location of the center of the sphere
-        _boundary - boundary shape defining the surface
-        _temp_loc - holds the value of a temporarily transformed center, for use of 
-        calculations by trace engine
-        _transform - the transformation of the sphere surface into the frame of the parent
-        object. Within it's own local coordinate system the sphere is assume to be centered
-        about the origin
-        _inner_n & _outer_n - describe the refractive indices on either side of the surface;
-        note that nothing defines the inside or outside of a surface and it is arbitrarily
-        assigned to the surface that is already facing the air
-        _mirror - indicates if the surface is fully reflective
         """
         QuadricSurface.__init__(self, location, None, absorptivity, mirror)
         self.set_radius(radius)  
@@ -46,18 +35,23 @@ class SphereSurface(QuadricSurface):
         self._temp_loc = N.dot(transform, self._loc)
 
     def get_normal(self, dot, hit, c):
+       """Finds the normal by taking the derivative and rotating it, returns the               
+        information to the quadric class for calculations                                  
+        Arguments:                                                                      
+        dot - the dot product of the normal vector and the incoming ray, used to determine 
+        which side is the outer surface (this is not relevant to the paraboloid since the  
+        cross product determines it, but it is to the sphere surface)                     
+        hit - the coordinates of an intersection                                            
+        c - the center/vertex of the surface 
+        """
         normal = ((hit - c) if dot <= 0 else  (c - hit))[:,None]
         normal = normal/N.linalg.norm(normal)
         return normal
 
     # Ray handling protocol:
     def get_ABC(self, ray_bundle):
-        """
-        Deals wih a ray bundle intersecting with a sphere
-        Arguments:
-        ray_bundle - the incoming bundle 
-        Returns a 1D array with the parametric position of intersection along
-        each ray.  Rays that miss the surface return +infinity
+        """ 
+        Determines the variables forming the relevant quadric equation                         
         """ 
         d = ray_bundle.get_directions()
         v = ray_bundle.get_vertices()

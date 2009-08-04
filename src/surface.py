@@ -93,6 +93,9 @@ class UniformSurface(Surface):
     """Implements an abstract surface whose material properties are independent of
     location.
     Currently only absorptivity is tracked.
+    Private attributes:
+    self.mirror - whether the surface is mirrored or not
+    self._absorp - the absorptivity of the surface
     """
     def __init__(self,  location=None,  rotation=None,  absorptivity=0., mirror=True):
         Surface.__init__(self,  location,  rotation)

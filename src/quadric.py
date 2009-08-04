@@ -9,7 +9,18 @@ import pdb
 
 class QuadricSurface(UniformSurface):
     """
-    Implements the geometry of a quadric surface.  
+    Implements the geometry of a quadric surface.
+    Private attributes:                                                     
+        _loc - location of the surface                                             
+        _boundary - boundary shape defining the surface                                      
+        _temp_loc - holds the value of a temporarily transformed center, for use of          
+        calculations by tracer engine                                                        
+        _transform - the transformation of the sphere surface into the frame of the parent   
+        object. Within it's own local coordinate system the sphere is assume to be centered  
+        about the origin                                                                     
+        _inner_n & _outer_n - describe the refractive indices on either side of the surface; 
+        note that nothing defines the inside or outside of a surface and it is arbitrarily   
+        assigned to the surface that is already facing the air                               
     """
     def __init__(self, location=None, rotation=None, absorptivity=0., mirror=True):
         UniformSurface.__init__(self, location, rotation,  absorptivity, mirror)
@@ -26,7 +37,7 @@ class QuadricSurface(UniformSurface):
     # Ray handling protocol:
     def register_incoming(self, ray_bundle):
         """
-        Deals wih a ray bundle intersecting with a sphere
+        Deals wih a ray bundle intersecting with the surface
         Arguments:
         ray_bundle - the incoming bundle 
         Returns a 1D array with the parametric position of intersection along
@@ -41,6 +52,7 @@ class QuadricSurface(UniformSurface):
         vertices = []
         norm = []
         
+        # Gets the relevant A, B, C from whichever quadric surface
         A, B, C = self.get_ABC(ray_bundle)
         
         delta = B**2 - 4*A*C
@@ -79,9 +91,6 @@ class QuadricSurface(UniformSurface):
                 param = is_positive[0]
 
             verts = N.c_[coords[param,:]]
-            
-            # Define normal based on whether it is hitting an inner or
-            # an outer surface of the sphere
         
             dot = N.vdot(c.T - coords[param,:], d[:,ray])
             normal = self.get_normal(dot, coords[param,:], c)
