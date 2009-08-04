@@ -188,21 +188,22 @@ class TestAssemblyBuilding4(unittest.TestCase):
 
         self.assembly.add_object(self.object)
        
-        x = 1./(math.sqrt(2))
-        dir = N.c_[[0,0,-1.]]
-        position = N.c_[[0,0,1.]]
+        x = 1./(math.sqrt(2))  
+        dir = N.c_[[0,0,-1.],[0,x,-x]]
+        position = N.c_[[0,0,1.],[0,0,1.]]
 
         self._bund = RayBundle()
         self._bund.set_vertices(position)
         self._bund.set_directions(dir)
-        self._bund.set_energy(N.r_[[1.]])
-        self._bund.set_ref_index(N.r_[[1.]])
+        self._bund.set_energy(N.r_[[1.,1]])
+        self._bund.set_ref_index(N.r_[[1.,1]])
 
     def test_paraboloid1(self):  
         """Tests a paraboloid"""
+        print 'test'
         self.engine = TracerEngine(self.assembly)
-        params =  self.engine.ray_tracer(self._bund,1)[1]
-        correct_params = N.c_[[0,0,1]]
+        params =  self.engine.ray_tracer(self._bund,1)[0]
+        correct_params = N.c_[[0,0,0],[0,0.618033989, 0.381966011]]
         N.testing.assert_array_almost_equal(params, correct_params)
 
 

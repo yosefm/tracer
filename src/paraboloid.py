@@ -22,14 +22,12 @@ class Paraboloid(QuadricSurface):
         normal = normal/N.linalg.norm(normal)
         return normal  
     
-    
     def get_ABC(self, ray_bundle):
-        d = N.dot(self.transform, N.vstack((ray_bundle.get_directions(), N.array([1]))))     
+        d = N.dot(self.transform, N.vstack((ray_bundle.get_directions(), N.ones(ray_bundle.get_num_rays()))))    
         v = ray_bundle.get_vertices() 
         A = self.a*d[0]**2 + self.b*d[1]**2
-        B = 2*self.a*d[0]*v[0] + 2*self.b*d[1]*v[1] + d[2] 
-        C = self.a*v[0] + self.b*v[1] + v[2]
-        
+        B = 2*self.a*d[0]*v[0] + 2*self.b*d[1]*v[1] - d[2] 
+        C = self.a*v[0]**2 + self.b*v[1]**2 - v[2]
         
         return A, B, C
     

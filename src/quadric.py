@@ -41,13 +41,10 @@ class QuadricSurface(UniformSurface):
         vertices = []
         norm = []
         
-        ABC = self.get_ABC(ray_bundle)
-        A = ABC[0]
-        B = ABC[1]
-        C = ABC[2]
-
-        delta = B**2 - 4*A*C
+        A, B, C = self.get_ABC(ray_bundle)
         
+        delta = B**2 - 4*A*C
+        #print delta
         for ray in xrange(n):
             vertex = v[:,ray]
 
@@ -60,11 +57,12 @@ class QuadricSurface(UniformSurface):
             if A[ray] == 0: 
                 hit = -C[ray]/B[ray]
                 hits = N.hstack((hit,hit))
+            
             else: hits = (-B[ray] + N.r_[-1, 1]*N.sqrt(delta[ray]))/(2*A[ray])
             coords = vertex + d[:,ray]*hits[:,None]
-            
+        
             is_positive = N.where(hits > 0)[0]
-
+            
             # If both are negative, it is a miss
             if N.shape(is_positive) == (0,):
                 params.append(N.inf)
