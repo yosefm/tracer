@@ -35,7 +35,7 @@ class TracerEngine():
         # If there is only a single object, don't need to find minimum distance and
         # can just return a boolean array based on whether the hit missed or did not
         if len(self.surfaces) == 1:
-            stack = [~N.isinf(self.surfaces[0].register_incoming(bundle))]
+            stack = N.atleast_2d(~N.isinf(self.surfaces[0].register_incoming(bundle)))
             
         else:
             stack = []
@@ -57,14 +57,8 @@ class TracerEngine():
             # Find the smallest parameter for each ray, and use that as the final one,
             # returns the indices.  If an entire column of the stack is N.inf (the ray misses
             # any surfaces), then delete that column
-            hit = ~N.all(stack == N.inf, axis=0)
-            params_index = stack[:,N.where(hit)[0]].argmin(axis=0)
+            stack = ((stack == stack.min(axis=0)) & ~N.isinf(stack))
             
-            for obj in xrange(N.shape(stack)[0]):
-                obj_array = N.where(params_index == obj)
-                stack[obj][obj_array] = True
-                stack = (stack == True)
-                
         return stack
     
     def ray_tracer(self, bundle, reps):
