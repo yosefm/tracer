@@ -12,7 +12,7 @@ class TracerEngine():
     Tracer Engine implements that actual ray tracing. It keeps track of the number
     of objects, and determines which rays intersected which object.
     """
-    def __init__(self, parent_assembly, n1, n2):
+    def __init__(self, parent_assembly):
         """
         Arguments:
         parent_assembly - the highest level assembly
@@ -22,8 +22,6 @@ class TracerEngine():
         """
         self.surfaces = parent_assembly.get_surfaces()
         self.tree = []
-        self.n1 = n1
-        self.n2 = n2
 
     def intersect_ray(self, bundle):
         """
@@ -45,10 +43,7 @@ class TracerEngine():
             # Bounce rays off each object
             for obj in self.surfaces:
                 stack.append(obj.register_incoming(bundle))
-                objs_hit.append(obj)
             stack = N.array(stack)
-            objs_hit = N.array(objs_hit) 
-
             # Raise an error if any of the parameters are negative
             if (stack < 0).any():
                 raise ValueError("Parameters must all be positive")
@@ -60,18 +55,18 @@ class TracerEngine():
                 stack[zeros] = N.inf
 
             # Find the smallest parameter for each ray, and use that as the final one,
-            # returns the indices.  If an entire row of the stack is N.inf (no hits
-            # on an object), then delete that row
+            # returns the indices.  If an entire column of the stack is N.inf (the ray misses
+            # any surfaces), then delete that column
             hit = ~N.all(stack == N.inf, axis=0)
-            params_index = stack[N.where(hit)[0]].argmin(axis=1)
-
+            params_index = stack[:,N.where(hit)[0]].argmin(axis=0)
+            
             for obj in xrange(N.shape(stack)[0]):
                 obj_array = N.where(params_index == obj)
                 stack[obj][obj_array] = True
                 stack = (stack == True)
-
+                
         return stack
-
+    
     def ray_tracer(self, bundle, reps):
         """
         Creates a ray bundle or uses a reflected ray bundle, and intersects it with all
@@ -87,17 +82,19 @@ class TracerEngine():
         bund = bundle
         self.store_branch(bund)
         for i in xrange(reps):
-            bund.set_parent(N.array(range(bund.get_num_rays())))  # set the parent for the purposes of ray tracking
+            bund.set_parent(N.array(range(bund.get_num_rays())))  # set the parent for the purposes of ray tracking   
             objs_param = self.intersect_ray(bund)
             outg = bundle.empty_bund()
             for obj in self.surfaces:
                 inters = objs_param[self.surfaces.index(obj)]
-                new_outg = obj.get_outgoing(inters, self.n1, self.n2)
+                new_outg = obj.get_outgoing(inters)
                 outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
                 bund = outg 
             print i, ": ", bund.get_vertices()
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
-
+            bund.set_ref_index(bund.get_temp_ref_index())  
+                                     # Changes the refractive indices for the ray bundle
+            
         return bund.get_vertices(), bund.get_directions()
                       
     def store_branch(self, bundle):

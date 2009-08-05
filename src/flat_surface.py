@@ -11,13 +11,23 @@ class FlatSurface(UniformSurface):
     """Implements the geometry of a flat mirror surface. 
     The local coordinates take Z to be the plane normal.
     """
-    def __init__(self,  location=None,  rotation=None,  absorptivity=0., width=1.,  height=1.):
+    def __init__(self,  location=None,  rotation=None,  absorptivity=0., width=1.,  height=1., mirror=None):
         """Arguments: 
         location, rotation, absorptivity - passed along to the base class.
         width - dimension along the surface's local x axis.
         height - dimension along the surface's local y axis.
+        Attributes:
+        _transform - the transformation of the surface into the frame of the parent object  
+        object. Within it's own local coordinate system the sphere is assume to be centered  
+        about the origin
+        _self._temp_frame & self._temp_rotation - used to store values for the next iteration
+        of intersections
+        _inner_n & _outer_n - describe the refractive indices on either side of the surface;  
+        note that nothing defines the inside or outside of a surface and it is arbitrarily   
+        assigned to the surface that is already facing the air                               
+        _mirror - indicates if the surface is fully reflective   
         """
-        UniformSurface.__init__(self,  location, rotation, absorptivity)
+        UniformSurface.__init__(self,  location, rotation, absorptivity, mirror)
         self.set_width(width)
         self.set_height(height)
         self._abs = absorptivity 
@@ -25,7 +35,9 @@ class FlatSurface(UniformSurface):
         self._temp_frame = self._transform
         self._temp_rotation = self._temp_frame[:3][:,:3]
         self._temp_location = self._temp_frame[:3][:,3]
-
+        self._inner_n = 1.
+        self._outer_n = 1.
+        
     def get_width(self):
         return self._w
     
@@ -41,16 +53,7 @@ class FlatSurface(UniformSurface):
         if h <= 0:
             raise ValueError("Height must be positive")
         self._h = h
-                
-    def set_transform(self, transform):
-        self._transform = transform
-
-    def get_transform(self):
-        return self._transform
-
-    def transform_frame(self, transform):
-        self._temp_frame = N.dot(transform, self._transform)
-
+      
     # Ray handling protocol:
     def register_incoming(self,  ray_bundle):
         """This is the first phase of dealing with an energy bundle. The surface
@@ -65,7 +68,7 @@ class FlatSurface(UniformSurface):
         d = -ray_bundle.get_directions()
         v = ray_bundle.get_vertices() - self._temp_location[:,None]
         n = ray_bundle.get_num_rays()
-        
+                
         # `params` holds the parametric location of intersections along x axis, 
         # y-axis and ray, in that order.
         params = N.empty((3, n))
@@ -77,11 +80,11 @@ class FlatSurface(UniformSurface):
                 continue
             # Singular matrix (parallel rays to the surface):
             params[:, ray].fill(N.inf)
-
+            
         # Mark missing rays with infinity:
         missing = (abs(params[0])  > self._w/2.) | (abs(params[1] ) > self._h/2.)
         params[2, missing] = N.inf
-        
+
         # Takes into account a negative depth
         # Note that only the 3rd row of params is relevant here!
         negative = params[2] < 0
@@ -93,7 +96,7 @@ class FlatSurface(UniformSurface):
 
         return params[2]
     
-    def get_outgoing(self,  selector, n1, n2):
+    def get_outgoing(self,  selector):
         """Generates a new ray bundle, which is the reflections/refractions of the
         user-selected rays out of the incoming ray-bundle that was previously 
         registered.
@@ -101,12 +104,13 @@ class FlatSurface(UniformSurface):
             bundle are still relevant.
         Returns: a RayBundle object with the new bundle, with vertices on the panel
             and directions according to optics laws.
-
         """
-
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector])  
-        outg = RayBundle() 
-
+        # Note that n1 is a copy for get_ref_index() since assigning n2 changes the value
+        # of the current bundle's refractive index 
+        outg = RayBundle()
+        n1 = self._current_bundle.get_ref_index().copy()
+        n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector], self.mirror)   
         vertices = N.dot(self._temp_rotation[:, :2],  self._current_params[:, selector]) + \
             self._temp_location[:, None]
 
@@ -120,7 +124,7 @@ class FlatSurface(UniformSurface):
 
         # Delete rays with negligible energies
         
-        delete = N.where(outg.get_energy() <= .05)[0]
+        delete = N.where(outg.get_energy() <= .05)[0] 
         if N.shape(delete)[0] != 0:
             outg = outg.delete_rays(delete)
 
