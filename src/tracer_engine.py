@@ -55,8 +55,8 @@ class TracerEngine():
 
             # If parameter == 0, ray does not actually hit object, but originates from there; 
             # so it should be ignored in considering intersections 
-            if (stack == 0).any():
-                zeros = N.where(stack == 0)
+            if (stack <= 1e-10).any():
+                zeros = N.where(stack <= 1e-10)
                 stack[zeros] = N.inf
 
             # Find the smallest parameter for each ray, and use that as the final one,
@@ -95,6 +95,7 @@ class TracerEngine():
                 new_outg = obj.get_outgoing(inters, self.n1, self.n2)
                 outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
                 bund = outg 
+            print i, ": ", bund.get_vertices()
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
 
         return bund.get_vertices(), bund.get_directions()
