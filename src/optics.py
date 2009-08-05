@@ -28,7 +28,7 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
         reflected = reflections(N.ones_like(n1), ray_dirs, normals)
         return N.hstack((reflected, reflected)), N.hstack((energy, N.zeros_like(energy)))
 
-    for ray in xrange(ray_dirs.shape[1]):
+    for ray in xrange(ray_dirs.shape[1]): 
         theta_in[ray] = N.arccos(N.abs(N.dot(normals[:,ray], ray_dirs[:,ray])))
         
     foo = N.cos(theta_in) 

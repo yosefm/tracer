@@ -72,7 +72,7 @@ class QuadricSurface(UniformSurface):
             
             else: hits = (-B[ray] + N.r_[-1, 1]*N.sqrt(delta[ray]))/(2*A[ray])
             coords = vertex + d[:,ray]*hits[:,None]
-        
+            
             is_positive = N.where(hits > 0)[0]
             
             # If both are negative, it is a miss
@@ -111,7 +111,7 @@ class QuadricSurface(UniformSurface):
         self._vertices = N.hstack(vertices)
         self._current_bundle = ray_bundle
         self._norm = N.hstack(norm)  
-
+        
         return params
     
     def get_outgoing(self, selector):
@@ -138,6 +138,6 @@ class QuadricSurface(UniformSurface):
         delete = N.where(outg.get_energy() <= .05)[0]
         if N.shape(delete)[0] != 0:
             outg = outg.delete_rays(delete)
-
+        
         return outg
 

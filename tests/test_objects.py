@@ -139,9 +139,9 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self.transform = generate_transform(N.r_[0,0.,0],0.,N.c_[[0.,0,2]])
         self.assembly.add_object(self.object1)
         self.assembly.add_object(self.object2, self.transform)
-
+        
         x = 1./(math.sqrt(2))
-        dir = N.c_[[0,0,1.],[0,x,x],[0,1.,0]]
+        dir = N.c_[[0,1.,0.],[0,x,x],[0,0,1.]]
         position = N.c_[[0,0,2.],[0,0,2.],[0,0.,2.]]
         
         self._bund = RayBundle()
@@ -151,6 +151,7 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self._bund.set_ref_index(N.r_[[1.,1.,1.]])
         
     def test_assembly1(self):
+        print 'test'
         """Tests the assembly after one iteration"""
         self.engine = TracerEngine(self.assembly)
         ans =  self.engine.ray_tracer(self._bund,1)
@@ -167,11 +168,11 @@ class TestAssemblyBuilding3(unittest.TestCase):
         correct_params = N.c_[[0,0,1],[0,-1,1],[0,-1,1]]
         N.testing.assert_array_almost_equal(params, correct_params)
 
-    def test_assembly3(self):
+    def test_assembly3(self):      
         """Tests the assembly after three iterations"""
         self.engine = TracerEngine(self.assembly)
         params = self.engine.ray_tracer(self._bund, 3)[0]
-        correct_params = N.c_[[0,0,-1],[0,-2.069044,-1],[0,0,-1]]
+        correct_params = N.c_[[0,0,-1],[0,-2.069044,-1]]
         N.testing.assert_array_almost_equal(params, correct_params)
 
 class TestAssemblyBuilding4(unittest.TestCase):
@@ -200,7 +201,7 @@ class TestAssemblyBuilding4(unittest.TestCase):
 
     def test_paraboloid1(self):  
         """Tests a paraboloid"""
-        print 'test'
+        
         self.engine = TracerEngine(self.assembly)
         params =  self.engine.ray_tracer(self._bund,1)[0]
         correct_params = N.c_[[0,0,0],[0,0.618033989, 0.381966011]]

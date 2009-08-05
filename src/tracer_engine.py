@@ -47,7 +47,7 @@ class TracerEngine():
             # Raise an error if any of the parameters are negative
             if (stack < 0).any():
                 raise ValueError("Parameters must all be positive")
-
+            
             # If parameter == 0, ray does not actually hit object, but originates from there; 
             # so it should be ignored in considering intersections 
             if (stack <= 1e-10).any():   
@@ -59,12 +59,12 @@ class TracerEngine():
             # any surfaces), then delete that column
             hit = ~N.all(stack == N.inf, axis=0)
             params_index = stack[:,N.where(hit)[0]].argmin(axis=0)
-            
+
             for obj in xrange(N.shape(stack)[0]):
                 obj_array = N.where(params_index == obj)
                 stack[obj][obj_array] = True
                 stack = (stack == True)
-                
+        
         return stack
     
     def ray_tracer(self, bundle, reps):
@@ -81,8 +81,8 @@ class TracerEngine():
 
         bund = bundle
         self.store_branch(bund)
+        bund.set_parent(N.arange(bund.get_num_rays()))  # set the parent for the purposes of ray tracking   
         for i in xrange(reps):
-            bund.set_parent(N.array(range(bund.get_num_rays())))  # set the parent for the purposes of ray tracking   
             objs_param = self.intersect_ray(bund)
             outg = bundle.empty_bund()
             for obj in self.surfaces:
@@ -127,8 +127,8 @@ class TracerEngine():
         parent = parent_list[index]  # Gets the index of the parent of the specific ray of interest
         bundle = self.tree[i]  # Gets the parent bundle
         while i > 0:  # Recurse until the function has walked through the whole tree
-            i = i-1
-            self.track_parent_helper(self, bundle, parent, i)
+            i = i-1   
+            self.track_parent_helper(bundle, parent, i)
         return parent
 
     def track_ray(self, bundle, index):
