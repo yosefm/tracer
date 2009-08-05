@@ -35,7 +35,7 @@ class TracerEngine():
         # If there is only a single object, don't need to find minimum distance and
         # can just return a boolean array based on whether the hit missed or did not
         if len(self.surfaces) == 1:
-            stack = [~N.isinf(self.surfaces[0].register_incoming(bundle))]
+            stack = N.atleast_2d(~N.isinf(self.surfaces[0].register_incoming(bundle)))
             
         else:
             stack = []
@@ -50,21 +50,15 @@ class TracerEngine():
             
             # If parameter == 0, ray does not actually hit object, but originates from there; 
             # so it should be ignored in considering intersections 
-            if (stack <= 1e-10).any():   
+            if (stack <= 1e-10).any():
                 zeros = N.where(stack <= 1e-10)
                 stack[zeros] = N.inf
 
             # Find the smallest parameter for each ray, and use that as the final one,
             # returns the indices.  If an entire column of the stack is N.inf (the ray misses
             # any surfaces), then delete that column
-            hit = ~N.all(stack == N.inf, axis=0)
-            params_index = stack[:,N.where(hit)[0]].argmin(axis=0)
-
-            for obj in xrange(N.shape(stack)[0]):
-                obj_array = N.where(params_index == obj)
-                stack[obj][obj_array] = True
-                stack = (stack == True)
-        
+            stack = ((stack == stack.min(axis=0)) & ~N.isinf(stack))
+            
         return stack
     
     def ray_tracer(self, bundle, reps):
@@ -90,6 +84,7 @@ class TracerEngine():
                 new_outg = obj.get_outgoing(inters)
                 outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
                 bund = outg 
+            print i, ": ", bund.get_vertices()
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
             bund.set_ref_index(bund.get_temp_ref_index())  
                                      # Changes the refractive indices for the ray bundle
