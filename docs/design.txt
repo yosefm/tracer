@@ -40,8 +40,16 @@ uses that bundle for the next iteration.
 
 Energy bundles
 --------------
-A ray-tracing algorithm cab work with two different kinds of rays: ones with discrete amounts of energy ("energy bundles") and ones with continuous (floating-point) amounts of energy. For the first case, statistical rules are used to determine absorption, reflectance, etc. This software uses the second method.
+A ray-tracing algorithm cab work with two different kinds of rays: ones with
+discrete amounts of energy ("energy bundles") and ones with continuous
+(floating-point) amounts of energy. For the first case, statistical rules are
+used to determine absorption, reflectance, etc. This software uses the second
+method.
 
-Working with continuous energy, each ray's intersection with a surface may cause several new rays to be created, according to the laws of reflection and refraction, and given Fresnel's formulae (only specular reflections are currently supported). A resulting ray may be discarded if it carries energy lower than a user-defined threshold.
+Working with continuous energy, each ray's intersection with a surface may
+cause several new rays to be created, according to the laws of reflection and
+refraction, and given Fresnel's formulae (only specular reflections are
+currently supported). A resulting ray may be discarded if it carries energy
+lower than a user-defined threshold.
 
 
