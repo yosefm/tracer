@@ -1,0 +1,47 @@
+
+This document is meant to explain a bit about the design of the tracer, its 
+components and goals.
+
+Overview
+--------
+The tracer is concerned with a scene in which light rays can 
+move about freely. In the scene we have objects that rays may interact with. A ray 
+in free space may interact with an object by intersecting with its surface, at 
+which point it can be reflected or refracted.
+
+Tracing a ray is a question of selecting which surface is intersected by which 
+rays, and at what point along the ray. This is the purpose of the TracerEngine 
+class; Surface subclasses interact with the tracer engine through a communication 
+protocol that the surfaces are expected to follow.
+
+
+Communication protocol
+----------------------
+The communication between the tracer engine and the surfaces happens in the 
+following stages:
+
+1. The tracer calls a function register_incoming() on a surface, passing in a ray 
+bundle object. In return, the surface gives an array where for each incoming ray 
+the parametric position along the ray where the ray hits is returned; rays that 
+don't hit the surface are marked with infinity.
+
+2. The engine decides, for each ray, which of the surfaces in the scene has the 
+closest intersection with that ray; it then asks the surface only about these 
+rays.
+
+3. The engine calls each surface's get_outgoing() routine, with a selector 
+specifying which of the incoming rays to answer about. The surface is expected to 
+already have all the information needed for the answer. The surface replies with a 
+new RayBundle object which may include reflected and refracted rays.
+
+4. The engine then takes all the answers, welds them into a new ray bundle, and 
+uses that bundle for the next iteration.
+
+
+Energy bundles
+--------------
+A ray-tracing algorithm cab work with two different kinds of rays: ones with discrete amounts of energy ("energy bundles") and ones with continuous (floating-point) amounts of energy. For the first case, statistical rules are used to determine absorption, reflectance, etc. This software uses the second method.
+
+Working with continuous energy, each ray's intersection with a surface may cause several new rays to be created, according to the laws of reflection and refraction, and given Fresnel's formulae (only specular reflections are currently supported). A resulting ray may be discarded if it carries energy lower than a user-defined threshold.
+
+
