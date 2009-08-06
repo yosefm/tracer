@@ -61,14 +61,16 @@ class TracerEngine():
             
         return stack
     
-    def ray_tracer(self, bundle, reps):
+    def ray_tracer(self, bundle, reps, min_energy):
         """
         Creates a ray bundle or uses a reflected ray bundle, and intersects it with all
         objects, uses intersect_ray()
         Arguments:
         reps - number of times to repeat the simulation (where each simulation represents
         a ray bundle being intersected with a set of objects one time)
-        Returns:
+        min_energy - the minimum energy the rays have to have continue tracking them; rays 
+        with a lower energy are discarded. A float.
+        Returns: 
         For the time being, returns an array of vertices of the most recent intersections,
         note that the order of the rays within the arrays may change
         """
@@ -81,7 +83,7 @@ class TracerEngine():
             outg = bundle.empty_bund()
             for obj in self.surfaces:
                 inters = objs_param[self.surfaces.index(obj)]
-                new_outg = obj.get_outgoing(inters)
+                new_outg = obj.get_outgoing(inters, min_energy)
                 outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
                 bund = outg 
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking

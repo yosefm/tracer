@@ -114,7 +114,7 @@ class QuadricSurface(UniformSurface):
         
         return params
     
-    def get_outgoing(self, selector):
+    def get_outgoing(self, selector, min_energy):
         """
         Generates a new ray bundle, which is the reflection of the user selected rays out of
         the incoming ray bundle that was previously registered.
@@ -135,7 +135,7 @@ class QuadricSurface(UniformSurface):
                                     self._current_bundle.get_ref_index()[selector])))
                 
         # Delete rays with negligible energies 
-        delete = N.where(outg.get_energy() <= .05)[0]
+        delete = N.where(outg.get_energy() <= min_energy)[0]
         if N.shape(delete)[0] != 0:
             outg = outg.delete_rays(delete)
         

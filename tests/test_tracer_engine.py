@@ -43,7 +43,7 @@ class TestTraceProtocol1(unittest.TestCase):
 
     def test_ray_tracer(self):
         
-        params = self.engine.ray_tracer(self._bund,1)[0]
+        params = self.engine.ray_tracer(self._bund,1,.05)[0]
         correct_params = N.c_[[0,0,0],[0,0,0],[0,0,0]]
         
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -112,7 +112,7 @@ class TestTraceProtocol3(unittest.TestCase):
         N.testing.assert_array_almost_equal(params,correct_params)    
 
     def test_ray_tracer1(self):
-        params = self.engine.ray_tracer(self._bund, 1)[0]
+        params = self.engine.ray_tracer(self._bund, 1,.05)[0]
         correct_params = N.c_[[0,.5,.5],[0,1,1]]
 
         N.testing.assert_array_almost_equal(params,correct_params)
@@ -147,13 +147,13 @@ class TestTraceProtocol4(unittest.TestCase):
         self.engine = TracerEngine(assembly)
         
     def test_ray_tracer1(self):
-        params = self.engine.ray_tracer(self._bund, 1)[0]
+        params = self.engine.ray_tracer(self._bund, 1,.05)[0]
         correct_params = N.c_[[0,1.5,1.5],[0,2,0]]
         
         N.testing.assert_array_almost_equal(params,correct_params)
 
     def test_ray_tracer2(self):
-        params = self.engine.ray_tracer(self._bund, 2)[0]
+        params = self.engine.ray_tracer(self._bund, 2,.05)[0]
         correct_params = N.c_[[0,2,2],[0,3,0]]
         
         N.testing.assert_array_almost_equal(params,correct_params)
@@ -180,7 +180,7 @@ class TestTraceProtocol5(unittest.TestCase):
         self.engine = TracerEngine(assembly)
 
     def test_ray_tracer1(self):
-        params = self.engine.ray_tracer(self._bund, 1)[0]
+        params = self.engine.ray_tracer(self._bund, 1, .05)[0]
         correct_params = N.c_[[0,1,0],[0,1,0]]
          
         N.testing.assert_array_almost_equal(params,correct_params)
@@ -213,7 +213,7 @@ class TestTraceProtocol6(unittest.TestCase):
         self.engine = TracerEngine(assembly)
         
     def test_ray_tracers1(self):
-        params = self.engine.ray_tracer(self._bund, 1)[0]
+        params = self.engine.ray_tracer(self._bund, 1, .05)[0]
         correct_params = N.c_[[0,2,0]]
 
         N.testing.assert_array_almost_equal(params,correct_params)
@@ -241,7 +241,7 @@ class TestRefraction(unittest.TestCase):
                        
     def test_intersect_ray1(self):  
         correct_params = N.r_[0, .4908826, -0.785398 ]  
-        ans = self.engine.ray_tracer(self._bund, 1)
+        ans = self.engine.ray_tracer(self._bund, 1, .05)
         params = N.arctan(ans[1][1]/ans[1][2])
         N.testing.assert_array_almost_equal(params, correct_params)
   
