@@ -58,8 +58,8 @@ class TracerEngine():
             # any surfaces), then delete that column
             stack = ((stack == stack.min(axis=0)) & ~N.isinf(stack))
             
-        return stack
-    
+        return stack 
+
     def ray_tracer(self, bundle, reps, min_energy):
         """
         Creates a ray bundle or uses a reflected ray bundle, and intersects it with all
@@ -88,9 +88,7 @@ class TracerEngine():
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
             bund.set_ref_index(bund.get_temp_ref_index())  
                                      # Changes the refractive indices for the ray bundle
-            print bund.get_parent()
-            print
-            print ' ---------------- '
+            
         return bund.get_vertices(), bund.get_directions()
                       
     def store_branch(self, bundle):
@@ -98,6 +96,15 @@ class TracerEngine():
         Stores a tree of ray bundles  
         """
         self.tree.append(bundle)
+
+    def get_parents_from_tree(self):
+        """
+        Returns a list of arrays of the list of parents for each iteration 
+        """
+        tree = []
+        for bundle in self.tree:
+            tree.append(bundle.get_parent())
+        return tree
 
     def track_parent(self, bundle, index):
         """

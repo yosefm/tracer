@@ -38,7 +38,7 @@ class TestTree(unittest.TestCase):
         self.assembly.add_object(self.object2, self.transform2)
 
         x = 1./(math.sqrt(2))
-        dir = N.c_[[0,-x,x],[0,x,x],[0,0,1.]]
+        dir = N.c_[[0,x,x],[0,-x,x],[0,0,1.]]
         position = N.c_[[0,0,2.],[0,0,2.],[0,0.,2.]]
                                             
         self._bund = RayBundle()
@@ -51,10 +51,11 @@ class TestTree(unittest.TestCase):
         """Tests that the assembly heirarchy works at a basic level"""
         self.engine = TracerEngine(self.assembly)
 
-        params =  self.engine.ray_tracer(self._bund,3,.05)[0]
-        correct_params = N.r_[[]]
-
-        N.testing.assert_array_almost_equal(params, correct_params)
+        self.engine.ray_tracer(self._bund,3,.05)[0]
+        params = self.engine.get_parents_from_tree()
+        correct_params = [N.r_[0,1,2],N.r_[0,1,2],N.r_[1,2],N.r_[1]]
+        
+        N.testing.assert_equal(params, correct_params)
 
 if __name__ == '__main__':
     unittest.main()
