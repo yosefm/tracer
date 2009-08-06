@@ -181,7 +181,7 @@ class TestTraceProtocol5(unittest.TestCase):
 
     def test_ray_tracer1(self):
         params = self.engine.ray_tracer(self._bund, 1, .05)[0]
-        correct_params = N.c_[[0,1,0],[0,1,0]]
+        correct_params = N.c_[[0,1,0],[0,1,0],[0,1,0]]
          
         N.testing.assert_array_almost_equal(params,correct_params)
 
