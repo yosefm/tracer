@@ -47,7 +47,6 @@ class TracerEngine():
             # Raise an error if any of the parameters are negative
             if (stack < 0).any():
                 raise ValueError("Parameters must all be positive")
-            
             # If parameter == 0, ray does not actually hit object, but originates from there; 
             # so it should be ignored in considering intersections 
             if (stack <= 1e-10).any():
@@ -89,6 +88,9 @@ class TracerEngine():
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
             bund.set_ref_index(bund.get_temp_ref_index())  
                                      # Changes the refractive indices for the ray bundle
+            print bund.get_parent()
+            print
+            print ' ---------------- '
         return bund.get_vertices(), bund.get_directions()
                       
     def store_branch(self, bundle):
