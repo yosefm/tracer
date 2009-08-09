@@ -135,13 +135,13 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self.object2 = AssembledObject()
         self.object2.add_surface(surface3)
         self.object2.add_boundary(boundary)
-        
+    
         self.transform = generate_transform(N.r_[0,0.,0],0.,N.c_[[0.,0,2]])
         self.assembly.add_object(self.object1)
         self.assembly.add_object(self.object2, self.transform)
-
+        
         x = 1./(math.sqrt(2))
-        dir = N.c_[[0,0,1.],[0,x,x],[0,1.,0]]
+        dir = N.c_[[0,1.,0.],[0,x,x],[0,0,1.]]
         position = N.c_[[0,0,2.],[0,0,2.],[0,0.,2.]]
         
         self._bund = RayBundle()
@@ -155,23 +155,23 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self.engine = TracerEngine(self.assembly)
         ans =  self.engine.ray_tracer(self._bund,1)
         params = N.arctan(ans[1][1]/ans[1][2])
-        correct_params = N.r_[-0, 0.7853981]
+        correct_params = N.r_[0.7853981, 0]
 
         N.testing.assert_array_almost_equal(params, correct_params)
 
     def test_assembly2(self):
         """Tests the assembly after two iterations"""
         self.engine = TracerEngine(self.assembly)
-        
         params = self.engine.ray_tracer(self._bund,2)[0]
-        correct_params = N.c_[[0,0,1],[0,-1,1],[0,-1,1]]
+        correct_params = N.c_[[0,-1,1],[0,0,1],[0,-1,1]]
         N.testing.assert_array_almost_equal(params, correct_params)
 
-    def test_assembly3(self):
-        """Tests the assembly after three iterations"""
+    def test_assembly3(self):      
+        """Tests the assembly after three iterations"""  
         self.engine = TracerEngine(self.assembly)
         params = self.engine.ray_tracer(self._bund, 3)[0]
-        correct_params = N.c_[[0,0,-1],[0,-2.069044,-1],[0,0,-1]]
+        correct_params = N.c_[[0,-2.069044,-1],[0,0,-1]]
+
         N.testing.assert_array_almost_equal(params, correct_params)
 
 class TestAssemblyBuilding4(unittest.TestCase):
@@ -200,7 +200,7 @@ class TestAssemblyBuilding4(unittest.TestCase):
 
     def test_paraboloid1(self):  
         """Tests a paraboloid"""
-        print 'test'
+        
         self.engine = TracerEngine(self.assembly)
         params =  self.engine.ray_tracer(self._bund,1)[0]
         correct_params = N.c_[[0,0,0],[0,0.618033989, 0.381966011]]

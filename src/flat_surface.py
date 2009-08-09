@@ -127,7 +127,6 @@ class FlatSurface(UniformSurface):
         delete = N.where(outg.get_energy() <= .05)[0] 
         if N.shape(delete)[0] != 0:
             outg = outg.delete_rays(delete)
-
         return outg
 
         

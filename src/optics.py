@@ -28,7 +28,7 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
         reflected = reflections(N.ones_like(n1), ray_dirs, normals)
         return N.hstack((reflected, reflected)), N.hstack((energy, N.zeros_like(energy)))
 
-    for ray in xrange(ray_dirs.shape[1]):
+    for ray in xrange(ray_dirs.shape[1]): 
         theta_in[ray] = N.arccos(N.abs(N.dot(normals[:,ray], ray_dirs[:,ray])))
         
     foo = N.cos(theta_in) 
@@ -39,13 +39,13 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
 
     R = (Rs + Rp)/2
     T = 1 - (R+absorptivity)
-
+    
     refracted = refractions(n1, n2, T, ray_dirs, normals)
     reflected = reflections(R, ray_dirs, normals)
 
     ray_dirs = N.hstack((refracted, reflected))
     energy = N.hstack((energy*T, energy*R))
-
+    
     return ray_dirs, energy  
                
 def reflections(R, ray_dirs, normals):  
@@ -72,19 +72,20 @@ def refractions(n1, n2, T, ray_dirs, normals):
     n1, n2, ray_dirs, normals - passed from fresnel
     Returns: new ray directions as the result of refraction
     """
-    direction = N.vdot(normals, ray_dirs)
-
+    refr_ray_dirs = N.empty_like(ray_dirs)
+    cos1 = N.empty(N.shape(normals)[1])
     for ray in xrange(N.shape(normals)[1]):
-        cos1 = N.vdot(normals[:,ray], -ray_dirs[:,ray]) 
+        cos1[ray] = (N.vdot(normals[:,ray], -ray_dirs[:,ray]))
 
     cos2 = N.sqrt(1 - ((n1/n2)**2)*(1 - cos1**2)) 
 
-    if cos1 >= 0:
-        ray_dirs = ((n1/n2).T*ray_dirs) + (n1/n2*cos1 - cos2).T*normals        
-    else:
-        ray_dirs = ((n1/n2).T*ray_dirs) + (n1/n2*cos1 + cos2).T*normals 
-
-    return ray_dirs
+    pos = N.where(cos1 >= 0)[0]
+    neg = N.where(cos1 < 0)[0]
+    
+    refr_ray_dirs[:,pos] = ((n1[pos]/n2[pos]).T*ray_dirs[:,pos]) + (n1[pos]/n2[pos]*cos1[pos] - cos2[pos]).T*normals[:,pos]        
+    refr_ray_dirs[:,neg] = ((n1[neg]/n2[neg]).T*ray_dirs[:,neg]) + (n1[neg]/n2[neg]*cos1[neg] + cos2[neg]).T*normals[:,neg]  
+    
+    return refr_ray_dirs
 
 
  

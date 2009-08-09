@@ -47,7 +47,7 @@ class TracerEngine():
             # Raise an error if any of the parameters are negative
             if (stack < 0).any():
                 raise ValueError("Parameters must all be positive")
-
+            
             # If parameter == 0, ray does not actually hit object, but originates from there; 
             # so it should be ignored in considering intersections 
             if (stack <= 1e-10).any():
@@ -75,8 +75,8 @@ class TracerEngine():
 
         bund = bundle
         self.store_branch(bund)
+        bund.set_parent(N.arange(bund.get_num_rays()))  # set the parent for the purposes of ray tracking   
         for i in xrange(reps):
-            bund.set_parent(N.array(range(bund.get_num_rays())))  # set the parent for the purposes of ray tracking   
             objs_param = self.intersect_ray(bund)
             outg = bundle.empty_bund()
             for obj in self.surfaces:
@@ -84,11 +84,9 @@ class TracerEngine():
                 new_outg = obj.get_outgoing(inters)
                 outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
                 bund = outg 
-            print i, ": ", bund.get_vertices()
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
             bund.set_ref_index(bund.get_temp_ref_index())  
                                      # Changes the refractive indices for the ray bundle
-            
         return bund.get_vertices(), bund.get_directions()
                       
     def store_branch(self, bundle):
@@ -122,8 +120,8 @@ class TracerEngine():
         parent = parent_list[index]  # Gets the index of the parent of the specific ray of interest
         bundle = self.tree[i]  # Gets the parent bundle
         while i > 0:  # Recurse until the function has walked through the whole tree
-            i = i-1
-            self.track_parent_helper(self, bundle, parent, i)
+            i = i-1   
+            self.track_parent_helper(bundle, parent, i)
         return parent
 
     def track_ray(self, bundle, index):
