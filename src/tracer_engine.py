@@ -86,8 +86,7 @@ class TracerEngine():
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
             bund.set_ref_index(bund.get_temp_ref_index())  
                                      # Changes the refractive indices for the ray bundle
-            bund.set_parent(bund.get_parent())
- 
+             
         return bund.get_vertices(), bund.get_directions()
                       
     def store_branch(self, bundle):
