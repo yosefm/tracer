@@ -119,8 +119,8 @@ class FlatSurface(UniformSurface):
         outg.set_vertices(N.hstack((vertices, vertices)))
         outg.set_directions(fresnel[0])
         outg.set_energy(fresnel[1]) 
-        outg.set_parent(N.hstack((self._current_bundle.get_parent()[selector],
-                                 self._current_bundle.get_parent()[selector])))
+        outg.set_parent(N.hstack((N.arange(self._current_bundle.get_num_rays())[selector],
+                                 N.arange(self._current_bundle.get_num_rays())[selector])))
         outg.set_ref_index(N.hstack((self._current_bundle.get_ref_index()[selector],
                                     self._current_bundle.get_ref_index()[selector])))
 

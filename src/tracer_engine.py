@@ -75,8 +75,6 @@ class TracerEngine():
         """
 
         bund = bundle
-        self.store_branch(bund)
-        bund.set_parent(N.arange(bund.get_num_rays()))  # set the parent for the purposes of ray tracking   
         for i in xrange(reps):
             objs_param = self.intersect_ray(bund)
             outg = bundle.empty_bund()
@@ -88,7 +86,8 @@ class TracerEngine():
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
             bund.set_ref_index(bund.get_temp_ref_index())  
                                      # Changes the refractive indices for the ray bundle
-            
+            bund.set_parent(bund.get_parent())
+ 
         return bund.get_vertices(), bund.get_directions()
                       
     def store_branch(self, bundle):

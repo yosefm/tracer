@@ -124,11 +124,12 @@ class QuadricSurface(UniformSurface):
         n1 = self._current_bundle.get_ref_index().copy()  
         n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
         fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector], self.mirror)
+
         outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))
         outg.set_directions(fresnel[0])
         outg.set_energy(fresnel[1])
-        outg.set_parent(N.hstack((self._current_bundle.get_parent()[selector], 
-                                 self._current_bundle.get_parent()[selector])))
+        outg.set_parent(N.hstack((N.arange(self._current_bundle.get_num_rays())[selector], 
+                                 N.arange(self._current_bundle.get_num_rays())[selector])))
         outg.set_ref_index(N.hstack((self._current_bundle.get_ref_index()[selector],
                                     self._current_bundle.get_ref_index()[selector])))
                 
