@@ -69,7 +69,7 @@ class Surface(object):
 
     def transform_frame(self, transform):
         self._temp_frame = N.dot(transform, self._transform)
-
+        
     def get_ref_index(self, n, bund, selector):
         """                                                                                  
         Determines which refractive index to use based on the refractive index               

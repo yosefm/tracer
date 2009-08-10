@@ -44,7 +44,7 @@ class TestObjectBuilding1(unittest.TestCase):
         """Tests that the assembly heirarchy works at a basic level"""
         self.engine = TracerEngine(self.assembly)
 
-        params =  self.engine.ray_tracer(self._bund,1)[0]
+        params =  self.engine.ray_tracer(self._bund,1,.05)[0]
         correct_params = N.c_[[0,0,2],[0,0,-2]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -56,7 +56,7 @@ class TestObjectBuilding1(unittest.TestCase):
 
         self.engine = TracerEngine(self.assembly)
 
-        params =  self.engine.ray_tracer(self._bund,1)[0]
+        params =  self.engine.ray_tracer(self._bund,1,.05)[0]
         correct_params = N.c_[[0,0,3],[0,0,-1]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -74,7 +74,7 @@ class TestObjectBuilding1(unittest.TestCase):
 
         self.engine = TracerEngine(self.assembly)
 
-        params =  self.engine.ray_tracer(self._bund,1)[0]
+        params =  self.engine.ray_tracer(self._bund,1,.05)[0]
         correct_params = N.c_[[0,-2,1]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -105,7 +105,7 @@ class TestObjectBuilding2(unittest.TestCase):
     def test_refraction1(self):
         """Tests the refractive functions after a single intersection"""
         self.engine = TracerEngine(self.assembly)
-        ans =  self.engine.ray_tracer(self._bund,1)
+        ans =  self.engine.ray_tracer(self._bund,1,.05)
         params = N.arctan(ans[1][1]/ans[1][2])
         correct_params = N.r_[-.4908826, 0.785398163]
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -113,7 +113,7 @@ class TestObjectBuilding2(unittest.TestCase):
     def test_refraction2(self):
         """Tests the refractive functions after two intersections"""
         self.engine = TracerEngine(self.assembly)
-        ans = self.engine.ray_tracer(self._bund,2)
+        ans = self.engine.ray_tracer(self._bund,2,.05)
         params = N.arctan(ans[1][1]/ans[1][2])
         correct_params = N.r_[-0.7853981]
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -153,7 +153,7 @@ class TestAssemblyBuilding3(unittest.TestCase):
     def test_assembly1(self):
         """Tests the assembly after one iteration"""
         self.engine = TracerEngine(self.assembly)
-        ans =  self.engine.ray_tracer(self._bund,1)
+        ans =  self.engine.ray_tracer(self._bund,1,.05)
         params = N.arctan(ans[1][1]/ans[1][2])
         correct_params = N.r_[0.7853981, 0]
 
@@ -162,14 +162,14 @@ class TestAssemblyBuilding3(unittest.TestCase):
     def test_assembly2(self):
         """Tests the assembly after two iterations"""
         self.engine = TracerEngine(self.assembly)
-        params = self.engine.ray_tracer(self._bund,2)[0]
+        params = self.engine.ray_tracer(self._bund,2,.05)[0]
         correct_params = N.c_[[0,-1,1],[0,0,1],[0,-1,1]]
         N.testing.assert_array_almost_equal(params, correct_params)
 
     def test_assembly3(self):      
         """Tests the assembly after three iterations"""  
         self.engine = TracerEngine(self.assembly)
-        params = self.engine.ray_tracer(self._bund, 3)[0]
+        params = self.engine.ray_tracer(self._bund, 3,.05)[0]
         correct_params = N.c_[[0,-2.069044,-1],[0,0,-1]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
@@ -202,7 +202,7 @@ class TestAssemblyBuilding4(unittest.TestCase):
         """Tests a paraboloid"""
         
         self.engine = TracerEngine(self.assembly)
-        params =  self.engine.ray_tracer(self._bund,1)[0]
+        params =  self.engine.ray_tracer(self._bund,1,.05)[0]
         correct_params = N.c_[[0,0,0],[0,0.618033989, 0.381966011]]
         N.testing.assert_array_almost_equal(params, correct_params)
 

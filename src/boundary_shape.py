@@ -22,8 +22,8 @@ class BoundarySphere():
         Arguments: bund_vertices - an array of the vertices
         """
         selector = []
-        for ray in range(N.shape(bund_vertices)[1]):  
-            selector.append((self._radius >= N.linalg.norm(bund_vertices[:,ray] - self._temp_loc[:3])))
+        for ray in range(N.shape(bund_vertices)[0]):
+            selector.append((self._radius >= N.linalg.norm(bund_vertices[ray] - self._temp_loc[:3])))
            
         return N.array(selector)
 

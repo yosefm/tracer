@@ -19,7 +19,7 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
     
     theta_in = N.empty_like(ray_dirs[1])
     normals = normals*N.ones_like(ray_dirs)  # for flat surfaces which return only a single value for a normal, make the array the same size as ray_dirs
-
+    
     # If the surface is a mirror, simply reflect the ray and don't bother with the 
     # other calculations.  However, since fresnel normally doubles the size of the ray
     # bundle, the reflected ray is doubled in size as is the energy. However the energy for

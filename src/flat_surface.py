@@ -33,8 +33,6 @@ class FlatSurface(UniformSurface):
         self._abs = absorptivity 
         self._transform = N.vstack((N.hstack((self.get_rotation(), self.get_location()[:,None])), N.r_[[0,0,0,1]]))
         self._temp_frame = self._transform
-        self._temp_rotation = self._temp_frame[:3][:,:3]
-        self._temp_location = self._temp_frame[:3][:,3]
         self._inner_n = 1.
         self._outer_n = 1.
         
@@ -64,9 +62,9 @@ class FlatSurface(UniformSurface):
         Returns: a 1D array with the parametric position of intersection along each 
             of the rays. Rays that missed the surface return +infinity.
         """
-        xy = self._temp_rotation[:,:2]
+        xy = self._temp_frame[:3][:,:2]
         d = -ray_bundle.get_directions()
-        v = ray_bundle.get_vertices() - self._temp_location[:,None]
+        v = ray_bundle.get_vertices() - self._temp_frame[:3][:,3][:,None]
         n = ray_bundle.get_num_rays()
                 
         # `params` holds the parametric location of intersections along x axis, 
@@ -96,7 +94,7 @@ class FlatSurface(UniformSurface):
 
         return params[2]
     
-    def get_outgoing(self,  selector):
+    def get_outgoing(self,  selector, min_energy):
         """Generates a new ray bundle, which is the reflections/refractions of the
         user-selected rays out of the incoming ray-bundle that was previously 
         registered.
@@ -110,9 +108,13 @@ class FlatSurface(UniformSurface):
         outg = RayBundle()
         n1 = self._current_bundle.get_ref_index().copy()
         n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector], self.mirror)   
-        vertices = N.dot(self._temp_rotation[:, :2],  self._current_params[:, selector]) + \
-            self._temp_location[:, None]
+        
+        temp_rotation = self._temp_frame[:3][:,:3]
+        temp_location = self._temp_frame[:3][:,3]
+        
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector], self.mirror)   
+        vertices = N.dot(temp_rotation[:, :2],  self._current_params[:, selector]) + \
+            temp_location[:, None]
 
         outg.set_vertices(N.hstack((vertices, vertices)))
         outg.set_directions(fresnel[0])
@@ -124,7 +126,7 @@ class FlatSurface(UniformSurface):
 
         # Delete rays with negligible energies
         
-        delete = N.where(outg.get_energy() <= .05)[0] 
+        delete = N.where(outg.get_energy() <= min_energy)[0] 
         if N.shape(delete)[0] != 0:
             outg = outg.delete_rays(delete)
         return outg
