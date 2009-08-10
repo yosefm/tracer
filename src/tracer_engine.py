@@ -73,22 +73,32 @@ class TracerEngine():
         For the time being, returns an array of vertices of the most recent intersections,
         note that the order of the rays within the arrays may change
         """
-
         bund = bundle
+        self.store_branch(bund)
+        
         for i in xrange(reps):
             objs_param = self.intersect_ray(bund)
             outg = bundle.empty_bund()
             for obj in self.surfaces:
                 inters = objs_param[self.surfaces.index(obj)]
-                new_outg = obj.get_outgoing(inters, min_energy)
-                outg = outg + new_outg  # add the outgoing bundle from each object into a new bundle that stores all the outgoing bundles from all the objects
-                bund = outg 
+                new_outg = obj.get_outgoing(inters)
+                
+                # Delete rays with negligible energies
+                delete = N.where(new_outg.get_energy() <= min_energy)[0] 
+                if N.shape(delete)[0] != 0:
+                    new_outg = new_outg.delete_rays(delete)
+        
+                # add the outgoing bundle from each object into a new bundle
+                # that stores all the outgoing bundles from all the objects
+                outg = outg + new_outg
+            
+            bund = outg
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
             bund.set_ref_index(bund.get_temp_ref_index())  
                                      # Changes the refractive indices for the ray bundle
              
         return bund.get_vertices(), bund.get_directions()
-                      
+    
     def store_branch(self, bundle):
         """
         Stores a tree of ray bundles  
@@ -100,7 +110,7 @@ class TracerEngine():
         Returns a list of arrays of the list of parents for each iteration 
         """
         tree = []
-        for bundle in self.tree:
+        for bundle in self.tree[1:]:
             tree.append(bundle.get_parent())
         return tree
 

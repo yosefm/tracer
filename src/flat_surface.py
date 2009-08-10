@@ -94,7 +94,7 @@ class FlatSurface(UniformSurface):
 
         return params[2]
     
-    def get_outgoing(self,  selector, min_energy):
+    def get_outgoing(self,  selector):
         """Generates a new ray bundle, which is the reflections/refractions of the
         user-selected rays out of the incoming ray-bundle that was previously 
         registered.
@@ -123,12 +123,5 @@ class FlatSurface(UniformSurface):
                                  N.arange(self._current_bundle.get_num_rays())[selector])))
         outg.set_ref_index(N.hstack((self._current_bundle.get_ref_index()[selector],
                                     self._current_bundle.get_ref_index()[selector])))
-
-        # Delete rays with negligible energies
         
-        delete = N.where(outg.get_energy() <= min_energy)[0] 
-        if N.shape(delete)[0] != 0:
-            outg = outg.delete_rays(delete)
         return outg
-
-        
