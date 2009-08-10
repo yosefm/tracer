@@ -73,8 +73,9 @@ class TracerEngine():
         For the time being, returns an array of vertices of the most recent intersections,
         note that the order of the rays within the arrays may change
         """
-
         bund = bundle
+        self.store_branch(bund)
+        
         for i in xrange(reps):
             objs_param = self.intersect_ray(bund)
             outg = bundle.empty_bund()
@@ -110,7 +111,7 @@ class TracerEngine():
         Returns a list of arrays of the list of parents for each iteration 
         """
         tree = []
-        for bundle in self.tree:
+        for bundle in self.tree[1:]:
             tree.append(bundle.get_parent())
         return tree
 
