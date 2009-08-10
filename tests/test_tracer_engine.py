@@ -157,6 +157,13 @@ class TestTraceProtocol4(unittest.TestCase):
         correct_params = N.c_[[0,2,2],[0,3,0]]
         
         N.testing.assert_array_almost_equal(params,correct_params)
+    
+    def test_too_much_intersections(self):
+	"""The tracer stops when all rays are escaping"""
+        params = self.engine.ray_tracer(self._bund, 42, 0.05)[0]
+        correct_params = N.array([]).reshape(3,0)
+
+        N.testing.assert_array_almost_equal(params,correct_params)
 
 class TestTraceProtocol5(unittest.TestCase):
     """

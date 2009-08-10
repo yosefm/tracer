@@ -93,6 +93,10 @@ class TracerEngine():
                 outg = outg + new_outg
             
             bund = outg
+            if bund.get_num_rays() == 0:
+                # All rays escaping
+                break
+                
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
             bund.set_ref_index(bund.get_temp_ref_index())  
                                      # Changes the refractive indices for the ray bundle
