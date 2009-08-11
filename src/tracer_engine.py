@@ -82,7 +82,7 @@ class TracerEngine():
             for obj in self.surfaces:
                 inters = objs_param[self.surfaces.index(obj)]
                 new_outg = obj.get_outgoing(inters)
-                
+
                 # Delete rays with negligible energies
                 delete = N.where(new_outg.get_energy() <= min_energy)[0] 
                 if N.shape(delete)[0] != 0:

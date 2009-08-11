@@ -47,7 +47,7 @@ class QuadricSurface(UniformSurface):
         v = ray_bundle.get_vertices()
         n = ray_bundle.get_num_rays()
         c = self._temp_loc[:3]
-
+        
         params = []
         vertices = []
         norm = []
@@ -56,7 +56,7 @@ class QuadricSurface(UniformSurface):
         A, B, C = self.get_ABC(ray_bundle)
         
         delta = B**2 - 4*A*C
-        #print delta
+    
         for ray in xrange(n):
             vertex = v[:,ray]
 
@@ -72,13 +72,13 @@ class QuadricSurface(UniformSurface):
             
             else: hits = (-B[ray] + N.r_[-1, 1]*N.sqrt(delta[ray]))/(2*A[ray])
             coords = vertex + d[:,ray]*hits[:,None]
-
+            
             # Check if it is hitting within the boundaries
             for boundary in self.parent_object.get_boundaries():
                 selector = boundary.in_bounds(coords)
                 coords = coords[selector]
                 hits = hits[selector]
-            
+                
             is_positive = N.where(hits > 0)[0]
             
             # If both are negative, it is a miss
@@ -108,7 +108,7 @@ class QuadricSurface(UniformSurface):
         # Storage for later reference:
         self._vertices = N.hstack(vertices)
         self._current_bundle = ray_bundle
-        self._norm = N.hstack(norm)  
+        self._norm = N.hstack(norm)
         
         return params
     

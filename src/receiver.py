@@ -15,7 +15,7 @@ class Receiver(FlatSurface):
     """
     def __init__(self, location=None, rotation=None, absorptivity=1.,width=1.,height=1.):
         FlatSurface.__init__(self, location, rotation, absorptivity, width, height)
-        self._coordinates = []
+        self._coordinates = N.empty((3,1))
         self._energy = []
 
     def get_outgoing(self, selector):
@@ -33,17 +33,16 @@ class Receiver(FlatSurface):
         """                                                                                 
         Saves the values of the coordinates and energy of incoming rays                     
         """
-        self._coordinates.append(bundle.get_vertices())
+        self._coordinates = N.hstack((self._coordinates,bundle.get_vertices()))
         self._energy.append(bundle.get_energy())
   
     def plot_energy(self):
         """                                                                                 
         Plots the energy distribution on the receiving surface                              
         """
-        coords = self._coordinates[0]
-        coords_rot = N.dot(self.get_rotation().T, coords)
-        energy = N.array(self._energy)
-    
+        coords = self._coordinates  
+        coords_rot = N.dot(self._temp_frame().T, coords)
+            
         x = coords_rot[0]  # this should be by row is there is more than one
         y = coords_rot[1]  # receiving surface; also this is the local x, y
         
