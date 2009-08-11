@@ -24,8 +24,8 @@ def test_case():
     bound_center = N.array([0,0.,0])
     transform1 = generate_transform(N.array([1.,0,0]), 3*N.pi/4, N.c_[[0,5.,5]])
     transform2 = generate_transform(N.array([1.,0,0]), -N.pi/4, N.c_[[0,0.,0]])  
-    num_rays = 500
-    center = N.c_[[0,0.,0.]]
+    num_rays = 5000
+    center = N.c_[[0,1.,1.]]
     x = 1/(math.sqrt(2))
     direction = N.array([0,-x,-x])
     radius_sun = 2. 
@@ -56,16 +56,6 @@ def test_case():
     sun.set_energy(N.ones(num_rays))
     sun.set_ref_index(N.ones(num_rays))
     
-    x = 1/(math.sqrt(2))
-    dir = N.c_[[0,x,x],[0,-x,-x]]
-    position = N.c_[[0,1,1],[0,1,1]]
-    '''
-    sun = RayBundle()
-    sun.set_vertices(position)
-    sun.set_directions(dir)
-    sun.set_ref_index(N.r_[[1,1]])
-    sun.set_energy(N.r_[[1,1]])
-    '''
     engine = TracerEngine(assembly)
     engine.ray_tracer(sun, iterate, min_energy)
     surface1.plot_energy()
