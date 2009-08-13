@@ -62,9 +62,9 @@ class FlatSurface(UniformSurface):
         Returns: a 1D array with the parametric position of intersection along each 
             of the rays. Rays that missed the surface return +infinity.
         """
-        xy = self._temp_frame[:3][:,:2]
+        xy = self._temp_frame[:3,:2]
         d = -ray_bundle.get_directions()
-        v = ray_bundle.get_vertices() - self._temp_frame[:3][:,3][:,None]
+        v = ray_bundle.get_vertices() - self._temp_frame[:3,3][:,None]
         n = ray_bundle.get_num_rays()
                 
         # `params` holds the parametric location of intersections along x axis, 
@@ -78,7 +78,7 @@ class FlatSurface(UniformSurface):
                 continue
             # Singular matrix (parallel rays to the surface):
             params[:, ray].fill(N.inf)
-            
+    
         # Mark missing rays with infinity:
         missing = (abs(params[0])  > self._w/2.) | (abs(params[1] ) > self._h/2.)
         params[2, missing] = N.inf
@@ -109,10 +109,11 @@ class FlatSurface(UniformSurface):
         n1 = self._current_bundle.get_ref_index().copy()
         n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
         
-        temp_rotation = self._temp_frame[:3][:,:3]
-        temp_location = self._temp_frame[:3][:,3]
+        temp_rotation = self._temp_frame[:3,:3]
+        temp_location = self._temp_frame[:3,3]
         
         fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector], self.mirror)   
+
         vertices = N.dot(temp_rotation[:, :2],  self._current_params[:, selector]) + \
             temp_location[:, None]
 
