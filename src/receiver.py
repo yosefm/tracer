@@ -10,8 +10,8 @@ class Receiver(FlatSurface):
     """                                                                                 
   Implements a flat recieving surface for the rays
   Private attributes:
-  _coordinates - a list of the coordinates of where a ray intersected with the surface
-  _energy - a list of the energy corresponding to the intersecting rays
+  _coordinates - a list of the coordinate arrays of where a ray intersected with the surface
+  _energy - a list of the energy arrays corresponding to the intersecting rays  
     """
     def __init__(self, location=None, rotation=None, absorptivity=1.,width=1.,height=1.):
         FlatSurface.__init__(self, location, rotation, absorptivity, width, height)
