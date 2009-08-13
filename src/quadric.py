@@ -66,7 +66,7 @@ class QuadricSurface(UniformSurface):
                 norm.append(N.empty([3,1]))    
                 continue
             
-            if A[ray] == 0: 
+            if A[ray] <= 1e-10: 
                 hit = -C[ray]/B[ray]
                 hits = N.hstack((hit,hit))
             
