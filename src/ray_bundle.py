@@ -125,6 +125,7 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
     # A vector on the xy plane (arbitrary), around which we rotate <direction> 
     # by theta:
     perp = N.array([direction[1],  -direction[0],  0])
+    perp = perp/N.linalg.norm(perp)
     if N.all(perp == 0):
         perp = N.array([1.,  0.,  0.])
     
@@ -146,9 +147,27 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
     # Rotate locations to the plane defined by <direction>:
     rot = N.vstack((perp,  N.cross(direction,  perp),  direction))
     vertices_local = N.array([xs,  ys,  N.zeros(num_rays)])
+    vertices_global = N.dot(rot.T,  vertices_local)
+    
+    rayb = RayBundle()
+    rayb.set_vertices(vertices_global + center)
+    rayb.set_directions(directions)
+    return rayb
+
+def square_bundle(num_rays, center, direction, width):
+    perp = N.array([direction[1],  -direction[0],  0])
+    if N.all(perp == 0):
+        perp = N.array([1.,  0.,  0.])
+    perp = perp/N.linalg.norm(perp)
+    rot = N.vstack((perp,  N.cross(direction,  perp),  direction))
+    directions = N.tile(direction[:,None], (1, num_rays))
+    range = N.s_[-width:width:float(2*width)/N.sqrt(num_rays)]
+    xs, ys = N.mgrid[range, range]
+    vertices_local = N.array([xs.flatten(),  ys.flatten(),  N.zeros(len(xs.flatten()))])
     vertices_global = N.dot(rot,  vertices_local)
     
     rayb = RayBundle()
     rayb.set_vertices(vertices_global + center)
     rayb.set_directions(directions)
     return rayb
+
