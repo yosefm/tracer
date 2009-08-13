@@ -4,7 +4,6 @@ import numpy as N
 from flat_surface import FlatSurface 
 from ray_bundle import RayBundle
 from ray_bundle import solar_disk_bundle
-import pylab as P
 import pdb
 
 class TracerEngine():
@@ -50,7 +49,7 @@ class TracerEngine():
             # If parameter == 0, ray does not actually hit object, but originates from there; 
             # so it should be ignored in considering intersections 
             if (stack <= 1e-10).any():
-                zeros = N.where(stack <= 1e-10)
+                zeros = N.where(stack <= 1e-6)
                 stack[zeros] = N.inf
 
             # Find the smallest parameter for each ray, and use that as the final one,
@@ -82,7 +81,7 @@ class TracerEngine():
             for obj in self.surfaces:
                 inters = objs_param[self.surfaces.index(obj)]
                 new_outg = obj.get_outgoing(inters)
-
+                
                 # Delete rays with negligible energies
                 delete = N.where(new_outg.get_energy() <= min_energy)[0] 
                 if N.shape(delete)[0] != 0:
