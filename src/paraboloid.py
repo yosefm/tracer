@@ -13,8 +13,8 @@ class Paraboloid(QuadricSurface):
         self.a, self.b - describe the paraboloid 
         """ 
         QuadricSurface.__init__(self, location, rotation,  absorptivity, mirror)
-        self.a = 1/(a**2)
-        self.b = 1/(b**2)
+        self.a = 1./(a**2)
+        self.b = 1./(b**2)
 
     def transform_frame(self, transform):
         self.transform = transform
@@ -39,7 +39,8 @@ class Paraboloid(QuadricSurface):
         """
         Determines the variables forming the relevant quadric equation
         """
-
+        # Transform the the direction and position of the rays temporarily into the
+        # frame of the paraboloid for calculations
         d = N.dot(self.transform[:3][:,:3].T, ray_bundle.get_directions())
         v = N.empty((4,N.shape(d)[1]))
         for ray in xrange(ray_bundle.get_num_rays()):

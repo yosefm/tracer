@@ -12,7 +12,10 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
     energy - of the ray bundle
     n1 - refraction index of the material the ray is leaving
     n2 - refraction index of the material the ray is entering
-    Returns:  a tuple containing the new ray directions and energy
+    mirror - whether or not the surface is perfectly reflective
+    Returns:  a tuple containing the new ray directions and energy (rays that branch due
+    due some amount of reflection and some amount of refraction carry a fraction of the
+    energy of their parent ray
     """ 
     if N.shape(ray_dirs)[1] == 0:
         return ray_dirs, energy
@@ -37,6 +40,9 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
     Rs = ((n1*foo - n2*bar)/(n1*foo + n2*bar))**2 
     Rp = ((n1*bar - n2*foo)/(n1*bar + n2*foo))**2
 
+    # For now, assume no polarization and that the light contains an equal mix of 
+    # s and p polarized light
+    # R = ratio of reflected energy, T = ratio refracted (transmittance)
     R = (Rs + Rp)/2
     T = 1 - (R+absorptivity)
     

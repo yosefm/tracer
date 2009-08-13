@@ -20,8 +20,10 @@ class FlatSurface(UniformSurface):
         _transform - the transformation of the surface into the frame of the parent object  
         object. Within it's own local coordinate system the sphere is assume to be centered  
         about the origin
-        _self._temp_frame & self._temp_rotation - used to store values for the next iteration
-        of intersections
+        _self._temp_frame & self._temp_rotation - the coordinate system of the surface that 
+        has been transform into the flobal coordinates. It is used for caclulations, but eh
+        original location and rotation of the surface are simply defined in terms of the 
+        coordinate of the object containing the surface
         _inner_n & _outer_n - describe the refractive indices on either side of the surface;  
         note that nothing defines the inside or outside of a surface and it is arbitrarily   
         assigned to the surface that is already facing the air                               
@@ -109,6 +111,8 @@ class FlatSurface(UniformSurface):
         n1 = self._current_bundle.get_ref_index().copy()
         n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
         
+        # A temp rotation and location are used in which the surface has been transformed
+        # into the global coordinates. These are used for calculations
         temp_rotation = self._temp_frame[:3][:,:3]
         temp_location = self._temp_frame[:3][:,3]
         

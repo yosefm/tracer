@@ -10,11 +10,16 @@ class AssembledObject(Assembly):
     the object's coordinate system, and thus the user can rotate or translate the entire
     object together as one piece.
     The object also tracks refractive indices as a ray bundle leaves or enters a new
-    material.
+    material.  
      """
     def __init__(self):
         """
-        """ 
+        Attributes:
+        surfaces - the list of all surfaces in the object
+        boundaries - the list of any or all boundaries defining the shape of the object
+        transform - the transformation matrix that defines the object in the coordinates
+        of its parent assembly
+        """
         self.surfaces = []
         self.boundaries = []
         self.transform = N.eye(4)

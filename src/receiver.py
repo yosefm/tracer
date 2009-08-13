@@ -39,7 +39,7 @@ class Receiver(FlatSurface):
     def plot_energy(self):
         """                                                                                 
         Plots the energy distribution on the receiving surface                              
-        """
+        """  
         coords = self._coordinates  
         coords_rot = N.dot(N.linalg.inv(self._temp_frame), N.vstack((coords, N.ones(N.shape(coords)[1]))))
         x = coords_rot[0]  # this should be by row is there is more than one
