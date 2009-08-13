@@ -3,7 +3,7 @@ import numpy as N
 import math
 
 from tracer_engine import TracerEngine
-from ray_bundle import solar_disk_bundle
+from ray_bundle import RayBundle, solar_disk_bundle
 from flat_surface import FlatSurface
 from spatial_geometry import general_axis_rotation
 from sphere_surface import SphereSurface
@@ -13,23 +13,23 @@ from assembly import Assembly
 from object import AssembledObject
 from spatial_geometry import generate_transform
 from paraboloid import Paraboloid
-from ray_bundle import RayBundle
 
-def test_case():
-    w = 2.
-    h = 2.
-    a=5
-    b=5
+def test_case(focus):
+    w = 10.
+    h = 10.
+    a = 2*N.sqrt(focus)
+    b = a
+    
     bound_radius = 3.
     bound_center = N.array([0,0.,0])
-    transform1 = generate_transform(N.array([1.,0,0]), 3*N.pi/4, N.c_[[0,5.,5]])
+    transform1 = generate_transform(N.array([1.,0,0]), 3*N.pi/4, N.c_[[0, 2.5, 2.5]])
     transform2 = generate_transform(N.array([1.,0,0]), -N.pi/4, N.c_[[0,0.,0]])  
-    num_rays = 5000
-    center = N.c_[[0,1.,1.]]
-    x = 1/(math.sqrt(2))
-    direction = N.array([0,-x,-x])
-    radius_sun = 2. 
-    ang_range = N.pi/10
+    num_rays = 10000
+    center = N.c_[[0, 2., 2.]]
+    x = -1/(math.sqrt(2))
+    direction = N.array([0,x,x])
+    radius_sun = 5. 
+    ang_range = 0.0005
     iterate = 2
     min_energy = 0.05
 
@@ -40,8 +40,8 @@ def test_case():
     surface3 = FlatSurface(location=N.array([0,-2,1.]), rotation=rot1, width=w, height=h)
     object1 = AssembledObject()
     object1.add_surface(surface1)
-    object1.add_surface(surface2)
-    object1.add_surface(surface3)
+    #object1.add_surface(surface2)
+    #object1.add_surface(surface3)
     
     surface4 = Paraboloid(a=a, b=b)
     bound1 = BoundarySphere(location=bound_center, radius=bound_radius)
@@ -60,4 +60,11 @@ def test_case():
     engine.ray_tracer(sun, iterate, min_energy)
     surface1.plot_energy()
 
-test_case()
+if __name__ == '__main__':
+    import optparse
+    
+    parser = optparse.OptionParser()
+    parser.add_option('--focus', '-f', dest='foc', type='float', default=6.25)
+    opts, pos = parser.parse_args()
+    test_case(opts.foc)
+
