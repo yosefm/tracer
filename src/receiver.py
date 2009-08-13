@@ -45,6 +45,9 @@ class Receiver(FlatSurface):
         x = coords_rot[0]  # this should be by row is there is more than one
         y = coords_rot[1]  # receiving surface; also this is the local x, y
         
-        P.scatter(x, y)
+        H, xbins, ybins = N.histogram2d(x, y, bins=N.arange(-5,5.1,0.1))
+        P.figure()
+        P.imshow(H.T)
+        P.colorbar()
         P.show()
 
