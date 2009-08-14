@@ -8,6 +8,11 @@ class BoundarySphere():
         """Arguments:
         location - a 1D array
         radius - a float
+        Attributes:
+        _loc - the location of the center
+        _temp_loc - the location of the center if it has been transformed; stored temporarily
+        for calculations
+        _radius - radius of the bounding sphere
         """
         if location == None:
             location = N.zeros(3)
@@ -29,7 +34,8 @@ class BoundarySphere():
 
     def transform_frame(self, transform):
         """ 
-        Transforms the center of the boundary shape
+        Transforms the center of the boundary shape into the global coordinates; this occurs
+        when the assembly or object containing the surface is transformed
         """
         self._temp_loc = N.dot(transform, N.append(self._loc, N.c_[[1]]))
     

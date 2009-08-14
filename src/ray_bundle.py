@@ -16,6 +16,8 @@ class RayBundle:
     _energy: 1D array with the energy carried by each ray.
     _parent: 1D array with the index of the parent ray within the previous ray bundle
     _ref_index: a 1D array with the refraction index of the material a ray is traveling through
+    _temp_ref_index: like _ref_index, but used to temporarily store the values that will be
+    used in the next iteration of the simulation
     """
     def __init__(self):
         self._temp_ref_index = N.array([])

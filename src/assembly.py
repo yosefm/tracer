@@ -22,8 +22,8 @@ class Assembly():
     def get_assemblies(self):
         return self.assemblies
 
-    def get_surfaces(self):
-        """Gets the total number of surfaces in the entire assebly, for use of calculations
+    def get_surfaces(self):  
+        """Gets the total number of surfaces in the entire assembly, for use of calculations
         by the tracer engine
         """
         surfaces = []

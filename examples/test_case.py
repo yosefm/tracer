@@ -58,7 +58,7 @@ def test_case(focus):
     
     engine = TracerEngine(assembly)
     engine.ray_tracer(sun, iterate, min_energy)
-    surface1.plot_energy()
+#    surface1.plot_energy()
 
 if __name__ == '__main__':
     import optparse

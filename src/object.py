@@ -37,7 +37,7 @@ class AssembledObject(Assembly):
             self.transform = N.eye(4)
         else:
             self.transform = transform
-
+    
     def get_surfaces(self):
         return self.surfaces
 
@@ -77,5 +77,3 @@ class AssembledObject(Assembly):
                 surface.set_inner_n(n)
             else: surface.set_outer_n(n)
 
-        
-            
