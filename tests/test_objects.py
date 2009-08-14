@@ -38,8 +38,7 @@ class TestObjectBuilding1(unittest.TestCase):
         self._bund.set_directions(dir)
         self._bund.set_energy(N.r_[[1,1]])
         self._bund.set_ref_index(N.r_[[1,1]])
-
-
+    
     def test_object(self):
         """Tests that the assembly heirarchy works at a basic level"""
         self.engine = TracerEngine(self.assembly)
@@ -136,7 +135,7 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self.object2.add_surface(surface3)
         self.object2.add_boundary(boundary)
     
-        self.transform = generate_transform(N.r_[0,0.,0],0.,N.c_[[0.,0,2]])
+        self.transform = generate_transform(N.r_[1,0.,0],0.,N.c_[[0.,0,2]])
         self.assembly.add_object(self.object1)
         self.assembly.add_object(self.object2, self.transform)
         
