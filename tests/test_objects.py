@@ -17,7 +17,7 @@ from paraboloid import Paraboloid
 import pdb
 
 class TestObjectBuilding1(unittest.TestCase):
-    """Tests an object composed of surfaces"""
+    """Tests an object composed of sphere surfaces"""
     def setUp(self):
         self.assembly = Assembly()
         surface1 = SphereSurface(location=N.array([0,0,-1.]), radius=3.)
@@ -80,15 +80,15 @@ class TestObjectBuilding1(unittest.TestCase):
         N.testing.assert_array_almost_equal(params, correct_params)
 
 class TestObjectBuilding2(unittest.TestCase):
-    """Tests an object composed of two surfaces"""
+    """Tests an object composed of two flat surfaces"""
     def setUp(self):
         self.assembly = Assembly()
-        surface1 = FlatSurface(location=N.array([0,0,-1.]), width=5., height=5., mirror=False)
-        surface2 = FlatSurface(location=N.array([0,0,1.]), width=5., height=5., mirror=False) 
+        surface1 = FlatSurface(location=N.array([0,0,-1.]), \
+            width=5., height=5., mirror=False)
+        surface2 = FlatSurface(location=N.array([0,0,1.]), \
+            width=5., height=5., mirror=False) 
  
-        self.object = AssembledObject()
-        self.object.add_surface(surface1)
-        self.object.add_surface(surface2)
+        self.object = AssembledObject(surfs=[surface1, surface2])
         self.object.set_ref_index([surface1, surface2], 1.5)
         self.assembly.add_object(self.object)
         
@@ -119,7 +119,7 @@ class TestObjectBuilding2(unittest.TestCase):
         N.testing.assert_array_almost_equal(params, correct_params)
 
 class TestAssemblyBuilding3(unittest.TestCase):
-    """Tests an assembly composed of objects"""
+    """Tests an assembly composed of objects that are transformed rel. the assembly"""
     def setUp(self):  
         self.assembly = Assembly()
 

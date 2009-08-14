@@ -11,13 +11,32 @@ class AssembledObject(Assembly):
     object together as one piece.
     The object also tracks refractive indices as a ray bundle leaves or enters a new
     material.
-     """
-    def __init__(self):
+    """
+    def __init__(self, surfs=None, bounds=None, transform=None):
         """
-        """ 
-        self.surfaces = []
-        self.boundaries = []
-        self.transform = N.eye(4)
+        Attributes:
+        surfaces - a list of Surface objects
+        boundaries - a list of Boundary objects that the surfaces are limited 
+            by.
+        transform - a 4x4 array representing the homogenous transformation 
+            matrix of this object relative to the coordinate system of its 
+            container
+        """
+        # Use the supplied values or some defaults:
+        if surfs is None:
+            self.surfaces = []
+        else:
+            self.surfaces = surfs
+        
+        if bounds is None:
+            self.boundaries = []
+        else:
+            self.boundaries = bounds
+        
+        if transform is None:
+            self.transform = N.eye(4)
+        else:
+            self.transform = transform
 
     def get_surfaces(self):
         return self.surfaces
