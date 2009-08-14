@@ -125,10 +125,11 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
     # A vector on the xy plane (arbitrary), around which we rotate <direction> 
     # by theta:
     perp = N.array([direction[1],  -direction[0],  0])
-    perp = perp/N.linalg.norm(perp)
     if N.all(perp == 0):
         perp = N.array([1.,  0.,  0.])
     
+    perp = perp/N.linalg.norm(perp)
+
     directions = N.empty((3, num_rays))
     for ray in xrange(num_rays):
         dir = N.dot(general_axis_rotation(perp,  theta[ray]),  direction)
