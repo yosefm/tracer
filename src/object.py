@@ -57,7 +57,16 @@ class AssembledObject(Assembly):
 
     def get_boundaries(self):
         return self.boundaries
-
+    
+    def set_transform(self, trans):
+        """
+        Sets the object's transformation relative to its assembly.
+        Arguments:
+        trans - a 4x4 array which is the homogenous transf. matrix from the 
+            assembly frame to the object frame.
+        """
+        self.transform = trans
+    
     def transform_object(self, assembly_transform):
         """Transforms an object if the assembly is transformed""" 
         for surface in self.surfaces:

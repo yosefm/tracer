@@ -205,6 +205,73 @@ class TestAssemblyBuilding4(unittest.TestCase):
         correct_params = N.c_[[0,0,0],[0,0.618033989, 0.381966011]]
         N.testing.assert_array_almost_equal(params, correct_params)
 
+class TestNestedAssemblies(unittest.TestCase):
+    """
+    Create an assembly within an assembly, with an object, and check that 
+    all transformation activities are handled correctly.
+    """
+    def setUp(self):
+        self.eighth_circle_trans = generate_transform(N.r_[1., 0, 0], N.pi/4, 
+            N.c_[[0., 1, 0]])
+        
+        self.surf = FlatSurface()
+        self.obj = AssembledObject(surfs=[self.surf])
+        self.sub_assembly = Assembly()
+        self.sub_assembly.add_object(self.obj, self.eighth_circle_trans)
+        self.assembly = Assembly()
+        self.assembly.add_assembly(self.sub_assembly, self.eighth_circle_trans)
+    
+    def test_initial_transforms(self):
+        """Initial consrtruction yielded correct permanent and temporary transforms"""
+        quarter_circle_trans = N.dot(self.eighth_circle_trans, self.eighth_circle_trans)
+        
+        # Surface transforms:
+        N.testing.assert_array_almost_equal(self.surf._transform, N.eye(4))
+        N.testing.assert_array_almost_equal(self.surf._temp_frame, quarter_circle_trans)
+        
+        # Object transform:
+        N.testing.assert_array_almost_equal(self.obj.transform,
+            self.eighth_circle_trans)
+        
+        # Subassembly transform:
+        N.testing.assert_array_almost_equal(self.sub_assembly.transform,
+            self.eighth_circle_trans)
+    
+    def test_retransform_object(self):
+        """Changing an object's transform yield's correct resaults after retransform"""
+        self.obj.set_transform(N.eye(4))
+        self.assembly.transform_assembly()
+        
+        # Surface transforms:
+        N.testing.assert_array_almost_equal(self.surf._transform, N.eye(4))
+        N.testing.assert_array_almost_equal(self.surf._temp_frame, 
+            self.eighth_circle_trans)
+        
+        # Object transform:
+        N.testing.assert_array_almost_equal(self.obj.transform,
+            N.eye(4))
+        
+        # Subassembly transform:
+        N.testing.assert_array_almost_equal(self.sub_assembly.transform,
+            self.eighth_circle_trans)
+    
+    def test_retransform_subassembly(self):
+        """Changing an assembly's transform yield's correct resaults after retransform"""
+        self.sub_assembly.set_transform(N.eye(4))
+        self.assembly.transform_assembly()
+
+        # Surface transforms:
+        N.testing.assert_array_almost_equal(self.surf._transform, N.eye(4))
+        N.testing.assert_array_almost_equal(self.surf._temp_frame,
+            self.eighth_circle_trans)
+        
+        # Object transform:
+        N.testing.assert_array_almost_equal(self.obj.transform,
+            self.eighth_circle_trans)
+        
+        # Subassembly transform:
+        N.testing.assert_array_almost_equal(self.sub_assembly.transform,
+            N.eye(4))
 
 if __name__ == '__main__':
     unittest.main()
