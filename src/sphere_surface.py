@@ -14,11 +14,11 @@ class SphereSurface(QuadricSurface):
     """
     def __init__(self, location=None, absorptivity=0., radius=1., mirror=True):
         """
-        Arguments:
+        Arguments:  
         location of center, rotation, absorptivity - passed along to the base class.
-        boundary - boundary shape defining the surface
+        boundary - boundary shape defining the surface (a BoundarySphere object)
         Private attributes:
-        _rad - radius of the sphere
+        _rad - radius of the sphere, a float 
         """
         QuadricSurface.__init__(self, location, None, absorptivity, mirror)
         self.set_radius(radius)  
@@ -36,7 +36,7 @@ class SphereSurface(QuadricSurface):
 
     def get_normal(self, dot, hit, c):
         """Finds the normal by taking the derivative and rotating it, returns the            
-        information to the quadric class for calculations                                  
+        information to the quadric class for calculations. Used by the quadrics class.      
         Arguments:                                                                      
         dot - the dot product of the normal vector and the incoming ray, used to determine 
         which side is the outer surface (this is not relevant to the paraboloid since the  
@@ -50,8 +50,9 @@ class SphereSurface(QuadricSurface):
 
     # Ray handling protocol:
     def get_ABC(self, ray_bundle):
-        """ 
-        Determines the variables forming the relevant quadric equation                         
+        """  
+        Determines the variables forming the relevant quadric equation. Used by the quadrics
+        class
         """ 
         d = ray_bundle.get_directions()
         v = ray_bundle.get_vertices()

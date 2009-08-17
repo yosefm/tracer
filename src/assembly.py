@@ -22,8 +22,8 @@ class Assembly():
     def get_assemblies(self):
         return self.assemblies
 
-    def get_surfaces(self):
-        """Gets the total number of surfaces in the entire assebly, for use of calculations
+    def get_surfaces(self):  
+        """Gets the total number of surfaces in the entire assembly, for use of calculations
         by the tracer engine
         """
         surfaces = []
@@ -40,7 +40,8 @@ class Assembly():
         if transform == None:
             transform = N.eye(4)
         self.objects.append(object)
-        object.transform_object(transform)
+        object.set_transform(transform)
+        object.transform_object(self.transform)
 
     def add_assembly(self, assembly, transform=None):
         """Adds an assembly to the current assembly.
@@ -51,7 +52,8 @@ class Assembly():
         if transform == None:
             transform = N.eye(4)
         self.assemblies.append(assembly)
-        assembly.transform_assembly(transform)
+        assembly.set_transform(transform)
+        assembly.transform_assembly(self.transform)
 
     def set_transform(self, transform):
         self.transform = transform
@@ -59,7 +61,7 @@ class Assembly():
     def get_transform(self):
         return self.transform
 
-    def transform_assembly(self, assembly_transform):
+    def transform_assembly(self, assembly_transform=N.eye(4)):
         """
         Transforms the entire assembly
         Arguments:

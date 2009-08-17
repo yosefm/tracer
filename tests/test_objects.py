@@ -17,7 +17,7 @@ from paraboloid import Paraboloid
 import pdb
 
 class TestObjectBuilding1(unittest.TestCase):
-    """Tests an object composed of surfaces"""
+    """Tests an object composed of sphere surfaces"""
     def setUp(self):
         self.assembly = Assembly()
         surface1 = SphereSurface(location=N.array([0,0,-1.]), radius=3.)
@@ -38,8 +38,7 @@ class TestObjectBuilding1(unittest.TestCase):
         self._bund.set_directions(dir)
         self._bund.set_energy(N.r_[[1,1]])
         self._bund.set_ref_index(N.r_[[1,1]])
-
-
+    
     def test_object(self):
         """Tests that the assembly heirarchy works at a basic level"""
         self.engine = TracerEngine(self.assembly)
@@ -80,15 +79,15 @@ class TestObjectBuilding1(unittest.TestCase):
         N.testing.assert_array_almost_equal(params, correct_params)
 
 class TestObjectBuilding2(unittest.TestCase):
-    """Tests an object composed of two surfaces"""
+    """Tests an object composed of two flat surfaces"""
     def setUp(self):
         self.assembly = Assembly()
-        surface1 = FlatSurface(location=N.array([0,0,-1.]), width=5., height=5., mirror=False)
-        surface2 = FlatSurface(location=N.array([0,0,1.]), width=5., height=5., mirror=False) 
+        surface1 = FlatSurface(location=N.array([0,0,-1.]), \
+            width=5., height=5., mirror=False)
+        surface2 = FlatSurface(location=N.array([0,0,1.]), \
+            width=5., height=5., mirror=False) 
  
-        self.object = AssembledObject()
-        self.object.add_surface(surface1)
-        self.object.add_surface(surface2)
+        self.object = AssembledObject(surfs=[surface1, surface2])
         self.object.set_ref_index([surface1, surface2], 1.5)
         self.assembly.add_object(self.object)
         
@@ -119,7 +118,7 @@ class TestObjectBuilding2(unittest.TestCase):
         N.testing.assert_array_almost_equal(params, correct_params)
 
 class TestAssemblyBuilding3(unittest.TestCase):
-    """Tests an assembly composed of objects"""
+    """Tests an assembly composed of objects that are transformed rel. the assembly"""
     def setUp(self):  
         self.assembly = Assembly()
 
@@ -136,7 +135,7 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self.object2.add_surface(surface3)
         self.object2.add_boundary(boundary)
     
-        self.transform = generate_transform(N.r_[0,0.,0],0.,N.c_[[0.,0,2]])
+        self.transform = generate_transform(N.r_[1,0.,0],0.,N.c_[[0.,0,2]])
         self.assembly.add_object(self.object1)
         self.assembly.add_object(self.object2, self.transform)
         
@@ -206,6 +205,73 @@ class TestAssemblyBuilding4(unittest.TestCase):
         correct_params = N.c_[[0,0,0],[0,0.618033989, 0.381966011]]
         N.testing.assert_array_almost_equal(params, correct_params)
 
+class TestNestedAssemblies(unittest.TestCase):
+    """
+    Create an assembly within an assembly, with an object, and check that 
+    all transformation activities are handled correctly.
+    """
+    def setUp(self):
+        self.eighth_circle_trans = generate_transform(N.r_[1., 0, 0], N.pi/4, 
+            N.c_[[0., 1, 0]])
+        
+        self.surf = FlatSurface()
+        self.obj = AssembledObject(surfs=[self.surf])
+        self.sub_assembly = Assembly()
+        self.sub_assembly.add_object(self.obj, self.eighth_circle_trans)
+        self.assembly = Assembly()
+        self.assembly.add_assembly(self.sub_assembly, self.eighth_circle_trans)
+    
+    def test_initial_transforms(self):
+        """Initial consrtruction yielded correct permanent and temporary transforms"""
+        quarter_circle_trans = N.dot(self.eighth_circle_trans, self.eighth_circle_trans)
+        
+        # Surface transforms:
+        N.testing.assert_array_almost_equal(self.surf._transform, N.eye(4))
+        N.testing.assert_array_almost_equal(self.surf._temp_frame, quarter_circle_trans)
+        
+        # Object transform:
+        N.testing.assert_array_almost_equal(self.obj.transform,
+            self.eighth_circle_trans)
+        
+        # Subassembly transform:
+        N.testing.assert_array_almost_equal(self.sub_assembly.transform,
+            self.eighth_circle_trans)
+    
+    def test_retransform_object(self):
+        """Changing an object's transform yield's correct resaults after retransform"""
+        self.obj.set_transform(N.eye(4))
+        self.assembly.transform_assembly()
+        
+        # Surface transforms:
+        N.testing.assert_array_almost_equal(self.surf._transform, N.eye(4))
+        N.testing.assert_array_almost_equal(self.surf._temp_frame, 
+            self.eighth_circle_trans)
+        
+        # Object transform:
+        N.testing.assert_array_almost_equal(self.obj.transform,
+            N.eye(4))
+        
+        # Subassembly transform:
+        N.testing.assert_array_almost_equal(self.sub_assembly.transform,
+            self.eighth_circle_trans)
+    
+    def test_retransform_subassembly(self):
+        """Changing an assembly's transform yield's correct resaults after retransform"""
+        self.sub_assembly.set_transform(N.eye(4))
+        self.assembly.transform_assembly()
+
+        # Surface transforms:
+        N.testing.assert_array_almost_equal(self.surf._transform, N.eye(4))
+        N.testing.assert_array_almost_equal(self.surf._temp_frame,
+            self.eighth_circle_trans)
+        
+        # Object transform:
+        N.testing.assert_array_almost_equal(self.obj.transform,
+            self.eighth_circle_trans)
+        
+        # Subassembly transform:
+        N.testing.assert_array_almost_equal(self.sub_assembly.transform,
+            N.eye(4))
 
 if __name__ == '__main__':
     unittest.main()

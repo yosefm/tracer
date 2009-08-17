@@ -47,9 +47,12 @@ class Surface(object):
         self._rot = rotation
 
     def set_parent_object(self, object):
+        """Describes which object the surface is in """
         self.parent_object = object
 
     def set_inner_n(self, n):
+        """Arbitrarily describes one side of the surface as the inner side and the
+        other a the outer side.  Then, assigns a refractive index to one of these sides."""
         self._inner_n = n
 
     def set_outer_n(self, n):
@@ -62,12 +65,20 @@ class Surface(object):
         return self._outer_n
     
     def set_transform(self, transform):
-        self._transform = transform
+        """Defines the transformation matrix the puts the surface into the coordinates of the
+        object containing the surface (the parent object).
+        Arguments: 
+        transform - a 2D array defining the 4 by 4 transformation matrix."""   
+        self._transform = transform  
 
     def get_transform(self):
         return self._transform
 
-    def transform_frame(self, transform):
+    def transform_frame(self, transform): 
+        """Updates the transformation matrix that puts the surface into the global
+        coordinates. I.e., if the object the surface is in is rotated, than the surface
+        is also rotated.  It then defines a temporary rotated frame for use of 
+        calculations.""" 
         self._temp_frame = N.dot(transform, self._transform)
         
     def get_ref_index(self, n, bund, selector):
@@ -76,12 +87,15 @@ class Surface(object):
         the ray is currently travelling through                                              
         Also sets the new values for the ray bundle                                           
         Arguments: n - an array of the refractive indices of the materials each of             
-        the rays in a ray bundle                                                              
+        the rays in a ray bundle                
+        bund - the ray bundle
+        selector - determines which rays are no longer relevant
         """
         new_n = n.copy()
         for ray in xrange(N.shape(n)[0]):
             if n[ray] == self.get_inner_n(): new_n[ray] = self.get_outer_n() 
             else: new_n[ray] = self.get_inner_n()
+
         # Prepares a new set of refractive indices for the next ray bundle. It includes
         # the new ref indices when a ray enters a material, and the same ref indices
         # if the ray is reflected. The new set of ref indices are not used until the

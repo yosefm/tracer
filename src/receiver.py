@@ -10,8 +10,8 @@ class Receiver(FlatSurface):
     """                                                                                 
   Implements a flat recieving surface for the rays
   Private attributes:
-  _coordinates - a list of the coordinates of where a ray intersected with the surface
-  _energy - a list of the energy corresponding to the intersecting rays
+  _coordinates - a list of the coordinate arrays of where a ray intersected with the surface
+  _energy - a list of the energy arrays corresponding to the intersecting rays  
     """
     def __init__(self, location=None, rotation=None, absorptivity=1.,width=1.,height=1.):
         FlatSurface.__init__(self, location, rotation, absorptivity, width, height)
@@ -39,7 +39,7 @@ class Receiver(FlatSurface):
     def plot_energy(self):
         """                                                                                 
         Plots the energy distribution on the receiving surface                              
-        """
+        """  
         coords = self._coordinates  
         coords_rot = N.dot(N.linalg.inv(self._temp_frame), N.vstack((coords, N.ones(N.shape(coords)[1]))))
         x = coords_rot[0]  # this should be by row is there is more than one

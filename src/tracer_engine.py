@@ -15,9 +15,13 @@ class TracerEngine():
         """
         Arguments:
         parent_assembly - the highest level assembly
+        Attributes:
+        surfaces - a list of all the surfaces contained in the entire setup, for use
+        by intersect_ray to determine which surface a ray hit first
         tree - an empty list to be used to track parent rays and child rays. When 
         a ray branches, it simply means that both of the child rays point back to 
-        the same index representing that same parent ray
+        the same index representing that same parent ray. Otherwise, the index of
+        each ray points to the ray in the previous branch
         """
         self.surfaces = parent_assembly.get_surfaces()
         self.tree = []
@@ -29,7 +33,8 @@ class TracerEngine():
         surface should be discarded.
         Arguments: bundle - the incoming RayBundle object
         Returns a boolean array indicating whether there was a hit or a miss, organized
-        such that each row of the array matches up to the hits or misses on a single object
+        such that each row of the array matches up to the hits or misses on a single object,
+        and the columns equate to whether the points along a ray hit or miss
         """
         # If there is only a single object, don't need to find minimum distance and
         # can just return a boolean array based on whether the hit missed or did not
@@ -54,23 +59,29 @@ class TracerEngine():
 
             # Find the smallest parameter for each ray, and use that as the final one,
             # returns the indices.  If an entire column of the stack is N.inf (the ray misses
-            # any surfaces), then delete that column
+            # any surfaces), then take that column to be all False
             stack = ((stack == stack.min(axis=0)) & ~N.isinf(stack))
-            
+        
         return stack 
 
     def ray_tracer(self, bundle, reps, min_energy):
         """
         Creates a ray bundle or uses a reflected ray bundle, and intersects it with all
-        objects, uses intersect_ray()
+        objects, uses intersect_ray(). Based on the intersections, generates an outgoing
+        ray in accordance with way the incoming ray reflects or refracts off any surfaces
         Arguments:
+        bundle - the initial incoming bundle
         reps - number of times to repeat the simulation (where each simulation represents
-        a ray bundle being intersected with a set of objects one time)
+        a ray bundle being intersected with the global assembly one time, and an outgoing
+        ray bundle being generated), an integer value
         min_energy - the minimum energy the rays have to have continue tracking them; rays 
         with a lower energy are discarded. A float.
         Returns: 
-        For the time being, returns an array of vertices of the most recent intersections,
-        note that the order of the rays within the arrays may change
+        A tuple containing an array of vertices and an array of the the direcitons
+        of the new outgoing raybundle (note that the vertices of the new bundle are the 
+        intersection points of the previous incoming bundle)
+        Note that the order of the rays within the arrays may change, but they are tracked
+        by the ray tree
         """
         bund = bundle
         self.store_branch(bund)
@@ -104,14 +115,17 @@ class TracerEngine():
     
     def store_branch(self, bundle):
         """
-        Stores a tree of ray bundles  
+        Stores a tree of ray bundles in the form of a list of ray bundles. From each bundle
+        the list of parent indices can be fetched.
         """
         self.tree.append(bundle)
 
     def get_parents_from_tree(self):
         """
-        Returns a list of arrays of the list of parents for each iteration 
-        """
+        Returns a list of arrays of the list of parents for each iteration. Each parent
+        array contains indices (matching up to the ray), and these indices point back to the
+        previous parent array indicating which parent the current ray originated from.
+        """  
         tree = []
         for bundle in self.tree[1:]:
             tree.append(bundle.get_parent())
@@ -123,7 +137,7 @@ class TracerEngine():
         it is in and its index within that bundle, and returns the original parent
         Arguments:
         bundle - the bundle from where to track the ray from
-        index - the index into that bundle of which ray to track
+        index - the index into that bundle of which ray to track (an int)
         Returns: the original parent of that ray, from the very first bundle
         """
         i = len(self.tree) - 1
