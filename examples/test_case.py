@@ -1,18 +1,16 @@
-import unittest
 import numpy as N
 import math
 
-from tracer_engine import TracerEngine
-from ray_bundle import RayBundle, solar_disk_bundle
-from flat_surface import FlatSurface
-from spatial_geometry import general_axis_rotation
-from sphere_surface import SphereSurface
-from boundary_shape import BoundarySphere
-from receiver import Receiver
-from assembly import Assembly
-from object import AssembledObject
-from spatial_geometry import generate_transform
-from paraboloid import Paraboloid
+from tracer.tracer_engine import TracerEngine
+from tracer.ray_bundle import RayBundle, solar_disk_bundle
+from tracer.flat_surface import FlatSurface
+from tracer.spatial_geometry import general_axis_rotation, generate_transform
+from tracer.sphere_surface import SphereSurface
+from tracer.boundary_shape import BoundarySphere
+from tracer.receiver import Receiver
+from tracer.assembly import Assembly
+from tracer.object import AssembledObject
+from tracer.paraboloid import Paraboloid
 
 def test_case(focus):
     w = 10.
@@ -58,7 +56,7 @@ def test_case(focus):
     
     engine = TracerEngine(assembly)
     engine.ray_tracer(sun, iterate, min_energy)
-#    surface1.plot_energy()
+    surface1.plot_energy()
 
 if __name__ == '__main__':
     import optparse
