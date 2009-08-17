@@ -79,7 +79,8 @@ class RayBundle:
         newbund.set_temp_ref_index(N.hstack((self._temp_ref_index, added.get_temp_ref_index())))
         return newbund
 
-    def empty_bund(self):
+    @staticmethod
+    def empty_bund():
         """Create an empty ray bundle"""
         empty = RayBundle()
         empty_array = N.array([[],[],[]])
