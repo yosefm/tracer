@@ -3,10 +3,8 @@
 from surface import UniformSurface
 import optics
 from ray_bundle import RayBundle
-from boundary_shape import BoundarySphere
 import numpy as N
 from quadric import QuadricSurface
-import pdb
 
 class SphereSurface(QuadricSurface):
     """
@@ -16,7 +14,6 @@ class SphereSurface(QuadricSurface):
         """
         Arguments:  
         location of center, rotation, absorptivity - passed along to the base class.
-        boundary - boundary shape defining the surface (a BoundarySphere object)
         Private attributes:
         _rad - radius of the sphere, a float 
         """

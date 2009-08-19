@@ -5,7 +5,6 @@ import optics
 from ray_bundle import RayBundle
 from boundary_shape import BoundarySphere
 import numpy as N
-import pdb
 
 class QuadricSurface(UniformSurface):
     """
@@ -32,8 +31,9 @@ class QuadricSurface(UniformSurface):
         self._outer_n = 1.
     
     def transform_frame(self, transform):
-        self._temp_loc = N.dot(transform, self._loc)
-        
+        raise TypeError("Use of virtual class method transform_frame(). " + \
+            "Implement this in a derived class")
+
     # Ray handling protocol:
     def register_incoming(self, ray_bundle):
         """

@@ -1,16 +1,16 @@
 # Implements a circular paraboloid surface
+
 import numpy as N
 from quadric import QuadricSurface
-import pdb
+
 class Paraboloid(QuadricSurface):
     """Implements the geometry of a circular paraboloid surface"""
     def __init__(self, location=None, rotation=None, absorptivity=0., a=1., b=1., mirror=True):
         """               
         Arguments:                                                                           
         location of center, rotation, absorptivity - passed along to the base class.    
-        boundary - boundary shape defining the surface                                    
         Private attributes:                                                                  
-        self.a, self.b - describe the paraboloid 
+        self.a, self.b - describe the paraboloid as z = self.a*x**2 + self.b*y**2
         """ 
         QuadricSurface.__init__(self, location, rotation,  absorptivity, mirror)
         self.a = 1./(a**2)
