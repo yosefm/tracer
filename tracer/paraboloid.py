@@ -12,12 +12,9 @@ class Paraboloid(QuadricSurface):
         Private attributes:                                                                  
         self.a, self.b - describe the paraboloid as z = self.a*x**2 + self.b*y**2
         """ 
-        QuadricSurface.__init__(self, location, rotation,  absorptivity, mirror)
+        QuadricSurface.__init__(self, location, rotation, absorptivity, mirror)
         self.a = 1./(a**2)
         self.b = 1./(b**2)
-
-    def transform_frame(self, transform):
-        self.transform = transform
 
     def get_normal(self, dot, hit, c):
         """Finds the normal by taking the derivative and rotating it, returns the 
@@ -29,12 +26,12 @@ class Paraboloid(QuadricSurface):
         hit - the coordinates of an intersection
         c - the center/vertex of the surface 
         """
-        hit = N.dot(self.transform[:3,:3].T, hit)
+        hit = N.dot(self._temp_frame[:3,:3].T, hit)
         partial_x = 2*hit[0]*self.a
         partial_y = 2*hit[1]*self.b
         local_normal = N.cross(N.array([1,0,partial_x]), N.array([0,1,partial_y]))[:,None]
         normal = local_normal/N.linalg.norm(local_normal)
-        normal = N.dot(self.transform[:3,:3], local_normal/N.linalg.norm(local_normal))
+        normal = N.dot(self._temp_frame[:3,:3], local_normal/N.linalg.norm(local_normal))
         return normal  
     
     def get_ABC(self, ray_bundle):
@@ -43,10 +40,10 @@ class Paraboloid(QuadricSurface):
         """
         # Transform the the direction and position of the rays temporarily into the
         # frame of the paraboloid for calculations
-        d = N.dot(self.transform[:3,:3].T, ray_bundle.get_directions())
+        d = N.dot(self._temp_frame[:3,:3].T, ray_bundle.get_directions())
         v = N.empty((4,N.shape(d)[1]))
         for ray in xrange(ray_bundle.get_num_rays()):
-            v[:,ray] = N.dot(N.linalg.inv(self.transform), N.vstack((ray_bundle.get_vertices()[:,ray][:,None],N.array([1])))).T
+            v[:,ray] = N.dot(N.linalg.inv(self._temp_frame), N.vstack((ray_bundle.get_vertices()[:,ray][:,None],N.array([1])))).T
         v = v[:3]
         A = self.a*d[0]**2 + self.b*d[1]**2
         B = 2*self.a*d[0]*v[0] + 2*self.b*d[1]*v[1] - d[2] 

@@ -29,7 +29,13 @@ class SphereSurface(QuadricSurface):
         self._rad = rad
      
     def transform_frame(self, transform):
-        self._temp_loc = N.dot(transform, self._loc)
+        """
+        Override the default surface transformation stuff, because we only care
+        about the location in spherical surfaces.
+        """
+        self._temp_loc = N.dot(transform, N.hstack((self._loc, [1])))
+        # Compatibility with the parent class:
+        self._temp_frame[:,3] = self._temp_loc
 
     def get_normal(self, dot, hit, c):
         """Finds the normal by taking the derivative and rotating it, returns the            

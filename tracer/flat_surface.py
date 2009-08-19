@@ -29,11 +29,10 @@ class FlatSurface(UniformSurface):
         assigned to the surface that is already facing the air                               
         _mirror - indicates if the surface is fully reflective   
         """
-        UniformSurface.__init__(self,  location, rotation, absorptivity, mirror)
+        UniformSurface.__init__(self, location, rotation, absorptivity, mirror)
         self.set_width(width)
         self.set_height(height)
         self._abs = absorptivity 
-        self._transform = N.vstack((N.hstack((self.get_rotation(), self.get_location()[:,None])), N.r_[[0,0,0,1]]))
         self._temp_frame = self._transform
         self._inner_n = 1.
         self._outer_n = 1.

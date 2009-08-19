@@ -23,17 +23,10 @@ class QuadricSurface(UniformSurface):
     """
     def __init__(self, location=None, rotation=None, absorptivity=0., mirror=True):
         UniformSurface.__init__(self, location, rotation,  absorptivity, mirror)
-        self._loc = N.append(self._loc, N.c_[[1]])
-        self._transform = N.hstack((N.vstack((self.get_rotation(), N.array([0,0,0]))), self._loc[:,None]))  
-        self._temp_loc = N.dot(self.get_transform(), self._loc)
         self._abs = absorptivity
         self._inner_n = 1.
         self._outer_n = 1.
     
-    def transform_frame(self, transform):
-        raise TypeError("Use of virtual class method transform_frame(). " + \
-            "Implement this in a derived class")
-
     # Ray handling protocol:
     def register_incoming(self, ray_bundle):
         """
@@ -46,7 +39,7 @@ class QuadricSurface(UniformSurface):
         d = ray_bundle.get_directions()
         v = ray_bundle.get_vertices()
         n = ray_bundle.get_num_rays()
-        c = self._temp_loc[:3]
+        c = self._temp_frame[:3,3]
         
         params = []
         vertices = []
