@@ -14,7 +14,7 @@ from ..tracer_engine import TracerEngine
 from .. import spatial_geometry as G
 
 class ExampleScene(t_api.HasTraits):
-    scene = Instance(MlabSceneModel, ())
+    scene = t_api.Instance(MlabSceneModel, ())
     source_y = t_api.Range(0., 5., 2.)
     source_z = t_api.Range(0., 5., 1.)
     
@@ -29,21 +29,21 @@ class ExampleScene(t_api.HasTraits):
         
         # The energy bundle we'll use for now:
         nrm = 1/(N.sqrt(2))
-        dir = c_[[0,-nrm, nrm],[0,0,-1]]
-        position = tile(c_[[0, self.source_y, self.source_z]], (1, 2))
+        dir = N.c_[[0,-nrm, nrm],[0,0,-1]]
+        position = N.tile(N.c_[[0, self.source_y, self.source_z]], (1, 2))
 
         bund = RayBundle()
         bund.set_vertices(position)
         bund.set_directions(dir)
-        bund.set_ref_index(r_[[1,1,1]]) 
+        bund.set_ref_index(N.r_[[1,1,1]]) 
         
-        energy = array([1,1])
+        energy = N.array([1,1])
         bund.set_energy(energy)
 
         self.bund = bund
         
         # The assembly for ray tracing:
-        rot1 = G.general_axis_rotation([1,0,0], pi/4)
+        rot1 = G.general_axis_rotation([1,0,0], N.pi/4)
         surf1 = FlatSurface(rotation=rot1, width=10,height=10)
         surf2 = FlatSurface(width=10,height=10)
         self.assembly = Assembly()
@@ -63,7 +63,7 @@ class ExampleScene(t_api.HasTraits):
     
     @t_api.on_trait_change('source_y, source_z')
     def bundle_move(self):
-        position = tile(c_[[0, self.source_y, self.source_z]], (1, 2))
+        position = N.tile(N.c_[[0, self.source_y, self.source_z]], (1, 2))
         self.bund.set_vertices(position)
         self.plot_ray_trace()
 
@@ -99,13 +99,13 @@ class ExampleScene(t_api.HasTraits):
             for ray in xrange(start_rays.get_num_rays()):
                 if ray in parents:
                     # Has a hit on another surface
-                    first_child = where(ray == parents)[0][0]
-                    endpoints = c_[
+                    first_child = N.where(ray == parents)[0][0]
+                    endpoints = N.c_[
                         start_rays.get_vertices()[:,ray],
                         end_rays.get_vertices()[:,first_child] ]
                 else:
                     # Escaping ray.
-                    endpoints = c_[
+                    endpoints = N.c_[
                         start_rays.get_vertices()[:,ray],
                         start_rays.get_vertices()[:,ray] + \
                             start_rays.get_directions()[:,ray]*escaping_len ]
