@@ -7,6 +7,10 @@ class BoundaryShape(HasFrame):
     """
     Represent a surface that encloses a volume, so that it is possible to check
     whether certain points are within that volume.
+    
+    Boundary shapes also contain helper functions for automatically generating
+    meshes for objects: boundary_recr_for_plane() helps the surfaces know the 
+    extent of the required mesh.
     """
     def __init__(self, location=None, rotation=None):
         """
@@ -32,11 +36,29 @@ class BoundaryShape(HasFrame):
         raise TypeError("Virtual function in_bounds() called. Implement " + \
             "this in a derived class")
 
+    def bounding_rect_for_plane(self, transform):
+        """
+        Find a rectangle on the xy plane of a given frame, which contains the
+        intersection of the boundary shape and the plane.
+        
+        Arguments: 
+        transform - a 4x4 array, the homog. transf. matrix from the global
+            coordinates to the frame whose xy plane intersects the boundary 
+            shape.
+        
+        Returns:
+        xmin, xmax, ynin, ymax - of the rect, in the xy plane of the frame,
+        """
+        raise TypeError("Virtual bounding_rect_for_plane() called. " + \
+            "Implement this in a derived class")
+
 class BoundarySphere(BoundaryShape):
     def __init__(self, location=None,  radius=1.):
         """
         Arguments:
         radius - a float
+        location - a 3-component column vector representing the location of the
+            sphere's center, passed to the base class.
         
         Attributes:
         _radius - radius of the bounding sphere
@@ -64,3 +86,21 @@ class BoundarySphere(BoundaryShape):
         """
         self._temp_loc = N.dot(transform, N.append(self._loc, N.c_[[1]]))
     
+    def bounding_rect_for_plane(self, transform):
+        """
+        Find a rectangle on the xy plane of a given frame, which contains the
+        intersection of the boundary shape and the plane.
+
+        Arguments:
+        transform - a 4x4 array, the homog. transf. matrix from the global
+            coordinates to the frame whose xy plane intersects the boundary
+            shape.
+
+        Returns:
+        xmin, xmax, ynin, ymax - of the rect, in the xy plane of the frame,
+        """
+        cent_proj = N.dot(N.linalg.inv(transform), N.append(self._temp_loc, 1))
+        Reff = N.sqrt(self._radius**2 - (self._temp_loc[2] - cent_proj[2])**2)
+        return cent_proj[0] - Reff, cent_proj[0] + Reff, \
+            cent_proj[1] - Reff, cent_proj[1] + Reff
+
