@@ -1,4 +1,7 @@
 # Implements spherical surface 
+#
+# References:
+# [1] http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter4.htm
 
 from surface import UniformSurface
 import optics
@@ -37,7 +40,7 @@ class QuadricSurface(UniformSurface):
     # Ray handling protocol:
     def register_incoming(self, ray_bundle):
         """
-        Deals wih a ray bundle intersecting with the surface
+        Deals wih a ray bundle intersecting with the surface; see [1] 
         Arguments:
         ray_bundle - the incoming bundle 
         Returns a 1D array with the parametric position of intersection along
@@ -52,7 +55,7 @@ class QuadricSurface(UniformSurface):
         vertices = []
         norm = []
         
-        # Gets the relevant A, B, C from whichever quadric surface
+        # Gets the relevant A, B, C from whichever quadric surface, see [1]  
         A, B, C = self.get_ABC(ray_bundle)
         
         delta = B**2 - 4*A*C

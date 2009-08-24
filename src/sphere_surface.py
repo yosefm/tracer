@@ -1,4 +1,7 @@
 # Implements spherical surface 
+#
+# References:
+# [1] http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter1.htm
 
 from surface import UniformSurface
 import optics
@@ -52,7 +55,7 @@ class SphereSurface(QuadricSurface):
     def get_ABC(self, ray_bundle):
         """  
         Determines the variables forming the relevant quadric equation. Used by the quadrics
-        class
+        class, [1]
         """ 
         d = ray_bundle.get_directions()
         v = ray_bundle.get_vertices()

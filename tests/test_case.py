@@ -58,6 +58,6 @@ def test_case():
     
     engine = TracerEngine(assembly)
     engine.ray_tracer(sun, iterate, min_energy)
-#    surface1.plot_energy()
-
+    #surface1.plot_energy()
+    
 test_case()
