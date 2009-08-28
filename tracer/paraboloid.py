@@ -1,4 +1,7 @@
 # Implements a circular paraboloid surface
+#
+# References:
+# [1] http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter4.htm
 
 import numpy as N
 from quadric import QuadricSurface
@@ -36,7 +39,7 @@ class Paraboloid(QuadricSurface):
     
     def get_ABC(self, ray_bundle):
         """
-        Determines the variables forming the relevant quadric equation
+        Determines the variables forming the relevant quadric equation, [1]
         """
         # Transform the the direction and position of the rays temporarily into the
         # frame of the paraboloid for calculations

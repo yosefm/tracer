@@ -1,4 +1,8 @@
 # Common functions for optics laws, for use by surfaces etc.
+#
+# References:
+# [1] http://en.wikipedia.org/wiki/Fresnel_equations
+# [2] http://en.wikipedia.org/wiki/Snell%27s_law
 
 import numpy as N
 from ray_bundle import RayBundle 
@@ -6,7 +10,7 @@ from ray_bundle import RayBundle
         
 def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
     """Determines what ratio of the ray bundle is reflected and what is refracted, 
-    and the performs the appropriate functions on them.
+    and the performs the appropriate functions on them. Based on fresnel's euqations, [1]
     Arguments: ray_dirs - the directions of the ray bundle
     absorptivity - of the material
     energy - of the ray bundle
@@ -73,7 +77,8 @@ def reflections(R, ray_dirs, normals):
     return ray_dirs
 
 def refractions(n1, n2, T, ray_dirs, normals):
-    """Generates directions of rays refracted according to Snells's law.
+    """Generates directions of rays refracted according to Snells's law (in its vector
+    form, [2]
     Arguments: T - the transmittance 
     n1, n2, ray_dirs, normals - passed from fresnel
     Returns: new ray directions as the result of refraction
