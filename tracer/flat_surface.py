@@ -106,19 +106,20 @@ class FlatSurface(UniformSurface):
         # Note that n1 is a copy for get_ref_index() since assigning n2 changes the value
         # of the current bundle's refractive index 
         outg = RayBundle()
-        n1 = self._current_bundle.get_ref_index().copy()
-        n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
+        n1 = self._current_bundle.get_ref_index()[selector]
+        n2 = self.get_ref_index(n1)
+        
+        # Temporary backward-compatibility measure:
+        outg.set_temp_ref_index(N.hstack((n2, n1)))
         
         # A temp rotation and location are used in which the surface has been transformed
         # into the global coordinates. These are used for calculations
         temp_rotation = self._temp_frame[:3,:3]
         temp_location = self._temp_frame[:3,3]
-
         
         fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], \
             temp_rotation[:,2][:,None], self._absorpt, \
-            self._current_bundle.get_energy()[selector], n1[selector], \
-            n2[selector], self.mirror)
+            self._current_bundle.get_energy()[selector], n1, n2, self.mirror)
 
         vertices = N.dot(temp_rotation[:, :2],  self._current_params[:, selector]) + \
             temp_location[:, None]

@@ -35,27 +35,20 @@ class Surface(HasFrame):
     def get_outer_n(self):
         return self._outer_n
     
-    def get_ref_index(self, n, bund, selector):
+    def get_ref_index(self, n):
         """                                                                                  
         Determines which refractive index to use based on the refractive index               
-        the ray is currently travelling through                                              
-        Also sets the new values for the ray bundle                                           
-        Arguments: n - an array of the refractive indices of the materials each of             
-        the rays in a ray bundle                
-        bund - the ray bundle
-        selector - determines which rays are no longer relevant
+        the ray is currently travelling through.
+         
+        Arguments: 
+        n - an array of the refractive indices of the materials each of the
+            rays in a ray bundle is travelling through.
+        
+        Returns:
+        An array of length(n) with the index to use for each ray.
         """
-        new_n = n.copy()
-        for ray in xrange(N.shape(n)[0]):
-            if n[ray] == self.get_inner_n(): new_n[ray] = self.get_outer_n() 
-            else: new_n[ray] = self.get_inner_n()
-
-        # Prepares a new set of refractive indices for the next ray bundle. It includes
-        # the new ref indices when a ray enters a material, and the same ref indices
-        # if the ray is reflected. The new set of ref indices are not used until the
-        # first iteration is done
-        bund.set_temp_ref_index(N.hstack((new_n[selector], n[selector])))
-        return new_n   
+        return N.where(n == self.get_inner_n(), \
+            self.get_outer_n(), self.get_inner_n())
     
 class UniformSurface(Surface):
     """Implements an abstract surface whose material properties are independent of
