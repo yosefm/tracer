@@ -32,7 +32,6 @@ class FlatSurface(UniformSurface):
         UniformSurface.__init__(self, location, rotation, absorptivity, mirror)
         self.set_width(width)
         self.set_height(height)
-        self._abs = absorptivity 
         self._temp_frame = self._transform
         self._inner_n = 1.
         self._outer_n = 1.
@@ -116,7 +115,10 @@ class FlatSurface(UniformSurface):
         temp_location = self._temp_frame[:3,3]
 
         
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], temp_rotation[:,2][:,None], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector], self.mirror)   
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], \
+            temp_rotation[:,2][:,None], self._absorpt, \
+            self._current_bundle.get_energy()[selector], n1[selector], \
+            n2[selector], self.mirror)
 
         vertices = N.dot(temp_rotation[:, :2],  self._current_params[:, selector]) + \
             temp_location[:, None]

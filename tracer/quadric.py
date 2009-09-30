@@ -26,7 +26,6 @@ class QuadricSurface(UniformSurface):
     """
     def __init__(self, location=None, rotation=None, absorptivity=0., mirror=True):
         UniformSurface.__init__(self, location, rotation,  absorptivity, mirror)
-        self._abs = absorptivity
         self._inner_n = 1.
         self._outer_n = 1.
     
@@ -125,7 +124,10 @@ class QuadricSurface(UniformSurface):
         # depends on knowing which material the ray is leaving in order to select the
         # correct refractive index
         n2 = self.get_ref_index(self._current_bundle.get_ref_index(), outg, selector)
-        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], self._norm[:,selector], self._abs, self._current_bundle.get_energy()[selector], n1[selector], n2[selector], self.mirror)
+        fresnel = optics.fresnel(self._current_bundle.get_directions()[:,selector], \
+            self._norm[:,selector], self._absorpt, \
+            self._current_bundle.get_energy()[selector], n1[selector], \
+            n2[selector], self.mirror)
 
         outg.set_vertices(N.hstack((self._vertices[:,selector], self._vertices[:,selector])))
         outg.set_directions(fresnel[0])
