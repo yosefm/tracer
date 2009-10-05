@@ -176,6 +176,7 @@ class FlatGeometryManager(GeometryManager):
         
         # Storage for later reference:
         self._current_params = params[:2]
+        return params[2]
     
     def get_normals(self, selector):
         """

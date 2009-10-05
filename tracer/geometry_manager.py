@@ -8,7 +8,7 @@ class GeometryManager(object):
         self._working_bundle = ray_bundle
         
         # This must be extended to return the correct result!
-        if is_instance(self, GeometryManager):
+        if type(self) is GeometryManager:
             raise TypeError("Find intersections must be extended by a base class")
     
     def get_normals(self, selector):
