@@ -14,8 +14,18 @@ class Surface(HasFrame):
     """
     Defines the base of surfaces that interact with rays.
     """
-    def __init__(self, location=None, rotation=None):
+    def __init__(self, geometry, optics, location=None, rotation=None):
+        """
+        Arguments:
+        geometry - a GeometryManager object responsible for finding ray 
+            intersections with the surface.
+        optics - an OpticsManager object responsible for reflections and
+            refractions.
+        location, rotation - passed directly to the HasFrame constructor.
+        """
         HasFrame.__init__(self, location, rotation)
+        self._geom = geometry
+        self._opt = optics
 
     def set_parent_object(self, object):
         """Describes which object the surface is in """
@@ -49,6 +59,23 @@ class Surface(HasFrame):
         """
         return N.where(n == self.get_inner_n(), \
             self.get_outer_n(), self.get_inner_n())
+    
+    def register_incoming(self, ray_bundle):
+        """
+        Records the incoming ray bundle, and uses the geometry manager to
+        return the parametric positions of intersection with the surface along
+        the ray.
+        
+        Arguments:
+        ray_bundle - a RayBundle object with at-least its vertices and
+            directions specified.
+        
+        Returns
+        A 1D array with the parametric position of intersection along each of
+            the rays. Rays that missed the surface return +infinity.
+        """
+        self._current_bundle = ray_bundle
+        return self._geom.find_intersections(frame, ray_bundle)
     
 class UniformSurface(Surface):
     """Implements an abstract surface whose material properties are independent of
