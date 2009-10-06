@@ -196,7 +196,10 @@ class FlatGeometryManager(GeometryManager):
         Arguments: 
         selector - a boolean array stating which columns of the working bundle
             are active.
+        
+        Returns:
+        A 3-by-n array for 3 spatial coordinates and n rays selected.
         """
         return N.dot(self._working_frame[:3,:2],
-            self._current_params[:,selector]) + self._working_frame[:,None]
+            self._current_params[:,selector]) + self._working_frame[:3,3][:,None]
 
