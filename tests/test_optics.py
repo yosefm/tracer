@@ -13,7 +13,7 @@ class TestSingleReflection(unittest.TestCase):
         normal = N.array([[0, 0, 1]]).T
         correct_reflection = N.array([[0, 1, 1]]).T / math.sqrt(2)
         
-        reflection = optics.reflections(N.r_[[1]], dir, normal)
+        reflection = optics.reflections(dir, normal)
         self.failUnless((reflection == correct_reflection).all(), 
             "Reflection is\n" + str(reflection) + "\nbut should be\n" + str(correct_reflection))
 
@@ -24,7 +24,7 @@ class TestMultipleReflections(unittest.TestCase):
         normal = N.array([[0, 0, 1]]).T
         correct_reflection = N.array([[1, 1, 1], [-1, 1, 1], [-1, -1, 1], [1, -1, 1]]).T / math.sqrt(3)
         
-        reflection = optics.reflections(N.r_[[1,1,1,1]], dir, normal)
+        reflection = optics.reflections(dir, normal)
         self.failUnless((reflection == correct_reflection).all(), 
             "Reflection is\n" + str(reflection) + "\nbut should be\n" + str(correct_reflection))
         
@@ -34,7 +34,7 @@ class TestTangentRays(unittest.TestCase):
         dir = N.array([[1, 1, 0], [-1, 1, 0], [-1, -1, 0], [1, -1, 0]]).T / math.sqrt(2)
         normal = N.array([[0, 0, 1]]).T
         
-        reflection = optics.reflections(N.r_[[1,1,1,1]], dir, normal)
+        reflection = optics.reflections(dir, normal)
         self.failUnless(N.allclose(reflection, dir), 
             "Reflection is\n" + str(reflection) + "\nbut should be\n" + str(dir))
 
@@ -47,7 +47,7 @@ class TestMultipleNormals(unittest.TestCase):
         normal = N.array([[0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]]).T / N.sqrt([1, 2, 3, 2])
         correct_reflection = N.tile([1, 1, 1], (4,1)).T / math.sqrt(3)
         
-        reflection = optics.reflections(N.r_[[1,1,1,1]], dir, normal)
+        reflection = optics.reflections(dir, normal)
         self.failUnless(N.allclose(reflection, correct_reflection), 
             "Reflection is\n" + str(reflection) + "\nbut should be\n" + str(correct_reflection))
         

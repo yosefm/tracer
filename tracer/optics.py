@@ -32,7 +32,7 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
     # bundle, the reflected ray is doubled in size as is the energy. However the energy for
     # the double is zero so that outgoing_ray() will delete those rays.
     if mirror != False: 
-        reflected = reflections(N.ones_like(n1), ray_dirs, normals)
+        reflected = reflections(ray_dirs, normals)
         return N.hstack((reflected, reflected)), N.hstack((energy, N.zeros_like(energy)))
 
     for ray in xrange(ray_dirs.shape[1]): 
@@ -51,18 +51,23 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
     T = 1 - (R+absorptivity)
     
     refracted = refractions(n1, n2, T, ray_dirs, normals)
-    reflected = reflections(R, ray_dirs, normals)
+    reflected = reflections(ray_dirs, normals)
 
     ray_dirs = N.hstack((refracted, reflected))
     energy = N.hstack((energy*T, energy*R))
     
     return ray_dirs, energy  
                
-def reflections(R, ray_dirs, normals):  
-    """Generate directions of rays reflecting according to the reflection law.
-    Arguments: R - the reflectance
-    ray_dirs, normals - passed from fresnel()
-    Returns: new ray directions as the result of reflection
+def reflections(ray_dirs, normals):  
+    """
+    Generate directions of rays reflecting according to the reflection law.
+    
+    Arguments:
+    ray_dirs - a 3 by n array where each column is the i-th of n ray directions
+    normals - for each ray, the corresponding norman on the point where the ray
+        intersects a surface, also 3 by n array.
+    
+    Returns: new ray directions as the result of reflection, 3 by n array.
     """
     vertical = N.empty_like(ray_dirs)
     # The case of one normal for all rays necessitates replication to make 
