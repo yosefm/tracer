@@ -7,37 +7,23 @@
 import numpy as N
 from ray_bundle import RayBundle 
 
-        
-def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
+def fresnel(ray_dirs, normals, n1, n2):
     """Determines what ratio of the ray bundle is reflected and what is refracted, 
     and the performs the appropriate functions on them. Based on fresnel's euqations, [1]
-    Arguments: ray_dirs - the directions of the ray bundle
-    absorptivity - of the material
-    energy - of the ray bundle
+    
+    Arguments: 
+    ray_dirs - the directions of the ray bundle
+    normals - a 3 by n array where for each of the n rays in ray_dirs, the 
+        normal to the surface at the ray/surface intersection is given.
     n1 - refraction index of the material the ray is leaving
     n2 - refraction index of the material the ray is entering
-    mirror - whether or not the surface is perfectly reflective
-    Returns:  a tuple containing the new ray directions and energy (rays that branch due
-    due some amount of reflection and some amount of refraction carry a fraction of the
-    energy of their parent ray
+    
+    Returns:  
+    R - the reflectance of a homogenously-polarized light ray with the given
+        parameters.
     """ 
-    if N.shape(ray_dirs)[1] == 0:
-        return ray_dirs, energy
-    
-    theta_in = N.empty_like(ray_dirs[1])
-    normals = normals*N.ones_like(ray_dirs)  # for flat surfaces which return only a single value for a normal, make the array the same size as ray_dirs
-    
-    # If the surface is a mirror, simply reflect the ray and don't bother with the 
-    # other calculations.  However, since fresnel normally doubles the size of the ray
-    # bundle, the reflected ray is doubled in size as is the energy. However the energy for
-    # the double is zero so that outgoing_ray() will delete those rays.
-    if mirror != False: 
-        reflected = reflections(ray_dirs, normals)
-        return N.hstack((reflected, reflected)), N.hstack((energy, N.zeros_like(energy)))
-
-    for ray in xrange(ray_dirs.shape[1]): 
-        theta_in[ray] = N.arccos(N.abs(N.dot(normals[:,ray], ray_dirs[:,ray])))
-        
+    theta_in = N.arccos(N.abs((normals*ray_dirs).sum(axis=0)))
+    # Factor out common terms in Fresnel's equations:
     foo = N.cos(theta_in) 
     bar = N.sqrt(1 - (n1/n2 * N.sin(theta_in))**2)
     
@@ -48,15 +34,7 @@ def fresnel(ray_dirs, normals, absorptivity, energy, n1, n2, mirror):
     # s and p polarized light
     # R = ratio of reflected energy, T = ratio refracted (transmittance)
     R = (Rs + Rp)/2
-    T = 1 - (R+absorptivity)
-    
-    refracted = refractions(n1, n2, T, ray_dirs, normals)
-    reflected = reflections(ray_dirs, normals)
-
-    ray_dirs = N.hstack((refracted, reflected))
-    energy = N.hstack((energy*T, energy*R))
-    
-    return ray_dirs, energy  
+    return R
                
 def reflections(ray_dirs, normals):  
     """
