@@ -59,28 +59,38 @@ def reflections(ray_dirs, normals):
 
     return ray_dirs
 
-def refractions(n1, n2, T, ray_dirs, normals):
+def refractions(n1, n2, ray_dirs, normals):
     """Generates directions of rays refracted according to Snells's law (in its vector
     form, [2]
-    Arguments: T - the transmittance 
-    n1, n2, ray_dirs, normals - passed from fresnel
-    Returns: new ray directions as the result of refraction
+    
+    Arguments: 
+    n1, n2 - respectively the refractive indices of the medium the unrefracted ray
+        travels in and of the medium the ray is entering.
+    ray_dirs, normals - each a row of 3-component vectors (as an array) with the
+        direction of incoming rays and corresponding normals at the points of
+        incidence with the refracting surface.
+    
+    Returns:
+    refracted - a boolean array stating which of the incoming rays has not
+        undergone total internal reflection.
+    refr_dirs - new ray directions as the result of refraction, for the non-TIR
+        rays in the input bundle.
     """
-    refr_ray_dirs = N.empty_like(ray_dirs)
-    cos1 = N.empty(N.shape(normals)[1])
-    for ray in xrange(N.shape(normals)[1]):
-        cos1[ray] = (N.vdot(normals[:,ray], -ray_dirs[:,ray]))
-
-    cos2 = N.sqrt(1 - ((n1/n2)**2)*(1 - cos1**2)) 
-
-    pos = N.where(cos1 >= 0)[0]
-    neg = N.where(cos1 < 0)[0]
+    # Broadcast all necessary arrays to the larger size required:
+    n = N.broadcast_arrays(n2/n1, ray_dirs[0])[0]
+    normals = N.broadcast_arrays(normals, ray_dirs)[0]
+    cos1 = (normals*ray_dirs).sum(axis=0)
+    refracted = cos1**2 >= 1 - n**2
     
-    refr_ray_dirs[:,pos] = ((n1[pos]/n2[pos]).T*ray_dirs[:,pos]) + (n1[pos]/n2[pos]*cos1[pos] - cos2[pos]).T*normals[:,pos]        
-    refr_ray_dirs[:,neg] = ((n1[neg]/n2[neg]).T*ray_dirs[:,neg]) + (n1[neg]/n2[neg]*cos1[neg] + cos2[neg]).T*normals[:,neg]  
+    # Throw away totally-reflected rays.
+    cos1 = cos1[refracted]
+    ray_dirs = ray_dirs[:,refracted]
+    normals = normals[:,refracted]
+    n = n[refracted]
     
-    return refr_ray_dirs
-
-
- 
+    refr_dirs = (ray_dirs - cos1*normals)/n
+    cos2 = N.sqrt(1 - 1./n**2*(1 - cos1**2))
+    refr_dirs += normals*cos2*N.where(cos1 < 0, -1, 1)
+    
+    return refracted, refr_dirs
 

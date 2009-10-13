@@ -81,5 +81,53 @@ class TestFresnel(unittest.TestCase):
         R = optics.fresnel(dir, norm, N.r_[1.], N.r_[1.])
         self.failUnlessAlmostEqual(R, 0)
 
+class TestRefractionDirs(unittest.TestCase):
+    """Direction of refracted rays in various circustances"""
+    def test_multiple_ref_idxs(self):
+        n1 = N.r_[1., 1.]
+        n2 = N.r_[1., 1.5]
+        dir = N.c_[[0, -1, 1], [0, -1, -1]]/math.sqrt(2)
+        norm = N.c_[[0, 1, 0]]
+        refr, dirs = optics.refractions(n1, n2, dir, norm)
+        
+        self.failUnless(refr.all(), "Some rays did not refract")
+        correct_refrs = N.c_[dir[:,0], -N.sqrt([0, 7./9, 2./9])]
+        N.testing.assert_array_almost_equal(dirs, correct_refrs)
+    
+    def test_reverse_normal(self):
+        """When the normal points into the new material, refractions ok"""
+        n1 = N.r_[1., 1.]
+        n2 = N.r_[1., 1.5]
+        dir = N.c_[[0, -1, 1], [0, -1, -1]]/math.sqrt(2)
+        norm = N.c_[[0, -1, 0]]
+        refr, dirs = optics.refractions(n1, n2, dir, norm)
+
+        self.failUnless(refr.all(), "Some rays did not refract")
+        correct_refrs = N.c_[dir[:,0], -N.sqrt([0, 7./9, 2./9])]
+        N.testing.assert_array_almost_equal(dirs, correct_refrs)
+    
+    def test_single_ref_idx(self):
+        """Single refractive index is acceptable for refractions"""
+        n1 = 1.
+        n2 = 1.5
+        dir = N.c_[[0, -1, 1], [0, -1, -1]]/math.sqrt(2)
+        norm = N.c_[[0, -1, 0]]
+        refr, dirs = optics.refractions(n1, n2, dir, norm)
+
+        self.failUnless(refr.all(), "Some rays did not refract")
+        correct_refrs = N.c_[N.sqrt([0, 7./9, 2./9])*N.r_[0,-1,1], -N.sqrt([0, 7./9, 2./9])]
+        N.testing.assert_array_almost_equal(dirs, correct_refrs)
+    
+    def test_TIR(self):
+        """With rays exiting a glass, some are TIR'ed, some not"""
+        n1 = 1.5
+        n2 = 1.
+        dir = N.c_[[0, -1, 0], N.r_[0, -1, -1]/math.sqrt(2)]
+        norm = N.c_[[0, -1, 0]]
+        refr, dirs = optics.refractions(n1, n2, dir, norm)
+        
+        N.testing.assert_array_equal(refr, N.r_[True, False])
+        N.testing.assert_array_equal(dirs, N.c_[[0,-1,0]])
+
 if __name__ == "__main__":
     unittest.main()
