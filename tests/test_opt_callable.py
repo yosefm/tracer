@@ -39,3 +39,58 @@ class TestReflective(unittest.TestCase):
         reflective = optics_callables.gen_reflective(0)
         outg = reflective(self.gm, self._bund, N.ones(4, dtype=N.bool))
         N.testing.assert_array_equal(outg.get_energy(), N.r_[100, 200, 300, 400])
+
+class TestRefractiveHomogenous(unittest.TestCase):
+    def test_all_refracted(self):
+        dir = N.c_[[1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]] / N.sqrt(3)
+        position = N.c_[[0,0,1], [1,-1,1], [1,1,1], [-1,1,1]]
+
+        bund = RayBundle()
+        bund.set_vertices(position)
+        bund.set_directions(dir)
+        bund.set_energy(N.r_[100, 200, 300, 400])
+        bund.set_ref_index(N.r_[1, 1, 1, 1])
+
+        gm = FlatGeometryManager()
+        prm = gm.find_intersections(N.eye(4), bund)
+        refractive = optics_callables.RefractiveHomogenous(1,1.5)
+        selector = N.ones(4, dtype=N.bool)
+        outg = refractive(gm, bund, selector)
+        
+        correct_pts = N.zeros((3,4))
+        correct_pts[:2,0] = 1
+        correct_pts = N.hstack((correct_pts, correct_pts))
+        N.testing.assert_array_equal(outg.get_vertices(), correct_pts)
+        
+        norm = N.c_[gm.get_normals(selector)[:,0]]
+        correct_refl_cos = -(dir*norm).sum(axis=0)
+        correct_refr_cos = -N.sqrt(1 - (1./1.5)**2*(1 - correct_refl_cos**2))
+        outg_cos = (outg.get_directions()*norm).sum(axis=0)
+        N.testing.assert_array_equal(outg_cos, N.r_[correct_refl_cos, correct_refr_cos])
+        
+        N.testing.assert_array_equal(outg.get_energy().reshape(2,-1).sum(axis=0), \
+            N.r_[100, 200, 300, 400]) # reflection and refraction sum to 100%
+        N.testing.assert_array_equal(outg.get_parent(), N.tile(N.arange(4), 2))
+    
+    def test_TIR(self):
+        dir = N.c_[[0, N.cos(N.pi/180), -N.sin(N.pi/180)]]
+        position = N.c_[[0,0,1]]
+        
+        bund = RayBundle()
+        bund.set_vertices(position)
+        bund.set_directions(dir)
+        bund.set_energy(N.r_[100])
+        bund.set_ref_index(N.r_[1.5])
+        
+        gm = FlatGeometryManager()
+        prm = gm.find_intersections(N.eye(4), bund)
+        refractive = optics_callables.RefractiveHomogenous(1.,1.5)
+        selector = N.ones(1, dtype=N.bool)
+        outg = refractive(gm, bund, selector)
+        
+        self.failUnlessEqual(outg.get_vertices().shape, (3,1))
+        N.testing.assert_array_equal(outg.get_directions(), 
+            N.c_[[0, N.cos(N.pi/180), N.sin(N.pi/180)]])
+        N.testing.assert_array_equal(outg.get_energy(), N.r_[100])
+        N.testing.assert_array_equal(outg.get_parent(), N.r_[0])
+
