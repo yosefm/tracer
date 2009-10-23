@@ -14,7 +14,10 @@ from object import AssembledObject
 from assembly import Assembly
 import assembly
 from paraboloid import Paraboloid
-import pdb
+
+from surface import Surface
+import flat_surface
+import optics_callables
 
 class TestObjectBuilding1(unittest.TestCase):
     """Tests an object composed of sphere surfaces"""
@@ -82,13 +85,14 @@ class TestObjectBuilding2(unittest.TestCase):
     """Tests an object composed of two flat surfaces"""
     def setUp(self):
         self.assembly = Assembly()
-        surface1 = FlatSurface(location=N.array([0,0,-1.]), \
-            width=5., height=5., mirror=False)
-        surface2 = FlatSurface(location=N.array([0,0,1.]), \
-            width=5., height=5., mirror=False) 
- 
+        surface1 = Surface(flat_surface.FlatGeometryManager(),
+            optics_callables.RefractiveHomogenous(1., 1.5),
+            location=N.array([0,0,-1.]))
+        surface2 = Surface(flat_surface.FlatGeometryManager(),
+            optics_callables.RefractiveHomogenous(1.5, 1.),
+            location=N.array([0,0,1.]))
+        
         self.object = AssembledObject(surfs=[surface1, surface2])
-        self.object.set_ref_index([surface1, surface2], 1.5)
         self.assembly.add_object(self.object)
         
         x = 1/(math.sqrt(2))
@@ -106,7 +110,7 @@ class TestObjectBuilding2(unittest.TestCase):
         self.engine = TracerEngine(self.assembly)
         ans =  self.engine.ray_tracer(self._bund,1,.05)
         params = N.arctan(ans[1][1]/ans[1][2])
-        correct_params = N.r_[-.4908826, 0.785398163]
+        correct_params = N.r_[0.785398163, -.4908826]
         N.testing.assert_array_almost_equal(params, correct_params)
 
     def test_refraction2(self):
@@ -214,7 +218,8 @@ class TestNestedAssemblies(unittest.TestCase):
         self.eighth_circle_trans = generate_transform(N.r_[1., 0, 0], N.pi/4, 
             N.c_[[0., 1, 0]])
         
-        self.surf = FlatSurface()
+        self.surf = Surface(flat_surface.FlatGeometryManager(), \
+            optics_callables.gen_reflective(0))
         self.obj = AssembledObject(surfs=[self.surf])
         self.sub_assembly = Assembly()
         self.sub_assembly.add_object(self.obj, self.eighth_circle_trans)

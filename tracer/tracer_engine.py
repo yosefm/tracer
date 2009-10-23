@@ -91,6 +91,8 @@ class TracerEngine():
             outg = bundle.empty_bund()
             for obj in self.surfaces:
                 inters = objs_param[self.surfaces.index(obj)]
+                if not any(inters): 
+                    continue
                 new_outg = obj.get_outgoing(inters)
                 
                 # Delete rays with negligible energies
@@ -108,8 +110,6 @@ class TracerEngine():
                 break
                 
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
-            bund.set_ref_index(bund.get_temp_ref_index())  
-                                     # Changes the refractive indices for the ray bundle
              
         return bund.get_vertices(), bund.get_directions()
     

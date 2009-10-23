@@ -61,6 +61,9 @@ class RefractiveHomogenous(object):
             self._ref_idxs[1], self._ref_idxs[0])
     
     def __call__(self, geometry, rays, selector):
+        if not selector.any():
+            return ray_bundle.empty_bund()
+        
         n1 = rays.get_ref_index()[selector]
         n2 = self.toggle_ref_idx(n1)
         refr, out_dirs = optics.refractions(n1, n2, \
