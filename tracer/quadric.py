@@ -135,3 +135,109 @@ class QuadricSurface(UniformSurface):
                                     self._current_bundle.get_ref_index()[selector])))
         
         return outg
+
+from geometry_manager import GeometryManager
+class QuadricGM(GeometryManager):
+    def find_intersections(self, frame, ray_bundle):
+        """
+        Register the working frame and ray bundle, calculate intersections
+        and save the parametric locations of intersection on the surface.
+
+        Arguments:
+        frame - the current frame, represented as a homogenous transformation
+            matrix stored in a 4x4 array.
+        ray_bundle - a RayBundle object with the incoming rays' data.
+
+        Returns:
+        A 1D array with the parametric position of intersection along each of
+            the rays. Rays that missed the surface return +infinity.
+        """
+        GeometryManager.find_intersections(self, frame, ray_bundle)
+        
+        d = ray_bundle.get_directions()
+        v = ray_bundle.get_vertices()
+        n = ray_bundle.get_num_rays()
+        c = self._working_frame[:3,3]
+        
+        params = []
+        vertices = []
+        norm = []
+        
+        # Gets the relevant A, B, C from whichever quadric surface, see [1]  
+        A, B, C = self.get_ABC(ray_bundle)
+        
+        delta = B**2 - 4*A*C
+    
+        for ray in xrange(n):
+            vertex = v[:,ray]
+
+            if (delta[ray]) < 0:
+                params.append(N.inf)
+                vertices.append(N.empty([3,1]))
+                norm.append(N.empty([3,1]))    
+                continue
+            
+            if A[ray] <= 1e-10: 
+                hit = -C[ray]/B[ray]
+                hits = N.hstack((hit,hit))
+            
+            else: hits = (-B[ray] + N.r_[-1, 1]*N.sqrt(delta[ray]))/(2*A[ray])
+            coords = vertex + d[:,ray]*hits[:,None]
+            
+            is_positive = N.where(hits > 0)[0]
+            
+            # If both are negative, it is a miss
+            if N.shape(is_positive) == (0,):
+                params.append(N.inf)
+                vertices.append(N.empty([3,1]))
+                norm.append(N.empty([3,1]))
+                continue
+              
+            # If both are positive, us the smaller one
+            if len(is_positive) == 2:
+                param = N.argmin(hits)
+            
+            # If either one is negative, use the positive one
+            else:
+                param = is_positive[0]
+
+            verts = N.c_[coords[param,:]]
+            
+            dot = N.vdot(c.T - coords[param,:], d[:,ray])
+            normal = self.get_normal(dot, coords[param,:], c)
+            
+            params.append(hits[param])
+            vertices.append(verts)
+            norm.append(normal)
+            
+        # Storage for later reference:
+        self._vertices = N.hstack(vertices)
+        self._current_bundle = ray_bundle
+        self._norm = N.hstack(norm)
+        
+        return N.array(params)
+    
+    def get_normals(self, selector):
+        """
+        Report the normal to the surface at the hit point of selected rays in
+        the working bundle.
+
+        Arguments:
+        selector - a boolean array stating which columns of the working bundle
+            are active.
+        """
+        return self._norm[:,selector]
+    
+    def get_intersection_points_global(self, selector):
+        """
+        Get the ray/surface intersection points in the global coordinates.
+
+        Arguments:
+        selector - a boolean array stating which columns of the working bundle
+            are active.
+
+        Returns:
+        A 3-by-n array for 3 spatial coordinates and n rays selected.
+        """
+        return self._vertices[:,selector]
+

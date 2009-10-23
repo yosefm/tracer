@@ -181,14 +181,9 @@ class TestAssemblyBuilding4(unittest.TestCase):
     """Tests an assembly composed of objects"""
     def setUp(self):
         self.assembly = Assembly()
-
-        surface1 = Paraboloid()
-        boundary = BoundarySphere(radius=3.)
-        
+        surface1 = Surface(Paraboloid(), optics_callables.perfect_mirror)
         self.object = AssembledObject()
         self.object.add_surface(surface1)
-        self.object.add_boundary(boundary)
-
         self.assembly.add_object(self.object)
        
         x = 1./(math.sqrt(2))  
