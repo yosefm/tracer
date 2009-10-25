@@ -3,24 +3,22 @@
 # References:
 # [1] http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter1.htm
 
-from surface import UniformSurface
-import optics
-from ray_bundle import RayBundle
 import numpy as N
-from quadric import QuadricSurface
+from quadric import QuadricGM
 
-class SphereSurface(QuadricSurface):
+class HemisphereGM(QuadricGM):
     """
-    Implements the geometry of a spherical surface.  
+    Implements the geometry of a hemispherical surface below the xy plane (so 
+    that rays going down the Z axis hit).
     """
-    def __init__(self, location=None, absorptivity=0., radius=1., mirror=True):
+    def __init__(self, radius=1.):
         """
         Arguments:  
-        location of center, rotation, absorptivity - passed along to the base class.
+        radius - Set as the sphere's radius
         Private attributes:
         _rad - radius of the sphere, a float 
         """
-        QuadricSurface.__init__(self, location, None, absorptivity, mirror)
+        QuadricGM.__init__(self)
         self.set_radius(radius)  
 
     def get_radius(self):
@@ -31,15 +29,6 @@ class SphereSurface(QuadricSurface):
             raise ValuError("Radius must be positive")
         self._rad = rad
      
-    def transform_frame(self, transform):
-        """
-        Override the default surface transformation stuff, because we only care
-        about the location in spherical surfaces.
-        """
-        self._temp_loc = N.dot(transform, N.hstack((self._loc, [1])))
-        # Compatibility with the parent class:
-        self._temp_frame[:,3] = self._temp_loc
-
     def get_normal(self, dot, hit, c):
         """Finds the normal by taking the derivative and rotating it, returns the            
         information to the quadric class for calculations. Used by the quadrics class.      
@@ -63,7 +52,7 @@ class SphereSurface(QuadricSurface):
         d = ray_bundle.get_directions()
         v = ray_bundle.get_vertices()
         n = ray_bundle.get_num_rays()
-        c = self._temp_loc[:3]
+        c = self._working_frame[:3,3]
         
         # Solve the equations to find the intersection point:
         A = (d**2).sum(axis=0)
@@ -72,4 +61,18 @@ class SphereSurface(QuadricSurface):
         
         return A, B, C
     
-    
+    def _select_coords(self, coords, prm):
+        """
+        Select from dual intersections by vetting out rays in the upper
+        hemisphere, or if both are below use the default behaviour of choosing
+        the first hit.
+        """
+        local = N.dot(self._working_frame, N.vstack((coords.T, N.ones(2))))
+        bottom_hem = (local[2,:] < 0) & (prm > 0)
+        
+        if not bottom_hem.any():
+            return None
+        if bottom_hem.sum() == 1:
+            return N.where(bottom_hem)[0][0]
+        return QuadricGM._select_coords(self, coords, prm)
+
