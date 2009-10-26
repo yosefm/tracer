@@ -39,7 +39,7 @@ class HemisphereGM(QuadricGM):
         hit - the coordinates of an intersection                                            
         c - the center/vertex of the surface 
         """
-        normal = ((hit - c) if dot <= 0 else  (c - hit))[:,None]
+        normal = ((hit - c) if dot >= 0 else  (c - hit))[:,None]
         normal = normal/N.linalg.norm(normal)
         return normal
 
@@ -67,7 +67,7 @@ class HemisphereGM(QuadricGM):
         hemisphere, or if both are below use the default behaviour of choosing
         the first hit.
         """
-        local = N.dot(self._working_frame, N.vstack((coords.T, N.ones(2))))
+        local = N.dot(N.linalg.inv(self._working_frame), N.vstack((coords.T, N.ones(2))))
         bottom_hem = (local[2,:] < 0) & (prm > 0)
         
         if not bottom_hem.any():

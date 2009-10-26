@@ -36,5 +36,5 @@ class TestInterface(unittest.TestCase):
         """Hemisphere returns correct intersections"""
         pts = self.gm.get_intersection_points_global(N.ones(self.num_rays, dtype=N.bool))
         N.testing.assert_array_equal(pts[:2], self._bund.get_vertices()[:2])
-        N.testing.assert_array_almost_equal(pts[2], -N.sqrt(2))
+        N.testing.assert_array_almost_equal(pts[2], -2*N.sin(N.pi/3))
         

@@ -6,12 +6,14 @@ from tracer_engine import TracerEngine
 from ray_bundle import RayBundle
 from flat_surface import FlatSurface
 from spatial_geometry import general_axis_rotation
-from sphere_surface import SphereSurface
+from sphere_surface import HemisphereGM
 from boundary_shape import BoundarySphere
 from receiver import Receiver
 from assembly import Assembly
 from object import AssembledObject
-import pdb
+from surface import Surface
+
+import optics_callables as opt
 
 class TestTraceProtocol1(unittest.TestCase):
     """ 
@@ -170,8 +172,8 @@ class TestTraceProtocol5(unittest.TestCase):
     Tests a spherical surface
     """
     def setUp(self):
-        boundary = BoundarySphere(N.array([0,1.,0]), 1.)
-        surface = SphereSurface(location=N.array([0,0,0]))
+        surface = Surface(HemisphereGM(1.), opt.perfect_mirror,
+            rotation=general_axis_rotation(N.r_[1,0,0], N.pi))
         self._bund = RayBundle()
         self._bund.set_directions(N.c_[[0,1,0],[0,1,0],[0,-1,0]])
         self._bund.set_vertices(N.c_[[0,-2.,0],[0,0,0],[0,2,0]])
@@ -181,7 +183,6 @@ class TestTraceProtocol5(unittest.TestCase):
         assembly = Assembly()
         object = AssembledObject()
         object.add_surface(surface)
-        object.add_boundary(boundary)
         assembly.add_object(object)
         
         self.engine = TracerEngine(assembly)

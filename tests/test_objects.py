@@ -6,7 +6,7 @@ from tracer_engine import TracerEngine
 from ray_bundle import RayBundle
 from spatial_geometry import general_axis_rotation
 from spatial_geometry import generate_transform
-from sphere_surface import SphereSurface
+from sphere_surface import HemisphereGM
 from boundary_shape import BoundarySphere
 from flat_surface import FlatSurface
 from receiver import Receiver
@@ -23,14 +23,15 @@ class TestObjectBuilding1(unittest.TestCase):
     """Tests an object composed of sphere surfaces"""
     def setUp(self):
         self.assembly = Assembly()
-        surface1 = SphereSurface(location=N.array([0,0,-1.]), radius=3.)
-        surface2 = SphereSurface(location=N.array([0,0,1.]), radius=3.)
-        bound = BoundarySphere(radius=3.)
+        surface1 = Surface(HemisphereGM(3.), optics_callables.perfect_mirror, 
+            location=N.array([0,0,-1.]),
+            rotation=general_axis_rotation(N.r_[1,0,0], N.pi))
+        surface2 = Surface(HemisphereGM(3.), optics_callables.perfect_mirror, 
+            location=N.array([0,0,1.]))
         
         self.object = AssembledObject()
         self.object.add_surface(surface1)
         self.object.add_surface(surface2)
-        self.object.add_boundary(bound)
         self.assembly.add_object(self.object)
 
         dir = N.c_[[0,0,1.],[0,0,1.]]
@@ -46,10 +47,10 @@ class TestObjectBuilding1(unittest.TestCase):
         """Tests that the assembly heirarchy works at a basic level"""
         self.engine = TracerEngine(self.assembly)
 
-        params =  self.engine.ray_tracer(self._bund,1,.05)[0]
-        correct_params = N.c_[[0,0,2],[0,0,-2]]
+        inters = self.engine.ray_tracer(self._bund,1,.05)[0]
+        correct_inters = N.c_[[0,0,2],[0,0,-2]]
 
-        N.testing.assert_array_almost_equal(params, correct_params)
+        N.testing.assert_array_almost_equal(inters, correct_inters)
     
     def test_translation(self):
         """Tests an assembly that has been translated"""
@@ -126,14 +127,18 @@ class TestAssemblyBuilding3(unittest.TestCase):
     def setUp(self):  
         self.assembly = Assembly()
 
-        surface1 = FlatSurface(location=N.array([0,0,-1.]), width=5., height=5., mirror=False)
-        surface2 = FlatSurface(location=N.array([0,0,1.]), width=5., height=5., mirror=False)
+        surface1 = Surface(flat_surface.FlatGeometryManager(), 
+            optics_callables.RefractiveHomogenous(1., 1.5),
+            location=N.array([0,0,-1.]))
+        surface2 = Surface(flat_surface.FlatGeometryManager(), 
+            optics_callables.RefractiveHomogenous(1., 1.5),
+            location=N.array([0,0,1.]))
+        
         self.object1 = AssembledObject() 
         self.object1.add_surface(surface1)
         self.object1.add_surface(surface2)
-        self.object1.set_ref_index([surface1, surface2], 1.5)
         
-        surface3 = SphereSurface(radius=2.)
+        surface3 = Surface(HemisphereGM(2.), optics_callables.perfect_mirror)
         boundary = BoundarySphere(location=N.r_[0,0.,3], radius=3.)
         self.object2 = AssembledObject()
         self.object2.add_surface(surface3)
