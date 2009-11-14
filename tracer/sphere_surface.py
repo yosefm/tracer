@@ -98,7 +98,6 @@ class CutSphereGM(SphericalGM):
             return SphericalGM._select_coords(self, coords, prm)
         
         in_bd = self._bound.in_bounds(coords) & (prm > 0)
-        print in_bd, coords, prm
         if in_bd.all():
             return SphericalGM._select_coords(self, coords, prm)
         if not in_bd.any():

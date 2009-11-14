@@ -6,34 +6,34 @@ from tracer_engine import TracerEngine
 from ray_bundle import RayBundle
 from spatial_geometry import general_axis_rotation
 from spatial_geometry import generate_transform
-from sphere_surface import SphereSurface
+from sphere_surface import CutSphereGM
 from boundary_shape import BoundarySphere
-from flat_surface import FlatSurface
+from flat_surface import FlatGeometryManager
 from receiver import Receiver
 from object import AssembledObject
 from assembly import Assembly
 import assembly
 from paraboloid import Paraboloid
-import pdb
 
+import optics_callables as opt
+from surface import Surface
 
 class TestTree(unittest.TestCase):
     """Tests an assembly composed of objects"""
     def setUp(self):
         self.assembly = Assembly()
 
-        surface1 = FlatSurface(location=N.array([0,0,0.]), width=10., height=10.)
+        surface1 = Surface(FlatGeometryManager(), opt.perfect_mirror)
         self.object1 = AssembledObject()
         self.object1.add_surface(surface1)  
-
-        surface3 = SphereSurface(radius=2.)
+        
         boundary = BoundarySphere(location=N.r_[0,0.,3], radius=3.)
+        surface3 = Surface(CutSphereGM(2., boundary), opt.perfect_mirror)
         self.object2 = AssembledObject()
         self.object2.add_surface(surface3)
-        self.object2.add_boundary(boundary)
 
-        self.transform1 = generate_transform(N.r_[1.,0,0],N.pi/4,N.c_[[0,0,-1.]])
-        self.transform2 = generate_transform(N.r_[0,0.,0],0.,N.c_[[0.,0,2]])
+        self.transform1 = generate_transform(N.r_[1.,0,0], N.pi/4, N.c_[[0,0,-1.]])
+        self.transform2 = generate_transform(N.r_[0,0.,0], 0., N.c_[[0.,0,2]])
         self.assembly.add_object(self.object1, self.transform1)
         self.assembly.add_object(self.object2, self.transform2)
       
@@ -53,6 +53,7 @@ class TestTree(unittest.TestCase):
 
         self.engine.ray_tracer(bund,3,.05)[0]
         params = self.engine.get_parents_from_tree()
+        print params
         correct_params = [N.r_[0,1,2],N.r_[1,2],N.r_[0]]
         N.testing.assert_equal(params, correct_params)
 
@@ -80,19 +81,22 @@ class TestTree2(unittest.TestCase):
     def setUp(self):
         self.assembly = Assembly()
 
-        surface1 = FlatSurface(location=N.array([0,0,-1.]), width=5., height=5., mirror=False)
-        surface2 = FlatSurface(location=N.array([0,0,1.]), width=5., height=5., mirror=False)
+        surface1 = Surface(FlatGeometryManager(), 
+            opt.RefractiveHomogenous(1., 1.5),
+            location=N.array([0,0,-1.]))
+        surface2 = Surface(FlatGeometryManager(), 
+            opt.RefractiveHomogenous(1., 1.5),
+            location=N.array([0,0,1.]))
+
         self.object1 = AssembledObject()
         self.object1.add_surface(surface1)
         self.object1.add_surface(surface2)
-        self.object1.set_ref_index([surface1, surface2], 1.5)
 
-        surface3 = SphereSurface(radius=2.)
         boundary = BoundarySphere(location=N.r_[0,0.,3], radius=3.)
+        surface3 = Surface(CutSphereGM(2., boundary), opt.perfect_mirror)
         self.object2 = AssembledObject()
         self.object2.add_surface(surface3)
-        self.object2.add_boundary(boundary)
-
+        
         self.transform = generate_transform(N.r_[0,0.,0],0.,N.c_[[0.,0,2]])
         self.assembly.add_object(self.object1)
         self.assembly.add_object(self.object2, self.transform)
@@ -113,7 +117,7 @@ class TestTree2(unittest.TestCase):
         """Tests the assembly after three iterations"""
         self.engine.ray_tracer(self._bund,3,.05)[0]
         params = self.engine.get_parents_from_tree()
-        correct_params = [N.r_[1,2],N.r_[0,1,0],N.r_[0,1]]
+        correct_params = [N.r_[1,2],N.r_[0,0,1],N.r_[1,2]]
         N.testing.assert_equal(params, correct_params)
 
 
