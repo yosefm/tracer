@@ -4,12 +4,10 @@ import math
 
 from tracer_engine import TracerEngine
 from ray_bundle import RayBundle
-from spatial_geometry import general_axis_rotation
-from spatial_geometry import generate_transform
+from spatial_geometry import general_axis_rotation, generate_transform
 from sphere_surface import CutSphereGM
 from boundary_shape import BoundarySphere
 from flat_surface import FlatGeometryManager
-from receiver import Receiver
 from object import AssembledObject
 from assembly import Assembly
 import assembly

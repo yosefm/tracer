@@ -1,10 +1,8 @@
 # Implements a tracer engine class
 
 import numpy as N
-from flat_surface import FlatSurface 
 from ray_bundle import RayBundle
 from ray_bundle import solar_disk_bundle
-import pdb
 
 class TracerEngine():
     """

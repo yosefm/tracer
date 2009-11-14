@@ -4,11 +4,9 @@ import math
 
 from tracer_engine import TracerEngine
 from ray_bundle import RayBundle
-from flat_surface import FlatSurface
 from spatial_geometry import general_axis_rotation
 from sphere_surface import HemisphereGM
 from boundary_shape import BoundarySphere
-from receiver import Receiver
 from assembly import Assembly
 from object import AssembledObject
 
