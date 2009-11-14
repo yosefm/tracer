@@ -6,6 +6,15 @@ import numpy as N
 from tracer.spatial_geometry import generate_transform
 from tracer.boundary_shape import *
 
+class TestInBounds(unittest.TestCase):
+    def runTest(self):
+        sphere = BoundarySphere(radius=2.)
+        points = N.array([
+            [0.,0.,0.],
+            [1.,1.,1.],
+            [2.,2.,2.]])
+        N.testing.assert_array_equal(sphere.in_bounds(points), [True, True, False])
+
 class TestSphereBoundingRect(unittest.TestCase):
     def setUp(self):
         # Create some surfaces to intersect with spheres.

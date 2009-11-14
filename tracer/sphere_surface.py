@@ -6,10 +6,12 @@
 import numpy as N
 from quadric import QuadricGM
 
-class HemisphereGM(QuadricGM):
+class SphericalGM(QuadricGM):
     """
-    Implements the geometry of a hemispherical surface below the xy plane (so 
-    that rays going down the Z axis hit).
+    Implements the geometry of a spherical surface below the xy plane (so 
+    that rays going down the Z axis hit). To be used as a base class for
+    spherical surfaces that select different hit-points. Otherwise, this is a
+    closed sphere.
     """
     def __init__(self, radius=1.):
         """
@@ -60,7 +62,8 @@ class HemisphereGM(QuadricGM):
         C = ((v - c[:,None])**2).sum(axis=0) - self.get_radius()**2
         
         return A, B, C
-    
+
+class HemisphereGM(SphericalGM):
     def _select_coords(self, coords, prm):
         """
         Select from dual intersections by vetting out rays in the upper
@@ -75,4 +78,30 @@ class HemisphereGM(QuadricGM):
         if bottom_hem.sum() == 1:
             return N.where(bottom_hem)[0][0]
         return QuadricGM._select_coords(self, coords, prm)
+
+class CutSphereGM(SphericalGM):
+    def __init__(self, radius=1., bounding_volume=None):
+        SphericalGM.__init__(self, radius)
+        self._bound = bounding_volume
+    
+    def find_intersections(self, frame, ray_bundle):
+        if self._bound is not None:
+            self._bound.transform_frame(frame)
+        return SphericalGM.find_intersections(self, frame, ray_bundle)
+    
+    def _select_coords(self, coords, prm):
+        """
+        Select from dual intersections by checking which of the  impact points
+        is contained in a volume defined at object creation time.
+        """
+        if self._bound is None:
+            return SphericalGM._select_coords(self, coords, prm)
+        
+        in_bd = self._bound.in_bounds(coords) & (prm > 0)
+        print in_bd, coords, prm
+        if in_bd.all():
+            return SphericalGM._select_coords(self, coords, prm)
+        if not in_bd.any():
+            return None
+        return 0 if in_bd[0] else 1
 

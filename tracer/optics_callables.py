@@ -85,7 +85,7 @@ class RefractiveHomogenous(object):
             out_dirs)))
         
         # Energy:
-        R = N.ones(rays.get_num_rays())
+        R = N.ones(selector.sum())
         R[refr] = optics.fresnel(rays.get_directions()[:,selector],
             geometry.get_normals(selector), n1, n2)
         reflect_en = rays.get_energy()[selector]*R

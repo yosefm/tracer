@@ -27,7 +27,7 @@ class BoundaryShape(HasFrame):
         the enclosed volume.
         
         Arguments: 
-        points - a 3 by n array for n 3D points
+        points - an n by 3 array for n 3D points
         
         Returns: 
         an n-length 1D boolean array stating for each point whether it is in 
@@ -71,13 +71,9 @@ class BoundarySphere(BoundaryShape):
         """
         Returns a boolean array for whether or not a ray intersection was within the 
         bounding sphere
-        Arguments: bund_vertices - an array of the vertices
+        Arguments: bund_vertices - an array of the vertices (see base class)
         """
-        selector = []
-        for ray in range(N.shape(bund_vertices)[0]):
-            selector.append((self._radius >= N.linalg.norm(bund_vertices[ray] - self._temp_loc[:3])))
-           
-        return N.array(selector)
+        return self._radius**2 >= ((bund_vertices - self._temp_loc[:3])**2).sum(axis=1)
 
     def transform_frame(self, transform):
         """ 

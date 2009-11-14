@@ -6,7 +6,7 @@ from tracer_engine import TracerEngine
 from ray_bundle import RayBundle
 from spatial_geometry import general_axis_rotation
 from spatial_geometry import generate_transform
-from sphere_surface import HemisphereGM
+from sphere_surface import HemisphereGM, CutSphereGM
 from boundary_shape import BoundarySphere
 from flat_surface import FlatSurface
 from receiver import Receiver
@@ -138,11 +138,10 @@ class TestAssemblyBuilding3(unittest.TestCase):
         self.object1.add_surface(surface1)
         self.object1.add_surface(surface2)
         
-        surface3 = Surface(HemisphereGM(2.), optics_callables.perfect_mirror)
         boundary = BoundarySphere(location=N.r_[0,0.,3], radius=3.)
+        surface3 = Surface(CutSphereGM(2., boundary), optics_callables.perfect_mirror)
         self.object2 = AssembledObject()
         self.object2.add_surface(surface3)
-        self.object2.add_boundary(boundary)
     
         self.transform = generate_transform(N.r_[1,0.,0],0.,N.c_[[0.,0,2]])
         self.assembly.add_object(self.object1)
@@ -171,7 +170,7 @@ class TestAssemblyBuilding3(unittest.TestCase):
         """Tests the assembly after two iterations"""
         self.engine = TracerEngine(self.assembly)
         params = self.engine.ray_tracer(self._bund,2,.05)[0]
-        correct_params = N.c_[[0,-1,1],[0,0,1],[0,-1,1]]
+        correct_params = N.c_[[0,-1,1], [0,-1,1],[0,0,1]]
         N.testing.assert_array_almost_equal(params, correct_params)
 
     def test_assembly3(self):      
