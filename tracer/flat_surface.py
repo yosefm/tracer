@@ -72,3 +72,29 @@ class FlatGeometryManager(GeometryManager):
         return N.dot(self._working_frame[:3,:2],
             self._current_params[:,selector]) + self._working_frame[:3,3][:,None]
 
+class RectPlateGM(FlatGeometryManager):
+    def __init__(self, width, height):
+        """
+        Arguments:
+        width - the extent along the x axis in the local frame (sets self._w)
+        height - the extent along the y axis in the local frame (sets self._h)
+        """
+        if width <= 0:
+            raise ValueError("Width must be positive")
+        if height <= 0:
+            raise ValueError("Height must be positive")
+        
+        self._w = width
+        self._h = height
+        FlatGeometryManager.__init__(self)
+        
+    def find_intersections(self, frame, ray_bundle):
+        """
+        Extends the parent flat geometry manager by discarding in advance
+        impact points outside a centered rectangle.
+        """
+        ray_prms = FlatGeometryManager.find_intersections(self, frame, ray_bundle)
+        ray_prms[abs(self._current_params[0]) > self._w/2.] = N.inf
+        ray_prms[abs(self._current_params[1]) > self._h/2.] = N.inf
+        return ray_prms
+
