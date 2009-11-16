@@ -2,6 +2,7 @@
 #
 # References:
 # [1] http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter4.htm
+# [2] http://en.wikipedia.org/wiki/Parabola
 
 import numpy as N
 from quadric import QuadricGM
@@ -46,13 +47,46 @@ class Paraboloid(QuadricGM):
         # Transform the the direction and position of the rays temporarily into the
         # frame of the paraboloid for calculations
         d = N.dot(self._working_frame[:3,:3].T, ray_bundle.get_directions())
-        v = N.empty((4,N.shape(d)[1]))
-        for ray in xrange(ray_bundle.get_num_rays()):
-            v[:,ray] = N.dot(N.linalg.inv(self._working_frame), N.vstack((ray_bundle.get_vertices()[:,ray][:,None],N.array([1])))).T
-        v = v[:3]
+        v = N.dot(N.linalg.inv(self._working_frame), 
+            N.vstack((ray_bundle.get_vertices(), N.ones(d.shape[1]))))[:3]
+        
         A = self.a*d[0]**2 + self.b*d[1]**2
         B = 2*self.a*d[0]*v[0] + 2*self.b*d[1]*v[1] - d[2] 
         C = self.a*v[0]**2 + self.b*v[1]**2 - v[2]
         
         return A, B, C
+
+
+import math
+class ParabolicDishGM(Paraboloid):
+    def __init__(self, diameter, focal_length):
+        """
+        A paraboloid that marks rays outside its diameter as missing. The
+        parameters for the paraboloid's equation are determined from the focal
+        length.
+        
+        Arguments:
+        diameter - of the circular aperture created by cutting the paraboloid
+            with a plane parallel to the xy plane.
+        focal_length - distance of the focal point from the origin.
+        """
+        par_param = 2*math.sqrt(focal_length) # [2]
+        Paraboloid.__init__(self, par_param, par_param)
+        self._R = diameter/2.
     
+    def find_intersections(self, frame, ray_bundle):
+        """
+        Extend the quadric surface's general routine by marking rays outside
+        the diameter as missing.
+        """
+        ray_prm = Paraboloid.find_intersections(self, frame, ray_bundle)
+        # Save a copy of the local coordinates of impact for use later
+        self._local = N.dot(N.linalg.inv(self._working_frame), 
+            N.vstack((self._vertices, N.ones(self._vertices.shape[1]))))
+        
+        # Use local coordinates to find distance on the local xy plane
+        hit_dist = (self._local[:2]**2).sum(axis=0)
+        ray_prm[hit_dist > self._R**2] = N.inf
+        
+        return ray_prm
+

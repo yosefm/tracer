@@ -17,6 +17,7 @@ class TestRectPlateGM(unittest.TestCase):
     def test_selection(self):
         pos = N.zeros((3,4))
         pos[0] = N.r_[0, 0.5, 2, -2]
+        pos[2] = 1.
         dir = N.tile(N.c_[[0,0,-1]], (1,4))
         
         bund = RayBundle()
