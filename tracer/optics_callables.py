@@ -30,6 +30,29 @@ def gen_reflective(absorptivity):
     return reflective
 
 perfect_mirror = gen_reflective(0)
+
+class ReflectiveReceiver(object):
+    def __init__(self, absorptivity=1.):
+        self._abs = absorptivity
+        self._new_ray_bundle = gen_reflective(self._abs)
+        self._absorbed = []
+        self._hits = []
+    
+    def __call__(self, geometry, rays, selector):
+        self._absorbed.append(rays.get_energy()[selector]*self._abs)
+        self._hits.append(geometry.get_intersection_points_global(selector))
+        return self._new_ray_bundle(geometry, rays, selector)
+    
+    def get_all_hits(self):
+        """
+        Aggregate all hits from all stages of tracing into joined arrays.
+        
+        Returns:
+        absorbed - the energy absorbed by each hit-point
+        hits - the corresponding global coordinates for each hit-point.
+        """
+        return N.hstack(self._absorbed), N.hstack(self._hits)
+
 class RefractiveHomogenous(object):
     """
     Represents the optics of a surface bordering homogenous media with 

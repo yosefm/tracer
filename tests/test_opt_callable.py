@@ -39,6 +39,25 @@ class TestReflective(unittest.TestCase):
         reflective = optics_callables.gen_reflective(0)
         outg = reflective(self.gm, self._bund, N.ones(4, dtype=N.bool))
         N.testing.assert_array_equal(outg.get_energy(), N.r_[100, 200, 300, 400])
+    
+    def test_receiver(self):
+        """A receiver memorizes all lifetime hits"""
+        receiver = optics_callables.ReflectiveReceiver() # Perfect absorber
+        
+        # Round one:
+        outg = receiver(self.gm, self._bund, N.ones(4, dtype=N.bool))
+        N.testing.assert_array_equal(outg.get_energy(), 0)
+        absorbed, hits = receiver.get_all_hits()
+        N.testing.assert_array_equal(absorbed, N.r_[100, 200, 300, 400])
+        correct_pts = N.zeros((3,4))
+        correct_pts[:2,0] = 1
+        N.testing.assert_array_equal(hits, correct_pts)
+        
+        # Round two:
+        outg = receiver(self.gm, self._bund, N.ones(4, dtype=N.bool))
+        absorbed, hits = receiver.get_all_hits()
+        N.testing.assert_array_equal(absorbed, N.tile(N.r_[100, 200, 300, 400], 2))
+        N.testing.assert_array_equal(hits, N.tile(correct_pts, (1,2)))
 
 class TestRefractiveHomogenous(unittest.TestCase):
     def test_all_refracted(self):
