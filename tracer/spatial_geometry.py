@@ -31,3 +31,23 @@ def generate_transform(axis, angle, translation):
     """  
     rot = general_axis_rotation(axis, angle)
     return N.vstack((N.hstack((rot, translation)), N.r_[[0,0,0,1]]))
+
+def rotx(ang):
+    """Generate a homogenous trransform for ang radians around the x axis"""
+    s = sin(ang); c = cos(ang)
+    return N.array([
+        [1., 0, 0, 0],
+        [0, c, s, 0],
+        [0,-s, c, 0],
+        [0, 0, 0, 1]
+    ])
+
+def roty(ang):
+    """Generate a homogenous trransform for ang radians around the y axis"""
+    s = sin(ang); c = cos(ang)
+    return N.array([
+        [c, 0, s, 0],
+        [0, 1, 0, 0],
+        [-s,0, c, 0],
+        [0, 0, 0, 1]
+    ])
