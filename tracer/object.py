@@ -73,16 +73,3 @@ class AssembledObject(Assembly):
             surface.transform_frame(N.dot(self.transform, assembly_transform))
         for boundary in self.boundaries:
             boundary.transform_frame(N.dot(self.transform, assembly_transform))
-            
-    def set_ref_index(self, surfaces, n):
-        """Sets the refractive indices between the given surfaces. Tells the surface
-        what the refractive index is on the inside and outside of the surface, where 
-        inside and outside are defined by how the object defines the normal.
-        Arguments: surfaces - the list of surfaces
-        n - a float representing the refractive index
-        """
-        for surface in surfaces:
-            if surface.get_inner_n() == 1.:
-                surface.set_inner_n(n)
-            else: surface.set_outer_n(n)
-
