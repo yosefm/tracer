@@ -1,10 +1,15 @@
+# Test that the tracer engine performs correct model construction, tracing and
+# tracking of results.
+#
+# references:
+# [1] Lens (optics), Wikipedia, http://en.wikipedia.org/wiki/Lens_%28optics%29
+
 import unittest
 import numpy as N
 import math
 
 from tracer_engine import TracerEngine
 from ray_bundle import RayBundle
-from spatial_geometry import general_axis_rotation
 from sphere_surface import HemisphereGM
 from boundary_shape import BoundarySphere
 from assembly import Assembly
@@ -13,6 +18,8 @@ from object import AssembledObject
 from surface import Surface
 from flat_surface import FlatGeometryManager
 import optics_callables as opt
+
+from spatial_geometry import general_axis_rotation, rotx, translate
 
 class TestTraceProtocol1(unittest.TestCase):
     """ 
@@ -222,6 +229,56 @@ class TestTraceProtocol6(unittest.TestCase):
         correct_params = N.c_[[0,2,0]]
 
         N.testing.assert_array_almost_equal(params,correct_params)
+
+from models.one_sided_mirror import rect_one_sided_mirror
+class TestNestedAssemblies(unittest.TestCase):
+    def setUp(self):
+        """
+        Prepare an assembly with two subassemblies: one assembly representing
+        a spherical lens behind a flat screen, and one asssembly representing a
+        perfect mirror.
+        The mirror will be placed at the two subassemblies' focus, so a paraxial
+        ray will come back on the other side of the optical axis.
+        
+        Reference:
+        In [1], the lensmaker equation
+        """
+        # focal length = 1, thickness = 1/6
+        R = 1./6.
+        back_surf = Surface(HemisphereGM(R), opt.RefractiveHomogenous(1., 1.5),
+            location=N.r_[0., 0., -R/2.])
+        front_surf = Surface(HemisphereGM(R), opt.RefractiveHomogenous(1., 1.5),
+            location=N.r_[0., 0., R/2.], rotation=rotx(N.pi/2.)[:3,:3])
+        front_lens = AssembledObject(surfs=[back_surf, front_surf])
+        
+        back_surf = Surface(FlatGeometryManager(), opt.RefractiveHomogenous(1., 1.5),
+            location=N.r_[0., 0., -0.01])
+        front_surf = Surface(FlatGeometryManager(), opt.RefractiveHomogenous(1., 1.5),
+            location=N.r_[0., 0., 0.01])
+        glass_screen = AssembledObject(surfs=[back_surf, front_surf],
+            transform=translate(0., 0., 0.5))
+        
+        lens_assembly = Assembly(objects=[glass_screen, front_lens])
+        lens_assembly.set_transform(translate(0., 0., 1.))
+        full_assembly = Assembly(objects=[rect_one_sided_mirror(1., 1., 0.)],
+            subassemblies = [lens_assembly])
+        
+        self.engine = TracerEngine(full_assembly)
+    
+    def test_paraxial_ray(self):
+        """A paraxial ray in reflected correctly"""
+        bund = RayBundle()
+        bund.set_vertices(N.c_[[0.01, 0., 2.]])
+        bund.set_directions(N.c_[[0., 0., -1.]])
+        bund.set_energy(N.r_[100.])
+        bund.set_ref_index(N.r_[1])
+        
+        self.engine.ray_tracer(bund, 15, 10.)
+        v = self.engine.tree[-1].get_vertices()
+        d = self.engine.tree[-1].get_directions()
+        # Not high equality demanded, because of spherical aberration.
+        N.testing.assert_array_almost_equal(v, N.c_[[-0.01, 0., 1.5]], 2)
+        N.testing.assert_array_almost_equal(d, N.c_[[0., 0., 1.]], 2)
 
 if __name__ == '__main__':
     unittest.main()

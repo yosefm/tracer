@@ -1,20 +1,35 @@
 # Defines an assembly class, where an assembly is defined as a collection of AssembledObjects.
 
+import operator
 import numpy as N
 from spatial_geometry import general_axis_rotation
 
 class Assembly():
     """ Defines an assembly of objects or sub-assemblies.
     Attributes:
-    objects - a list of the objects the assembly contains
-    assemblies - a list of the sub assemblies the assembly contains
+    _objects - a list of the objects the assembly contains
+    _assemblies - a list of the sub assemblies the assembly contains
     transform - the transformation matrix (written as an array) describing any transformation
     of the assembly into the global coordinates
     """
-    def __init__(self):
-        self.objects = []
-        self.assemblies = []
+    def __init__(self, objects=None, subassemblies=None):
+        """
+        Arguments:
+        objects (optional) - a list of AssembledObject instances that are part
+            of this assembly.
+        subassemblies (optional) - a list of Assembly instances to be
+            transformed together with this assembly.
+        """
+        if objects is None:
+            objects = []
+        self._objects = objects
+        
+        if subassemblies is None:
+            subassemblies = []
+        self._assemblies = subassemblies
+        
         self.transform = N.eye(4)
+        self.transform_assembly()
 
     def get_objects(self):
         return self.objects
@@ -23,13 +38,13 @@ class Assembly():
         return self.assemblies
 
     def get_surfaces(self):  
-        """Gets the total number of surfaces in the entire assembly, for use of calculations
-        by the tracer engine
         """
-        surfaces = []
-        for obj in self.objects:
-            surfaces = surfaces + obj.get_surfaces()
-        return surfaces 
+        Generates a list of surface objects out of all the surfaces in the
+        objects and subassemblies belonging to this assembly.
+        """
+        return reduce(operator.add, 
+            [asm.get_surfaces() for asm in self._assemblies] + \
+            [obj.get_surfaces() for obj in self._objects])
 
     def add_object(self, object, transform=None):
         """Adds an object to the assembly.
@@ -39,7 +54,7 @@ class Assembly():
         """
         if transform == None:
             transform = N.eye(4)
-        self.objects.append(object)
+        self._objects.append(object)
         object.set_transform(transform)
         object.transform_object(self.transform)
 
@@ -51,7 +66,7 @@ class Assembly():
         """
         if transform == None:
             transform = N.eye(4)
-        self.assemblies.append(assembly)
+        self._assemblies.append(assembly)
         assembly.set_transform(transform)
         assembly.transform_assembly(self.transform)
 
@@ -68,9 +83,9 @@ class Assembly():
         assembly_transform - the transformation into the parent assembly containing the 
         current assembly
         """
-        for object in xrange(len(self.objects)):
-            self.objects[object].transform_object(N.dot(self.transform,assembly_transform))
-        for assembly in xrange(len(self.assemblies)):
-            self.assemblies[assembly].transform_assembly(N.dot(self.transform,assembly_transform))
-    
-
+        for object in xrange(len(self._objects)):
+            self._objects[object].transform_object(
+                N.dot(self.transform,assembly_transform))
+        for assembly in xrange(len(self._assemblies)):
+            self._assemblies[assembly].transform_assembly(
+                N.dot(self.transform,assembly_transform))
