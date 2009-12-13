@@ -27,7 +27,21 @@ class Surface(HasFrame):
         HasFrame.__init__(self, location, rotation)
         self._geom = geometry
         self._opt = optics
-
+    
+    def get_optics_manager(self):
+        """
+        Returns the optics-manager callable. May be useful for introspection.
+        Note that it is a read-only attribute.
+        """
+        return self._opt
+    
+    def get_geometry_manager(self):
+        """
+        Returns the geometry-manager instance. May be useful for introspection.
+        Note that it is a read-only attribute.
+        """
+        return self._geom
+    
     def set_parent_object(self, object):
         """Describes which object the surface is in """
         self.parent_object = object
