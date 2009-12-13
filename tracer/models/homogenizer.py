@@ -34,10 +34,10 @@ def rect_homogenizer(aperture_xdim, aperture_ydim, height, opt_eff):
     
     wall_yp = rect_one_sided_mirror(aperture_xdim, height, abs)
     wall_yp.set_transform(
-        N.dot(sp.translate(0, aperture_ydim/2., height/2.), sp.rotx(-N.pi/2.)))
+        N.dot(sp.translate(0, aperture_ydim/2., height/2.), sp.rotx(N.pi/2.)))
     
     wall_yn = rect_one_sided_mirror(aperture_xdim, height, abs)
     wall_yn.set_transform(
-        N.dot(sp.translate(0, -aperture_ydim/2., height/2.), sp.rotx(N.pi/2.)))
+        N.dot(sp.translate(0, -aperture_ydim/2., height/2.), sp.rotx(-N.pi/2.)))
     
     return Assembly(objects=[wall_xp, wall_xn, wall_yp, wall_yn])
