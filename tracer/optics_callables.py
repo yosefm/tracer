@@ -51,7 +51,8 @@ class ReflectiveReceiver(object):
         absorbed - the energy absorbed by each hit-point
         hits - the corresponding global coordinates for each hit-point.
         """
-        return N.hstack(self._absorbed), N.hstack(self._hits)
+        return N.hstack([a for a in self._absorbed if len(a)]), \
+            N.hstack([h for h in self._hits if h.shape[1]])
 
 class RefractiveHomogenous(object):
     """
