@@ -1,8 +1,9 @@
 import unittest
-import optics_callables
 import numpy as N
-from ray_bundle import RayBundle
-from flat_surface import FlatGeometryManager
+
+from tracer import optics_callables
+from tracer.ray_bundle import RayBundle
+from tracer.flat_surface import FlatGeometryManager
 
 class TestReflective(unittest.TestCase):
     def setUp(self):

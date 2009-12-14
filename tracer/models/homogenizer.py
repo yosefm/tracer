@@ -2,11 +2,11 @@
 
 import numpy as N
 
-from assembly import Assembly
-from object import AssembledObject
-from one_sided_mirror import rect_one_sided_mirror
+from ..assembly import Assembly
+from ..object import AssembledObject
+from .one_sided_mirror import rect_one_sided_mirror
 
-import spatial_geometry as sp
+from .. import spatial_geometry as sp
 
 def rect_homogenizer(aperture_xdim, aperture_ydim, height, opt_eff):
     """

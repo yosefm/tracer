@@ -3,8 +3,8 @@
 import unittest
 import numpy as N
 
-from ray_bundle import RayBundle
-from paraboloid import Paraboloid
+from tracer.ray_bundle import RayBundle
+from tracer.paraboloid import Paraboloid
 
 class TestInterface(unittest.TestCase):
     def setUp(self):

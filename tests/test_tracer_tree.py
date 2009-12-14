@@ -2,19 +2,19 @@ import unittest
 import numpy as N
 import math
 
-from tracer_engine import TracerEngine
-from ray_bundle import RayBundle
-from spatial_geometry import general_axis_rotation, generate_transform
-from sphere_surface import CutSphereGM
-from boundary_shape import BoundarySphere
-from flat_surface import FlatGeometryManager
-from object import AssembledObject
-from assembly import Assembly
-import assembly
-from paraboloid import Paraboloid
+from tracer.tracer_engine import TracerEngine
+from tracer.ray_bundle import RayBundle
+from tracer.spatial_geometry import general_axis_rotation, generate_transform
+from tracer.sphere_surface import CutSphereGM
+from tracer.boundary_shape import BoundarySphere
+from tracer.flat_surface import FlatGeometryManager
+from tracer.object import AssembledObject
+from tracer.assembly import Assembly
+from tracer import assembly
+from tracer.paraboloid import Paraboloid
 
-import optics_callables as opt
-from surface import Surface
+import tracer.optics_callables as opt
+from tracer.surface import Surface
 
 class TestTree(unittest.TestCase):
     """Tests an assembly composed of objects"""

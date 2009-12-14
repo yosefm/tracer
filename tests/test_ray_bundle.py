@@ -4,7 +4,7 @@ import math
 import unittest
 import numpy as N
 from scipy import stats
-import ray_bundle as RB
+import tracer.ray_bundle as RB
 
 class TestDistributions(unittest.TestCase):
     def assert_radius(self,  vertices,  center,  R):

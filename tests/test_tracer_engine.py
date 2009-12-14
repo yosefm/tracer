@@ -8,18 +8,18 @@ import unittest
 import numpy as N
 import math
 
-from tracer_engine import TracerEngine
-from ray_bundle import RayBundle
-from sphere_surface import HemisphereGM
-from boundary_shape import BoundarySphere
-from assembly import Assembly
-from object import AssembledObject
+from tracer.tracer_engine import TracerEngine
+from tracer.ray_bundle import RayBundle
+from tracer.sphere_surface import HemisphereGM
+from tracer.boundary_shape import BoundarySphere
+from tracer.assembly import Assembly
+from tracer.object import AssembledObject
 
-from surface import Surface
-from flat_surface import FlatGeometryManager
-import optics_callables as opt
+from tracer.surface import Surface
+from tracer.flat_surface import FlatGeometryManager
+import tracer.optics_callables as opt
 
-from spatial_geometry import general_axis_rotation, rotx, translate
+from tracer.spatial_geometry import general_axis_rotation, rotx, translate
 
 class TestTraceProtocol1(unittest.TestCase):
     """ 
@@ -230,7 +230,7 @@ class TestTraceProtocol6(unittest.TestCase):
 
         N.testing.assert_array_almost_equal(params,correct_params)
 
-from models.one_sided_mirror import rect_one_sided_mirror
+from tracer.models.one_sided_mirror import rect_one_sided_mirror
 class TestNestedAssemblies(unittest.TestCase):
     def setUp(self):
         """

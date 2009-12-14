@@ -3,10 +3,10 @@ import math
 import numpy as N
 from numpy import c_, r_
 
-from surface import Surface
-from flat_surface import FlatGeometryManager
-from optics_callables import gen_reflective
-from ray_bundle import RayBundle
+from tracer.surface import Surface
+from tracer.flat_surface import FlatGeometryManager
+from tracer.optics_callables import gen_reflective
+from tracer.ray_bundle import RayBundle
 
 class TestTraceProtocol(unittest.TestCase):
     def setUp(self):

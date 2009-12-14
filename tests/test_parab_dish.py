@@ -3,11 +3,11 @@
 import unittest
 import numpy as N
 
-from paraboloid import ParabolicDishGM
-from ray_bundle import RayBundle
-from surface import Surface
-from spatial_geometry import generate_transform
-import optics_callables as opt
+from tracer.paraboloid import ParabolicDishGM
+from tracer.ray_bundle import RayBundle
+from tracer.surface import Surface
+from tracer.spatial_geometry import generate_transform
+import tracer.optics_callables as opt
 
 class TestParabolicDish(unittest.TestCase):
     def setUp(self):

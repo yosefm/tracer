@@ -1,9 +1,9 @@
 # Implement an object with a front reflective surface and an opaque back.
 
-from object import AssembledObject
-from surface import Surface
-from flat_surface import RectPlateGM
-import optics_callables as opt
+from ..object import AssembledObject
+from ..surface import Surface
+from ..flat_surface import RectPlateGM
+from .. import optics_callables as opt
 
 from numpy import r_
 

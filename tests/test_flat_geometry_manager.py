@@ -4,8 +4,8 @@ import unittest
 import numpy as N
 import math
 
-from flat_surface import FlatGeometryManager
-from ray_bundle import RayBundle
+from tracer.flat_surface import FlatGeometryManager
+from tracer.ray_bundle import RayBundle
 
 class TestFlatGeomManagerInterface(unittest.TestCase):
     def setUp(self):
@@ -45,7 +45,7 @@ class TestFlatGeomManagerInterface(unittest.TestCase):
         pts = self.gm.get_intersection_points_global(N.array([0, 1, 0, 1], dtype=N.bool))
         N.testing.assert_array_equal(pts, correct_pts[:,[1,3]])
 
-import spatial_geometry as SP
+import tracer.spatial_geometry as SP
 class TestFlatGeomTilted(unittest.TestCase):
     """Use a flat surface rotated about the x axis by 45 degrees"""
     def setUp(self):

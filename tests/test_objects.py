@@ -2,19 +2,19 @@ import unittest
 import numpy as N
 import math
 
-from tracer_engine import TracerEngine
-from ray_bundle import RayBundle
-from spatial_geometry import general_axis_rotation, generate_transform
-from sphere_surface import HemisphereGM, CutSphereGM
-from boundary_shape import BoundarySphere
-from object import AssembledObject
-from assembly import Assembly
-import assembly
-from paraboloid import Paraboloid
+from tracer.tracer_engine import TracerEngine
+from tracer.ray_bundle import RayBundle
+from tracer.spatial_geometry import general_axis_rotation, generate_transform
+from tracer.sphere_surface import HemisphereGM, CutSphereGM
+from tracer.boundary_shape import BoundarySphere
+from tracer.object import AssembledObject
+from tracer.assembly import Assembly
+from tracer import assembly
+from tracer.paraboloid import Paraboloid
 
-from surface import Surface
-import flat_surface
-import optics_callables
+from tracer.surface import Surface
+from tracer import flat_surface
+from tracer import optics_callables
 
 class TestObjectBuilding1(unittest.TestCase):
     """Tests an object composed of sphere surfaces"""

@@ -3,10 +3,10 @@
 import unittest
 import numpy as N
 
-from flat_surface import RectPlateGM
-from ray_bundle import RayBundle
-from surface import Surface
-import optics_callables as opt
+from tracer.flat_surface import RectPlateGM
+from tracer.ray_bundle import RayBundle
+from tracer.surface import Surface
+import tracer.optics_callables as opt
 
 class TestRectPlateGM(unittest.TestCase):
     def test_value_error(self):

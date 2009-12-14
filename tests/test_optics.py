@@ -5,10 +5,11 @@
 #     Publications Inc.; 1989
 
 import math
-import optics
 import unittest
 import numpy as N
-from ray_bundle import RayBundle
+
+from tracer import optics
+from tracer.ray_bundle import RayBundle
 
 class TestSingleReflection(unittest.TestCase):
     def runTest(self):

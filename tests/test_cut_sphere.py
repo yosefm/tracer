@@ -3,9 +3,9 @@
 import unittest
 import numpy as N
 
-from ray_bundle import RayBundle
-from sphere_surface import CutSphereGM
-from boundary_shape import BoundarySphere
+from tracer.ray_bundle import RayBundle
+from tracer.sphere_surface import CutSphereGM
+from tracer.boundary_shape import BoundarySphere
 
 class TestInterface(unittest.TestCase):
     def setUp(self):
