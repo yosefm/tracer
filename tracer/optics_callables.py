@@ -51,6 +51,9 @@ class ReflectiveReceiver(object):
         absorbed - the energy absorbed by each hit-point
         hits - the corresponding global coordinates for each hit-point.
         """
+        if not len(self._absorbed):
+            return N.array([]), N.array([]).reshape(3,0)
+        
         return N.hstack([a for a in self._absorbed if len(a)]), \
             N.hstack([h for h in self._hits if h.shape[1]])
 
