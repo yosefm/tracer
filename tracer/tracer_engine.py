@@ -22,8 +22,7 @@ class TracerEngine():
         each ray points to the ray in the previous branch
         """
         self.surfaces = parent_assembly.get_surfaces()
-        self.tree = []
-
+        
     def intersect_ray(self, bundle):
         """
         Determines which intersections are actually relevant, since intersections on a 
@@ -81,6 +80,7 @@ class TracerEngine():
         Note that the order of the rays within the arrays may change, but they are tracked
         by the ray tree
         """
+        self.tree = []
         bund = bundle
         self.store_branch(bund)
         
