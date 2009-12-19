@@ -70,6 +70,6 @@ class AssembledObject(Assembly):
     def transform_object(self, assembly_transform):
         """Transforms an object if the assembly is transformed""" 
         for surface in self.surfaces:
-            surface.transform_frame(N.dot(self.transform, assembly_transform))
+            surface.transform_frame(N.dot(assembly_transform, self.transform))
         for boundary in self.boundaries:
-            boundary.transform_frame(N.dot(self.transform, assembly_transform))
+            boundary.transform_frame(N.dot(assembly_transform, self.transform))

@@ -72,6 +72,7 @@ class Assembly():
 
     def set_transform(self, transform):
         self.transform = transform
+        self.transform_assembly()
 
     def get_transform(self):
         return self.transform
@@ -85,7 +86,7 @@ class Assembly():
         """
         for object in xrange(len(self._objects)):
             self._objects[object].transform_object(
-                N.dot(self.transform,assembly_transform))
+                N.dot(assembly_transform, self.transform))
         for assembly in xrange(len(self._assemblies)):
             self._assemblies[assembly].transform_assembly(
-                N.dot(self.transform,assembly_transform))
+                N.dot(assembly_transform, self.transform))
