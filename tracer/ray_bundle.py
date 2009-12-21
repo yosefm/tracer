@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 import numpy as N
-import pdb
 
 class RayBundle:
     """Contains information about a ray bundle, using equal-length arrays, the
