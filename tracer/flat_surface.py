@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Implements a specularly reflecting, grey surface.
 
 from numpy import linalg as LA
@@ -98,3 +99,23 @@ class RectPlateGM(FlatGeometryManager):
         ray_prms[abs(self._current_params[1]) > self._h/2.] = N.inf
         return ray_prms
 
+class RoundPlateGM(FlatGeometryManager):
+    def __init__(self, R):
+        """
+        Arguments:
+        R - the plate's radius
+        """
+        if R <= 0:
+            raise ValueError("Radius must be positive")
+        
+        self._R = R
+        FlatGeometryManager.__init__(self)
+    
+    def find_intersections(self, frame, ray_bundle):
+        """
+        Extends the parent flat geometry manager by discarding in advance
+        impact points outside a centered circle.
+        """
+        ray_prms = FlatGeometryManager.find_intersections(self, frame, ray_bundle)
+        ray_prms[N.sum(self._current_params[:2]**2, axis=0) > self._R**2] = N.inf
+        return ray_prms
