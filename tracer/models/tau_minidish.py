@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # An assembly modeling the parabolic dish for building-integrated installations,
 # as developped in Tel Aviv University's Faculty of Engineering.
 #
@@ -47,10 +48,24 @@ class MiniDish(Assembly):
         dish = AssembledObject(surfs=[dish_surf])
         
         Assembly.__init__(self, objects=[rec_obj, dish], subassemblies=[homogenizer])
+        
+        # for later interrogation:
+        self._ext_dims = (diameter, receiver_pos)
     
     def get_receiver_surf(self):
         """for anyone wishing to directly access the receiver"""
         return self._rec
+    
+    def get_external_dimensions(self):
+        """
+        Returns the external dimensions (the ones you would put in an assembly
+        drawing, the bounding cylinder dimensions) of the entire assembly.
+        
+        Returns:
+        diameter - of the dish
+        full_height - from the dish base to the receiver surface.
+        """
+        return self._ext_dims
     
     def histogram_hits(self, bins=50):
         """
