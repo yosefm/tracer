@@ -38,7 +38,7 @@ class TestMiniDish(unittest.TestCase):
         energy, pts = receiver.get_optics_manager().get_all_hits()
         x, y = receiver.get_geometry_manager().global_to_local(pts)[:2]
         
-        self.failIf(y.any())
+        self.failUnless(N.allclose(y, 0))
         N.testing.assert_array_equal(energy, N.r_[90., 90., 81., 81.])
     
     def test_rotated(self):

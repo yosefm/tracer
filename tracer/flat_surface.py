@@ -27,17 +27,18 @@ class FlatGeometryManager(GeometryManager):
         v = ray_bundle.get_vertices() - frame[:3,3][:,None]
         n = ray_bundle.get_num_rays()
         
+        # Vet out parallel rays:
+        cp = N.cross(d.T, frame[:3,2])
+        unparallel = abs(N.sum(cp**2, axis=1) - 1) > 1e-8
+        
         # `params` holds the parametric location of intersections along x axis, 
         # y-axis and ray, in that order.
         params = N.empty((3, n))
-        for ray in xrange(n):
+        params.fill(N.inf)
+        for ray in N.where(unparallel)[0]:
             # Solve the linear equation system of the intersection point:
             eqns = N.hstack((xy,  d[:, ray][:, None]))
-            if LA.det(eqns) != 0:
-                params[:, ray] = N.dot(LA.inv(eqns), v[:, ray])
-                continue
-            # Singular matrix (parallel rays to the surface):
-            params[:, ray].fill(N.inf)
+            params[:, ray] = LA.solve(eqns, v[:, ray])
         
         # Takes into account a negative depth
         # Note that only the 3rd row of params is relevant here!
