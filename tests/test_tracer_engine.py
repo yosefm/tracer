@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Test that the tracer engine performs correct model construction, tracing and
 # tracking of results.
 #
@@ -59,8 +60,8 @@ class TestTraceProtocol2(unittest.TestCase):
     Tests intersect_ray with a flat surface rotated around the x axis 45 degrees
     """
     def setUp(self):
-        
-        dir = N.c_[[0,0,1],[0,0,-1],[0,-1,-1]]
+        ns = -1/N.sqrt(2)
+        dir = N.c_[[0,0,1],[0,0,-1],[0,ns,ns]]
         position = N.c_[[0,0,1],[0,1,2],[0,0,1]]
 
         self._bund = RayBundle()
@@ -78,7 +79,7 @@ class TestTraceProtocol2(unittest.TestCase):
         
         engine = TracerEngine(assembly)
         params = engine.intersect_ray(self._bund)[0]
-        correct_params = N.r_[[False, True, True]]
+        correct_params = N.r_[[False, True, False]]
 
         N.testing.assert_array_almost_equal(params, correct_params)
 
