@@ -6,6 +6,9 @@
 # [1] Kribus A., et al, A miniature concentrating photovoltaic and thermal 
 #     system, Energy Conversion and Management, Volume 47, Issue 20, December
 #     2006, Pages 3582-3590, DOI: 10.1016/j.enconman.2006.01.013.
+# [2] Harald Ries et al., High-flux photovoltaic solar concentrators with 
+#     kaleidoscope-based optical designs, 1997, Solar Energy, 
+#     DOI: 10.1016/S0038-092X(96)00159-4
 
 import numpy as N
 
@@ -91,3 +94,26 @@ class MiniDish(Assembly):
         H, xbins, ybins = N.histogram2d(x, y, bins, \
             range=([-rng,rng], [-rng,rng]), weights=energy)
         return H, xbins, ybins
+
+# Utility functions:
+def standard_minidish(diameter, concentration, reflections, 
+    dish_opt_eff=0.9, homog_opt_eff=0.9):
+    """
+    Create a minidish assembly with dimensions based on a dish with 45 deg.
+    acceptance angle in the receiver, using dimensioning rules from [2].
+    
+    Arguments:
+    diameter - of the dish aperture.
+    concentrations - ratio of dish aperture to receiver aperture.
+    reflections - number of times an edge ray gets reflected in the homogenizer
+    dish_opt_eff, homog_opt_eff - passed directly to the minidish constructor.
+    
+    Returns:
+    a MiniDish instance with the correct sizing of components.
+    """
+    f = (N.sqrt(5) - 1)*diameter/4.
+    W = diameter/2. * N.sqrt(N.pi/concentration)
+    n = reflections + 1
+    H = n*W*f/(diameter - n*W)
+    minidish = MiniDish(diameter, f, dish_opt_eff, f + H, W, H, homog_opt_eff)
+    return minidish
