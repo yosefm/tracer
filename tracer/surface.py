@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Define some basic surfaces for use with the ray tracer. From this minimal 
 # hierarchy other surfaces should be derived to implement actual geometric
 # operations.
@@ -27,7 +28,7 @@ class Surface(HasFrame):
         HasFrame.__init__(self, location, rotation)
         self._geom = geometry
         self._opt = optics
-    
+        
     def get_optics_manager(self):
         """
         Returns the optics-manager callable. May be useful for introspection.
@@ -78,4 +79,18 @@ class Surface(HasFrame):
             and directions according to optics laws.
         """
         return self._opt(self._geom, self._current_bundle, selector)
+    
+    def global_to_local(self, points):
+        """
+        Transform a set of points in the global coordinates back into the frame
+        used during tracing.
+        
+        Arguments:
+        points - a 3 x n array for n 3D points
+        
+        returns:
+        local - a 3 x n array with the respective points in local coordinates.
+        """
+        return N.dot(N.linalg.inv(self._temp_frame), 
+            N.vstack((points, N.ones(points.shape[1]))))
 

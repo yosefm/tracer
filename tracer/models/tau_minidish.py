@@ -88,7 +88,7 @@ class MiniDish(Assembly):
         numpy.histogram2D()
         """
         energy, pts = self._rec.get_optics_manager().get_all_hits()
-        x, y = self._rec.get_geometry_manager().global_to_local(pts)[:2]
+        x, y = self._rec.global_to_local(pts)[:2]
         rng = self._side/2.
         
         H, xbins, ybins = N.histogram2d(x, y, bins, \

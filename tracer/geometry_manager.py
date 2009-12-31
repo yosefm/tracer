@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Define a base class for managing geometry of an optical surface.
 # This is an abstract class defining the interface.
 # TODO: explore abstract meta-classes in Python.
@@ -18,17 +19,3 @@ class GeometryManager(object):
     
     def get_intersection_points_global(self, selector):
         pass
-    
-    def global_to_local(self, points):
-        """
-        Transform a set of points in the global coordinates back into the frame
-        used during tracing.
-        
-        Arguments:
-        points - a 3 x n array for n 3D points
-        
-        returns:
-        local - a 3 x n array with the respective points in local coordinates.
-        """
-        return N.dot(N.linalg.inv(self._working_frame), 
-            N.vstack((points, N.ones(points.shape[1]))))

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Unit tests for the mini-dish model.
 
 import unittest
@@ -36,7 +37,7 @@ class TestMiniDish(unittest.TestCase):
         
         receiver = self.md.get_receiver_surf()
         energy, pts = receiver.get_optics_manager().get_all_hits()
-        x, y = receiver.get_geometry_manager().global_to_local(pts)[:2]
+        x, y = receiver.global_to_local(pts)[:2]
         
         self.failUnless(N.allclose(y, 0))
         N.testing.assert_array_equal(energy, N.r_[90., 90., 81., 81.])
@@ -57,7 +58,7 @@ class TestMiniDish(unittest.TestCase):
         
         receiver = self.md.get_receiver_surf()
         energy, pts = receiver.get_optics_manager().get_all_hits()
-        x, y = receiver.get_geometry_manager().global_to_local(pts)[:2]
+        x, y = receiver.global_to_local(pts)[:2]
         
         self.failUnless(N.allclose(y, 0))
         N.testing.assert_array_equal(energy, N.r_[90., 90., 81., 81.])
