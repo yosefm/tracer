@@ -1,6 +1,7 @@
 from tracer.models.one_sided_mirror import *
 from tracer.ray_bundle import RayBundle
 from tracer.tracer_engine import TracerEngine
+from tracer.assembly import Assembly
 import tracer.spatial_geometry as sp
 
 import unittest
@@ -24,7 +25,7 @@ class TestRectOneSided(unittest.TestCase):
     
     def test_regular(self):
         """One-sided plate without rotation"""
-        e = TracerEngine(self.mirror)
+        e = TracerEngine(Assembly(objects=[self.mirror]))
         e.ray_tracer(self.bund, 1, 0.05)
         outg = e.tree[-1]
         
@@ -35,11 +36,10 @@ class TestRectOneSided(unittest.TestCase):
     
     def test_rotated(self):
         """One-sided plate with rotation"""
-        #rot = sp.generate_transform(N.r_[0., 1., 0.], N.pi/4., N.c_[[0,0,0]])
         rot = sp.roty(N.pi/4.)
-        self.mirror.transform_object(rot)
+        self.mirror.set_transform(rot)
         
-        e = TracerEngine(self.mirror)
+        e = TracerEngine(Assembly(objects=[self.mirror]))
         e.ray_tracer(self.bund, 1, 0.05)
         outg = e.tree[-1]
         

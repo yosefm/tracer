@@ -21,45 +21,54 @@ class TracerEngine():
         the same index representing that same parent ray. Otherwise, the index of
         each ray points to the ray in the previous branch
         """
-        self.surfaces = parent_assembly.get_surfaces()
+        self._asm = parent_assembly
         
-    def intersect_ray(self, bundle):
+    def intersect_ray(self, bundle, surfaces, objects, surf_ownership, \
+        ray_ownership, surf_relevancy):
         """
-        Determines which intersections are actually relevant, since intersections on a 
-        surface that the ray hit after the ray had already intersected with a previous 
-        surface should be discarded.
-        Arguments: bundle - the incoming RayBundle object
-        Returns a boolean array indicating whether there was a hit or a miss, organized
-        such that each row of the array matches up to the hits or misses on a single object,
-        and the columns equate to whether the points along a ray hit or miss
+        Finds the first surface intersected by each ray.
+        
+        Arguments:
+        bundle - the RayBundle instance holding incoming rays.
+        ownership - an array with the owning object instance for each ray in the
+            bundle, or -1 for no ownership.
+        
+        Returns:
+        stack - an s by r boolean array for s surfaces and r rays, stating
+            for each surface i=1..s if it is intersected by ray j=1..r
+        owned_rays - same size as stack, stating whether ray j was tested at all
+            by surface i
         """
-        # If there is only a single object, don't need to find minimum distance and
-        # can just return a boolean array based on whether the hit missed or did not
-        if len(self.surfaces) == 1:
-            stack = N.atleast_2d(~N.isinf(self.surfaces[0].register_incoming(bundle)))
-            
-        else:
-            stack = []
-            objs_hit = []
-            # Bounce rays off each object
-            for obj in self.surfaces:
-                stack.append(obj.register_incoming(bundle))
-            stack = N.array(stack)
-            # Raise an error if any of the parameters are negative
-            if (stack < 0).any():
-                raise ValueError("Parameters must all be positive")
-            # If parameter == 0, ray does not actually hit object, but originates from there; 
-            # so it should be ignored in considering intersections 
-            if (stack <= 1e-10).any():
-                zeros = N.where(stack <= 1e-6)
-                stack[zeros] = N.inf
+        ret_shape = (len(surfaces), bundle.get_num_rays())
+        stack = N.zeros(ret_shape)
+        owned_rays = N.empty(ret_shape, dtype=N.bool)
+        
+        # Bounce rays off each object
+        for surf_num in xrange(len(surfaces)):
+            owned_rays[surf_num] = ((ray_ownership == -1) | \
+                (ray_ownership == surf_ownership[surf_num])) & surf_relevancy[surf_num]
+            if not owned_rays[surf_num].any():
+                continue
+            in_rays = bundle.delete_rays(N.where(~owned_rays[surf_num])[0])
+            stack[surf_num, owned_rays[surf_num]] = \
+                surfaces[surf_num].register_incoming(in_rays)
+        
+        # Raise an error if any of the parameters are negative
+        if (stack < 0).any():
+            raise ValueError("Parameters must all be positive")
+        
+        # If parameter == 0, ray does not actually hit object, but originates from there; 
+        # so it should be ignored in considering intersections 
+        if (stack <= 1e-10).any():
+            zeros = N.where(stack <= 1e-6)
+            stack[zeros] = N.inf
 
-            # Find the smallest parameter for each ray, and use that as the final one,
-            # returns the indices.  If an entire column of the stack is N.inf (the ray misses
-            # any surfaces), then take that column to be all False
-            stack = ((stack == stack.min(axis=0)) & ~N.isinf(stack))
+        # Find the smallest parameter for each ray, and use that as the final one,
+        # returns the indices.  If an entire column of the stack is N.inf (the ray misses
+        # any surfaces), then take that column to be all False
+        stack = ((stack == stack.min(axis=0)) & ~N.isinf(stack))
         
-        return stack 
+        return stack, owned_rays
 
     def ray_tracer(self, bundle, reps, min_energy):
         """
@@ -84,14 +93,29 @@ class TracerEngine():
         bund = bundle
         self.store_branch(bund)
         
+        # A list of surfaces and their matching objects:
+        surfaces = self._asm.get_surfaces()
+        objects = self._asm.get_objects()
+        num_surfs = len(surfaces)
+        
+        surfs_per_obj = [len(obj.get_surfaces()) for obj in objects]
+        surfs_until_obj = N.hstack((N.r_[0], N.add.accumulate(surfs_per_obj)))
+        surf_ownership = N.repeat(N.arange(len(objects)), surfs_per_obj)
+        ray_ownership = -1*N.ones(bund.get_num_rays())
+        surfs_relevancy = N.ones((num_surfs, bund.get_num_rays()), dtype=N.bool)
+        
         for i in xrange(reps):
-            objs_param = self.intersect_ray(bund)
+            front_surf, owned_rays = self.intersect_ray(bund, surfaces, objects, \
+                surf_ownership, ray_ownership, surfs_relevancy)
             outg = bundle.empty_bund()
-            for obj in self.surfaces:
-                inters = objs_param[self.surfaces.index(obj)]
+            out_ray_own = []
+            new_surfs_relevancy = []
+            
+            for surf_idx in xrange(num_surfs):
+                inters = front_surf[surf_idx, owned_rays[surf_idx]]
                 if not any(inters): 
                     continue
-                new_outg = obj.get_outgoing(inters)
+                new_outg = surfaces[surf_idx].get_outgoing(inters)
                 
                 # Delete rays with negligible energies
                 delete = N.where(new_outg.get_energy() <= min_energy)[0] 
@@ -101,14 +125,30 @@ class TracerEngine():
                 # add the outgoing bundle from each object into a new bundle
                 # that stores all the outgoing bundles from all the objects
                 outg = outg + new_outg
+                
+                # Add new ray-ownership information to the total list:
+                obj_idx = surf_ownership[surf_idx]
+                surf_rel_idx = surf_idx - surfs_until_obj[obj_idx]
+                object_owns_outg = objects[obj_idx].own_rays(new_outg, surf_rel_idx)
+                out_ray_own.append(N.where(object_owns_outg, obj_idx, -1))
+                
+                # Add new surface-relevancy information, saying which surfaces
+                # of the full list of surfaces must be checked next. This is
+                # somewhat memory-intensize and requires optimization.
+                surf_relev = N.ones((num_surfs, new_outg.get_num_rays()), dtype=N.bool)
+                surf_relev[surf_ownership == obj_idx] = \
+                    objects[obj_idx].surfaces_for_next_iteration(new_outg, surf_rel_idx)
+                new_surfs_relevancy.append(surf_relev)
             
             bund = outg
             if bund.get_num_rays() == 0:
                 # All rays escaping
                 break
-                
+            
+            ray_ownership = N.hstack(out_ray_own)
+            surfs_relevancy = N.hstack(new_surfs_relevancy)
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
-             
+            
         return bund.get_vertices(), bund.get_directions()
     
     def store_branch(self, bundle):

@@ -73,3 +73,36 @@ class AssembledObject(Assembly):
             surface.transform_frame(N.dot(assembly_transform, self.transform))
         for boundary in self.boundaries:
             boundary.transform_frame(N.dot(assembly_transform, self.transform))
+    
+    def own_rays(self, rays, surface_id):
+        """
+        Decide which of the rays continue to propagate inside the object, so
+        only the object's surfaces need be checked for intersection.
+        This default implementation owns nothing.
+        
+        Arguments:
+        rays - the RayBundle to check. 
+        surface_id - the index of the surface which generated this bundle.
+        
+        Returns:
+        a boolean array of length rays.get_num_rays() with False if not owned,
+            True if owned.
+        """
+        return N.zeros(rays.get_num_rays(), dtype=N.bool)
+    
+    def surfaces_for_next_iteration(self, rays, surface_id):
+        """
+        Informs the ray tracer that some of the surfaces can be skipped in the
+        next ireration for some of the rays.
+        This default implementation marks all surfaces as relevant to all rays.
+        
+        Arguments:
+        rays - the RayBundle to check. 
+        surface_id - the index of the surface which generated this bundle.
+        
+        Returns:
+        an array of size s by r for s surfaces in this object and r rays,
+            stating whether ray i=1..r should be intersected with surface j=1..s
+            in the next iteration.
+        """
+        return N.ones((len(self.surfaces), rays.get_num_rays()), dtype=N.bool)

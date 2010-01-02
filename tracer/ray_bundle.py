@@ -19,6 +19,8 @@ class RayBundle:
     _temp_ref_index: like _ref_index, but used to temporarily store the values that will be
     used in the next iteration of the simulation
     """
+    _parent = None
+    
     def set_vertices(self,  vert):
         """Sets the starting point of each ray."""
        # if vert.shape != (3,  self.get_num_rays()):
@@ -87,8 +89,10 @@ class RayBundle:
         outg.set_directions(N.delete(self.get_directions(), selector, axis=1))
         outg.set_vertices(N.delete(self.get_vertices(), selector, axis=1))
         outg.set_energy(N.delete(self.get_energy(), selector))
-        outg.set_parent(N.delete(self.get_parent(), selector))
         outg.set_ref_index(N.delete(self.get_ref_index(), selector))
+        if self._parent is not None:
+            outg.set_parent(N.delete(self.get_parent(), selector))
+         
         return outg 
 
 # Module stuff:

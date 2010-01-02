@@ -6,6 +6,25 @@ from ..flat_surface import RectPlateGM
 from .. import optics_callables as opt
 
 from numpy import r_
+import numpy as N
+import types
+
+def surfaces_for_next_iteration(self, rays, surface_id):
+    """
+    Informs the ray tracer that some of the surfaces can be skipped in the
+    next ireration for some of the rays.
+    This implementation marks all surfaces as irrelevant to all rays.
+    
+    Arguments:
+    rays - the RayBundle to check. 
+    surface_id - the index of the surface which generated this bundle.
+    
+    Returns:
+    an array of size s by r for s surfaces in this object and r rays,
+        stating whether ray i=1..r should be intersected with surface j=1..s
+        in the next iteration.
+    """
+    return N.zeros((len(self.surfaces), rays.get_num_rays()), dtype=N.bool)
 
 def rect_one_sided_mirror(width, height, absorptivity=0.):
     """
@@ -23,6 +42,8 @@ def rect_one_sided_mirror(width, height, absorptivity=0.):
     back = Surface(RectPlateGM(width, height), opt.gen_reflective(1.),
         location=r_[0., 0., -1e-10])
     obj = AssembledObject(surfs=[front, back])
+    obj.surfaces_for_next_iteration = types.MethodType(
+        surfaces_for_next_iteration, obj, obj.__class__)
     return obj
 
 def one_sided_receiver(width, height, absorptivity=1.):
@@ -48,4 +69,6 @@ def one_sided_receiver(width, height, absorptivity=1.):
     back = Surface(RectPlateGM(width, height), opt.gen_reflective(1.),
         location=r_[0., 0., -1e-10])
     obj = AssembledObject(surfs=[front, back])
+    obj.surfaces_for_next_iteration = types.MethodType(
+        surfaces_for_next_iteration, obj, obj.__class__)
     return front, obj

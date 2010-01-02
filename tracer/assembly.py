@@ -36,15 +36,26 @@ class Assembly():
 
     def get_assemblies(self):
         return self.assemblies
+    
+    def get_objects(self):
+        """
+        Generates a list of AssembledObject instances belonging to this assembly
+        or its subassemblies.
+        """
+        return reduce(operator.add, 
+            [asm.get_objects() for asm in self._assemblies] + [self._objects])
 
     def get_surfaces(self):  
         """
         Generates a list of surface objects out of all the surfaces in the
         objects and subassemblies belonging to this assembly.
+        
+        The surfaces are guarantied to be in the order that each object returns
+        them, and the objects are guarantied to be ordered the same as in 
+        self.get_objects()
         """
         return reduce(operator.add, 
-            [asm.get_surfaces() for asm in self._assemblies] + \
-            [obj.get_surfaces() for obj in self._objects])
+            [obj.get_surfaces() for obj in self.get_objects()])
 
     def add_object(self, object, transform=None):
         """Adds an object to the assembly.

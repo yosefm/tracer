@@ -44,7 +44,15 @@ class TestTraceProtocol1(unittest.TestCase):
         self.engine = TracerEngine(self.assembly)
         
     def test_intersect_ray1(self):
-        params = self.engine.intersect_ray(self._bund)[0]
+        surfaces = self.assembly.get_surfaces()
+        objects = self.assembly.get_objects()
+        surfs_per_obj = [len(obj.get_surfaces()) for obj in objects]
+        surf_ownership = N.repeat(N.arange(len(objects)), surfs_per_obj)
+        ray_ownership = -1*N.ones(self._bund.get_num_rays())
+        surfs_relevancy = N.ones((len(surfaces), self._bund.get_num_rays()), dtype=N.bool)
+        
+        params = self.engine.intersect_ray(self._bund, surfaces, objects, \
+            surf_ownership, ray_ownership, surfs_relevancy)[0]
         self.failUnless(params.all())
 
     def test_ray_tracer(self):
@@ -68,7 +76,8 @@ class TestTraceProtocol2(unittest.TestCase):
         self._bund.set_vertices(position)
         self._bund.set_directions(dir)
         self._bund.set_ref_index(N.r_[[1,1,1]])
-
+        self._bund.set_energy(N.r_[[1,1,1,]])
+        
     def test_intersect_ray2(self):
         rot = general_axis_rotation([1,0,0],N.pi/4)
         surface = Surface(FlatGeometryManager(), opt.perfect_mirror, rotation=rot)
@@ -78,8 +87,16 @@ class TestTraceProtocol2(unittest.TestCase):
         assembly.add_object(object)
         
         engine = TracerEngine(assembly)
-        params = engine.intersect_ray(self._bund)[0]
-        correct_params = N.r_[[False, True, False]]
+        surfaces = assembly.get_surfaces()
+        objects = assembly.get_objects()
+        surfs_per_obj = [len(obj.get_surfaces()) for obj in objects]
+        surf_ownership = N.repeat(N.arange(len(objects)), surfs_per_obj)
+        ray_ownership = -1*N.ones(self._bund.get_num_rays())
+        surfs_relevancy = N.ones((len(surfaces), self._bund.get_num_rays()), dtype=N.bool)
+        
+        params = engine.intersect_ray(self._bund, surfaces, objects, \
+            surf_ownership, ray_ownership, surfs_relevancy)[0]
+        correct_params = N.array([[False, True, False]])
 
         N.testing.assert_array_almost_equal(params, correct_params)
 
@@ -104,16 +121,24 @@ class TestTraceProtocol3(unittest.TestCase):
         surf1 = Surface(FlatGeometryManager(), opt.perfect_mirror, rotation=rot1)
         surf2 = Surface(FlatGeometryManager(), opt.perfect_mirror, rotation=rot2)
         
-        assembly = Assembly()
+        self.assembly = Assembly()
         object = AssembledObject()
         object.add_surface(surf1)
         object.add_surface(surf2)
-        assembly.add_object(object)
+        self.assembly.add_object(object)
 
-        self.engine = TracerEngine(assembly)
+        self.engine = TracerEngine(self.assembly)
         
     def test_intersect_ray(self):
-        params = self.engine.intersect_ray(self._bund)
+        surfaces = self.assembly.get_surfaces()
+        objects = self.assembly.get_objects()
+        surfs_per_obj = [len(obj.get_surfaces()) for obj in objects]
+        surf_ownership = N.repeat(N.arange(len(objects)), surfs_per_obj)
+        ray_ownership = -1*N.ones(self._bund.get_num_rays())
+        surfs_relevancy = N.ones((len(surfaces), self._bund.get_num_rays()), dtype=N.bool)
+        
+        params = self.engine.intersect_ray(self._bund, surfaces, objects, \
+            surf_ownership, ray_ownership, surfs_relevancy)[0]
         correct_params = N.array([[True, True],[False, False]])
 
         N.testing.assert_array_almost_equal(params,correct_params)    

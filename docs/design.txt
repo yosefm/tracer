@@ -53,3 +53,42 @@ currently supported). A resulting ray may be discarded if it carries energy
 lower than a user-defined threshold.
 
 
+Surface culling
+---------------
+It is up to enclosed objects to determine which of their surfaces are relevant
+for future intersection finding. Given a set of intersections, get_outgoing()
+is when the surface calculates the outgoing rays, at which point it is possible
+to know which rays will not intersect surfaces in this object at the next
+iteration. Alternatively, it is possible to know, as in a lens, that only this
+object needs to be checked at the next iteration.
+
+So, for each ray we need two answers: a list of relevant surfaces; and a
+boolean "ownership" flag stating that the object takes ownership for the next
+iteration.
+
+* One-sided mirror: simple. Never owns, both surfaces irrelevant after next
+  iteration.
+* Lens: refracted rays owned, reflected rays disowned, for rays coming from the
+  outside. Opposite for rays moving inside the lens. For rays going in, all
+  surfaces are relevant except (perhaps) the starting surfaces, and opposite
+  for rays going outside.
+
+Who knows what: 
+* object knows what policy to take
+* surface knows what was reflected or refracted and to which side
+* object knows which refractive index to expect.
+
+So: a general lens needs to have cooperative surfaces. Possibility: change
+RefractiveHomogenous to mark the rays in the RayBundle instance as refracted/
+reflected. Maybe change all GMs to mark the side of outgoing rays, so if the
+object knows which side is which (and it should), we're independent of
+refractive index.
+
+A simple homogenous lens only requires the refractive index of the ray,
+although the more general solution won't suffer from index-matching issues.
+
+A reflective object requires no co-operation.
+
+A default object: owns nothing, all surfaces relevant.
+One-sided mirror: own nothing, all surfaces irrelevant.
+
