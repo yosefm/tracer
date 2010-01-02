@@ -29,16 +29,18 @@ class FlatGeometryManager(GeometryManager):
         
         # Vet out parallel rays:
         cp = N.cross(d.T, frame[:3,2])
-        unparallel = abs(N.sum(cp**2, axis=1) - 1) > 1e-8
+        unparallel = N.where(abs(N.sum(cp**2, axis=1) - 1) > 1e-10)[0]
         
         # `params` holds the parametric location of intersections along x axis, 
         # y-axis and ray, in that order.
         params = N.empty((3, n))
         params.fill(N.inf)
-        for ray in N.where(unparallel)[0]:
+        eqns = N.concatenate((N.tile(xy[...,None], (1, 1, len(unparallel))), \
+            d[:,unparallel][:,None,:]), axis=1)
+        
+        for ray in xrange(len(unparallel)):
             # Solve the linear equation system of the intersection point:
-            eqns = N.hstack((xy,  d[:, ray][:, None]))
-            params[:, ray] = LA.solve(eqns, v[:, ray])
+            params[:, unparallel[ray]] = LA.solve(eqns[...,ray], v[:, unparallel[ray]])
         
         # Takes into account a negative depth
         # Note that only the 3rd row of params is relevant here!
