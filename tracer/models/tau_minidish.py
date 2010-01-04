@@ -109,11 +109,13 @@ def standard_minidish(diameter, concentration, reflections,
     dish_opt_eff, homog_opt_eff - passed directly to the minidish constructor.
     
     Returns:
-    a MiniDish instance with the correct sizing of components.
+    minidish - a MiniDish instance with the correct sizing of components.
+    f, W, H - the focal length, homogenizer width and receiver distance from
+        focal point that were used for the dish.
     """
     f = (N.sqrt(5) - 1)*diameter/4.
     W = diameter/2. * N.sqrt(N.pi/concentration)
     n = reflections + 1
     H = n*W*f/(diameter - n*W)
     minidish = MiniDish(diameter, f, dish_opt_eff, f + H, W, H, homog_opt_eff)
-    return minidish
+    return minidish, f, W, H
