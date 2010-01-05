@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import numpy as N
 import math
@@ -215,7 +216,7 @@ class TestNestedAssemblies(unittest.TestCase):
             N.c_[[0., 1, 0]])
         
         self.surf = Surface(flat_surface.FlatGeometryManager(), \
-            optics_callables.gen_reflective(0))
+            optics_callables.perfect_mirror)
         self.obj = AssembledObject(surfs=[self.surf])
         self.sub_assembly = Assembly()
         self.sub_assembly.add_object(self.obj, self.eighth_circle_trans)

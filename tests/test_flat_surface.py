@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import math
 import numpy as N
@@ -5,12 +6,12 @@ from numpy import c_, r_
 
 from tracer.surface import Surface
 from tracer.flat_surface import FlatGeometryManager
-from tracer.optics_callables import gen_reflective
+from tracer.optics_callables import perfect_mirror
 from tracer.ray_bundle import RayBundle
 
 class TestTraceProtocol(unittest.TestCase):
     def setUp(self):
-        self._surf = Surface(FlatGeometryManager(), gen_reflective(0))
+        self._surf = Surface(FlatGeometryManager(), perfect_mirror)
         
         dir = N.array([[1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]]).T / math.sqrt(3)
         position = c_[[0,0,1], [1,-1,1], [1,1,1], [-1,1,1]]

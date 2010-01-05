@@ -47,7 +47,7 @@ class MiniDish(Assembly):
         homogenizer.set_transform(receiver_frame)
         
         dish_surf = Surface(ParabolicDishGM(diameter, focal_length), 
-            opt.gen_reflective(1 - dish_opt_eff))
+            opt.Reflective(1 - dish_opt_eff))
         dish = AssembledObject(surfs=[dish_surf])
         
         Assembly.__init__(self, objects=[rec_obj, dish], subassemblies=[homogenizer])

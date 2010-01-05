@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Implement an object with a front reflective surface and an opaque back.
 
 from ..object import AssembledObject
@@ -38,8 +39,8 @@ def rect_one_sided_mirror(width, height, absorptivity=0.):
         not reflected back.
     """
     front = Surface(RectPlateGM(width, height), 
-        opt.gen_reflective(absorptivity))
-    back = Surface(RectPlateGM(width, height), opt.gen_reflective(1.),
+        opt.Reflective(absorptivity))
+    back = Surface(RectPlateGM(width, height), opt.Reflective(1.),
         location=r_[0., 0., -1e-10])
     obj = AssembledObject(surfs=[front, back])
     obj.surfaces_for_next_iteration = types.MethodType(
@@ -66,7 +67,7 @@ def one_sided_receiver(width, height, absorptivity=1.):
     """
     front = Surface(RectPlateGM(width, height), 
         opt.ReflectiveReceiver(absorptivity))
-    back = Surface(RectPlateGM(width, height), opt.gen_reflective(1.),
+    back = Surface(RectPlateGM(width, height), opt.Reflective(1.),
         location=r_[0., 0., -1e-10])
     obj = AssembledObject(surfs=[front, back])
     obj.surfaces_for_next_iteration = types.MethodType(

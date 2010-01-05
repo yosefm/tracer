@@ -6,7 +6,7 @@ import optics
 import ray_bundle
 import numpy as N
 
-class gen_reflective(object):
+class Reflective(object):
     """
     Generates a function that represents the optics of an opaque, absorptive
     surface with specular reflections.
@@ -32,19 +32,18 @@ class gen_reflective(object):
         outg.set_ref_index(rays.get_ref_index()[selector])
         return outg
 
-perfect_mirror = gen_reflective(0)
+perfect_mirror = Reflective(0)
 
-class ReflectiveReceiver(object):
+class ReflectiveReceiver(Reflective):
     def __init__(self, absorptivity=1.):
-        self._abs = absorptivity
-        self._new_ray_bundle = gen_reflective(self._abs)
+        Reflective.__init__(self, absorptivity)
         self._absorbed = []
         self._hits = []
     
     def __call__(self, geometry, rays, selector):
         self._absorbed.append(rays.get_energy()[selector]*self._abs)
         self._hits.append(geometry.get_intersection_points_global(selector))
-        return self._new_ray_bundle(geometry, rays, selector)
+        return Reflective.__call__(self, geometry, rays, selector)
     
     def get_all_hits(self):
         """
