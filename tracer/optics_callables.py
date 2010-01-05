@@ -59,6 +59,21 @@ class ReflectiveReceiver(Reflective):
         return N.hstack([a for a in self._absorbed if len(a)]), \
             N.hstack([h for h in self._hits if h.shape[1]])
 
+class AbsorberReflector(Reflective):
+    def __call__(self, geometry, rays, selector):
+        """
+        Rays coming from the "up" side are reflected like in a Reflective
+        instance, rays coming from the "down" side have their energy set to 0.
+        "down" is the side of rays whose dot product with the normal is
+        positive.
+        """
+        outg = Reflective.__call__(self, geometry, rays, selector)
+        energy = outg.get_energy()
+        proj = N.sum(rays.get_directions()[:,selector] * geometry.get_normals(selector), axis=0)
+        energy[proj > 0] = 0
+        outg.set_energy(energy)
+        return outg
+        
 class RefractiveHomogenous(object):
     """
     Represents the optics of a surface bordering homogenous media with 

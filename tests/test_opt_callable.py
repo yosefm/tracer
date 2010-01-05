@@ -115,3 +115,31 @@ class TestRefractiveHomogenous(unittest.TestCase):
         N.testing.assert_array_equal(outg.get_energy(), N.r_[100])
         N.testing.assert_array_equal(outg.get_parent(), N.r_[0])
 
+class TestAbsorberReflector(unittest.TestCase):
+    def test_up_down(self):
+        """Rays coming from below are absorbed, from above reflected"""
+        going_down = N.c_[[1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]] / N.sqrt(3)
+        going_up = going_down.copy()
+        going_up[2] = 1 / N.sqrt(3)
+        
+        pos_up = N.c_[[0,0,1], [1,-1,1], [1,1,1], [-1,1,1]]
+        pos_down = pos_up.copy()
+        pos_down[2] = -1
+
+        bund = RayBundle()
+        bund.set_directions(N.hstack((going_down, going_up)))
+        bund.set_vertices(N.hstack((pos_up, pos_down)))
+        bund.set_energy(N.tile(100, 8))
+        bund.set_ref_index(N.tile(1, 8))
+        
+        gm = FlatGeometryManager()
+        prm = gm.find_intersections(N.eye(4), bund)
+        absref = optics_callables.AbsorberReflector(0.)
+        selector = N.ones(8, dtype=N.bool)
+        outg = absref(gm, bund, selector)
+        
+        e = outg.get_energy()
+        N.testing.assert_array_equal(e[:4], 100)
+        N.testing.assert_array_equal(e[4:], 0)
+
+        

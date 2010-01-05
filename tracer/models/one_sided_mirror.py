@@ -38,11 +38,9 @@ def rect_one_sided_mirror(width, height, absorptivity=0.):
     absorptivity - the ratio of energy incident on the reflective side that's
         not reflected back.
     """
-    front = Surface(RectPlateGM(width, height), 
-        opt.Reflective(absorptivity))
-    back = Surface(RectPlateGM(width, height), opt.Reflective(1.),
-        location=r_[0., 0., -1e-10])
-    obj = AssembledObject(surfs=[front, back])
+    surf = Surface(RectPlateGM(width, height), 
+        opt.AbsorberReflector(absorptivity))
+    obj = AssembledObject(surfs=[surf])
     obj.surfaces_for_next_iteration = types.MethodType(
         surfaces_for_next_iteration, obj, obj.__class__)
     return obj
