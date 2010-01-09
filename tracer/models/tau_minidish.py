@@ -10,19 +10,12 @@
 #     kaleidoscope-based optical designs, 1997, Solar Energy, 
 #     DOI: 10.1016/S0038-092X(96)00159-4
 
-import numpy as N
-
-from .. import spatial_geometry as sp
 from .. import optics_callables as opt
-from ..assembly import Assembly
 from ..surface import Surface
 from ..paraboloid import ParabolicDishGM
-from ..object import AssembledObject
+from .homogenized_local_receiver import HomogenizedLocalReceiver
 
-from .one_sided_mirror import one_sided_receiver
-from .homogenizer import rect_homogenizer
-
-class MiniDish(Assembly):
+class MiniDish(HomogenizedLocalReceiver):
     def __init__(self, diameter, focal_length, dish_opt_eff,\
         receiver_pos, receiver_side, homogenizer_depth, homog_opt_eff):
         """
@@ -37,28 +30,14 @@ class MiniDish(Assembly):
             square, and this height.
         homog_opt_eff - the optical efficiency of each mirror in the homogenizer
         """
-        self._side = receiver_side
-        self._rec, rec_obj = one_sided_receiver(self._side, self._side)
-        receiver_frame = N.dot(sp.translate(0, 0, receiver_pos), sp.rotx(N.pi))
-        rec_obj.set_transform(receiver_frame)
-        
-        homogenizer = rect_homogenizer(self._side, self._side, \
-            homogenizer_depth, homog_opt_eff)
-        homogenizer.set_transform(receiver_frame)
-        
         dish_surf = Surface(ParabolicDishGM(diameter, focal_length), 
             opt.Reflective(1 - dish_opt_eff))
-        dish = AssembledObject(surfs=[dish_surf])
-        
-        Assembly.__init__(self, objects=[rec_obj, dish], subassemblies=[homogenizer])
+        HomogenizedLocalReceiver.__init__(self, dish_surf, receiver_pos, \
+            receiver_side, homogenizer_depth, homog_opt_eff)
         
         # for later interrogation:
         self._ext_dims = (diameter, receiver_pos)
-    
-    def get_receiver_surf(self):
-        """for anyone wishing to directly access the receiver"""
-        return self._rec
-    
+        
     def get_external_dimensions(self):
         """
         Returns the external dimensions (the ones you would put in an assembly
@@ -69,31 +48,6 @@ class MiniDish(Assembly):
         full_height - from the dish base to the receiver surface.
         """
         return self._ext_dims
-    
-    def histogram_hits(self, bins=50):
-        """
-        Generates a 2D histogram of energy absorbed at the receiver surface,
-        assuming a trace has been run using this assembly.
-        
-        Arguments:
-        bins - hom many bins per axis to use (default 50)
-        
-        Returns:
-        H - a 2D array with the energy falling on each bean, x axis along
-            the first dimension, y along second
-        xbins, ybins - the edges of the bins (so one point more than the number
-            of beans for each axis)
-        
-        See Also:
-        numpy.histogram2D()
-        """
-        energy, pts = self._rec.get_optics_manager().get_all_hits()
-        x, y = self._rec.global_to_local(pts)[:2]
-        rng = self._side/2.
-        
-        H, xbins, ybins = N.histogram2d(x, y, bins, \
-            range=([-rng,rng], [-rng,rng]), weights=energy)
-        return H, xbins, ybins
 
 # Utility functions:
 def standard_minidish(diameter, concentration, reflections, 

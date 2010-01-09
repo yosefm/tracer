@@ -90,3 +90,37 @@ class ParabolicDishGM(Paraboloid):
         
         return ray_prm
 
+class HexagonalParabolicDishGM(Paraboloid):
+    def __init__(self, diameter, focal_length):
+        """
+        A paraboloid that marks rays outside a regular hexagon perimiter as
+        missing. The parameters for the paraboloid's equation are determined
+        from the focal length. The hexagon is oriented with two parallel to the
+        Y axis.
+        
+        Arguments:
+        diameter - of the circle bounding the regular hexagonal aperture of the
+            dish.
+        focal_length - distance of the focal point from the origin.
+        """
+        par_param = 2*math.sqrt(focal_length) # [2]
+        Paraboloid.__init__(self, par_param, par_param)
+        self._R = diameter/2.
+    
+    def find_intersections(self, frame, ray_bundle):
+        """
+        Extend the paraboloid's general routine by marking rays outside
+        the hexagonal aperture as missing.
+        """
+        ray_prm = Paraboloid.find_intersections(self, frame, ray_bundle)
+        # Save a copy of the local coordinates of impact for use later
+        self._local = N.dot(N.linalg.inv(self._working_frame), 
+            N.vstack((self._vertices, N.ones(self._vertices.shape[1]))))
+        
+        # Use local coordinates to find distance on the local xy plane
+        outside = abs(self._local[0]) > math.sqrt(3)*self._R/2.
+        abs_y = abs(self._local[1])
+        outside |= abs_y > math.tan(N.pi/6.)*self._local[0] + self._R
+        
+        ray_prm[outside] = N.inf
+        return ray_prm

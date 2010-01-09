@@ -3,7 +3,7 @@
 import unittest
 import numpy as N
 
-from tracer.paraboloid import ParabolicDishGM
+from tracer.paraboloid import ParabolicDishGM, HexagonalParabolicDishGM
 from tracer.ray_bundle import RayBundle
 from tracer.surface import Surface
 from tracer.spatial_geometry import generate_transform
@@ -35,3 +35,13 @@ class TestParabolicDish(unittest.TestCase):
         misses = N.isinf(self.surf.register_incoming(self.bund))
         N.testing.assert_array_equal(misses, N.r_[False, False, True, True])
 
+class TestHexDish(unittest.TestCase):
+    def runTest(self):
+        pos = N.array([[0, 1.5], [0, -1.5], [1, 0], [-1, 0], [0.1, 0.1], [-0.1, 0.6]])
+        bund = RayBundle()
+        bund.set_vertices(N.vstack((pos.T, N.ones(pos.shape[0]))))
+        bund.set_directions(N.tile(N.c_[[0,0,-1]], (1,6)))
+        surf = Surface(HexagonalParabolicDishGM(2., 1.), opt.perfect_mirror)
+        
+        misses = N.isinf(surf.register_incoming(bund))
+        N.testing.assert_array_equal(misses, N.r_[True, True, True, True, False, False])
