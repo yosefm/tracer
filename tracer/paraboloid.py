@@ -22,23 +22,25 @@ class Paraboloid(QuadricGM):
         self.a = 1./(a**2)
         self.b = 1./(b**2)
 
-    def get_normal(self, dot, hit, c):
-        """Finds the normal by taking the derivative and rotating it, returns the 
-        information to the quadric class for calculations
-        Arguments:
-        dot - the dot product of the normal vector and the incoming ray, used to determine
-        which side is the outer surface (this is not relevant to the paraboloid since the 
-        cross product determines it, but it is to the sphere surface)
-        hit - the coordinates of an intersection
-        c - the center/vertex of the surface 
+    def _normals(self, sides, hits, c):
         """
-        hit = N.dot(self._working_frame[:3,:3].T, hit)
+        Finds the normal to the parabola in a bunch of intersection points, by
+        taking the derivative and rotating it. Used internally by quadric.
+        
+        Arguments:
+        sides - not used here.
+        hits - the coordinates of intersections, as an n by 3 array.
+        c - the center/vertex of the surface
+        """
+        hit = N.dot(self._working_frame[:3,:3].T, hits.T)
         partial_x = 2*hit[0]*self.a
         partial_y = 2*hit[1]*self.b
-        local_normal = N.cross(N.array([1,0,partial_x]), N.array([0,1,partial_y]))[:,None]
-        normal = local_normal/N.linalg.norm(local_normal)
-        normal = N.dot(self._working_frame[:3,:3], local_normal/N.linalg.norm(local_normal))
-        return normal  
+        
+        local_normal = N.vstack((-partial_x, -partial_y, N.ones_like(partial_x)))
+        local_unit = local_normal/N.sqrt(N.sum(local_normal**2, axis=0))
+        normals = N.dot(self._working_frame[:3,:3], local_unit)
+        
+        return normals  
     
     def get_ABC(self, ray_bundle):
         """

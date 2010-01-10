@@ -31,18 +31,20 @@ class SphericalGM(QuadricGM):
             raise ValuError("Radius must be positive")
         self._rad = rad
      
-    def get_normal(self, dot, hit, c):
-        """Finds the normal by taking the derivative and rotating it, returns the            
-        information to the quadric class for calculations. Used by the quadrics class.      
+    def _normals(self, sides, hits, c):
+        """
+        Finds the normal to the sphere in a bunch of intersection points, by
+        taking the derivative and rotating it. Used internally by quadric.
+        
         Arguments:                                                                      
-        dot - the dot product of the normal vector and the incoming ray, used to determine 
-        which side is the outer surface (this is not relevant to the paraboloid since the  
-        cross product determines it, but it is to the sphere surface)                     
-        hit - the coordinates of an intersection                                            
+        sides - the dot product of the normal vector and the incoming ray, used
+            to determine which side is the outer side of the sphere.
+        hits - the coordinates of intersections, as an n by 3 array.
         c - the center/vertex of the surface 
         """
-        normal = ((hit - c) if dot >= 0 else  (c - hit))[:,None]
-        normal = normal/N.linalg.norm(normal)
+        normal = (hits - c).T
+        normal[:,sides < 0] *= -1
+        normal = normal/N.sqrt(N.sum(normal**2, axis=0))
         return normal
 
     # Ray handling protocol:

@@ -28,55 +28,48 @@ class QuadricGM(GeometryManager):
         n = ray_bundle.get_num_rays()
         c = self._working_frame[:3,3]
         
-        params = []
-        vertices = []
-        norm = []
+        params = N.empty(n)
+        params.fill(N.inf)
+        vertices = N.empty((3,n))
         
         # Gets the relevant A, B, C from whichever quadric surface, see [1]  
         A, B, C = self.get_ABC(ray_bundle)
-        
         delta = B**2 - 4*A*C
-    
-        for ray in xrange(n):
-            vertex = v[:,ray]
-
-            if (delta[ray]) < 0:
-                params.append(N.inf)
-                vertices.append(N.empty([3,1]))
-                norm.append(N.empty([3,1]))    
-                continue
-            
+        
+        # Get this outside the loop:
+        pm = N.r_[-1, 1]
+        any_inters = delta >= 0
+        delta[any_inters] = N.sqrt(delta[any_inters])
+        
+        for ray in N.where(any_inters)[0]:            
             if A[ray] <= 1e-10: 
                 hit = -C[ray]/B[ray]
                 hits = N.hstack((hit,hit))
-            
-            else: hits = (-B[ray] + N.r_[-1, 1]*N.sqrt(delta[ray]))/(2*A[ray])
-            coords = vertex + d[:,ray]*hits[:,None]
+            else: 
+                hits = (-B[ray] + pm*delta[ray])/(2*A[ray])
+                coords = v[:,ray] + d[:,ray]*hits[:,None]
             
             # Quadrics can have two intersections. Here we allow child classes
             # to choose based on own method:
             select = self._select_coords(coords, hits)
-            
             # Returning None from _select_coords() means the ray missed anyway:
-            if select is None:
-                params.append(N.inf)
-                vertices.append(N.empty([3,1]))
-                norm.append(N.empty([3,1]))
+            if select is None: 
+                any_inters[ray] = False
                 continue
             
-            verts = N.c_[coords[select,:]]
+            params[ray] = hits[select]
+            vertices[:,ray] = coords[select,:]
             
-            dot = N.vdot(c.T - coords[select,:], d[:,ray])
-            normal = self.get_normal(dot, coords[select,:], c)
-            
-            params.append(hits[select])
-            vertices.append(verts)
-            norm.append(normal)
-            
+        # Normals to the surface at the intersection points are calculated by
+        # the subclass' _normals method.
+        self._norm = N.empty((3,n))
+        if any_inters.any():
+            sides = N.sum((c - vertices[:,any_inters].T) * d[:,any_inters].T, axis=1)
+            self._norm[:,any_inters] = self._normals(sides, vertices[:,any_inters].T, c)
+        
         # Storage for later reference:
-        self._vertices = N.hstack(vertices)
+        self._vertices = vertices
         self._current_bundle = ray_bundle
-        self._norm = N.hstack(norm)
         
         return N.array(params)
     
