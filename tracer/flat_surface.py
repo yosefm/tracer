@@ -28,8 +28,8 @@ class FlatGeometryManager(GeometryManager):
         n = ray_bundle.get_num_rays()
         
         # Vet out parallel rays:
-        cp = N.cross(d.T, frame[:3,2])
-        unparallel = N.where(abs(N.sum(cp**2, axis=1) - 1) > 1e-10)[0]
+        dt = N.dot(d.T, frame[:3,2])
+        unparallel = N.where(abs(dt) > 1e-10)[0]
         
         # `params` holds the parametric location of intersections along x axis, 
         # y-axis and ray, in that order.
