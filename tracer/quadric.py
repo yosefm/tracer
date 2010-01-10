@@ -47,7 +47,7 @@ class QuadricGM(GeometryManager):
                 hits = N.hstack((hit,hit))
             else: 
                 hits = (-B[ray] + pm*delta[ray])/(2*A[ray])
-                coords = v[:,ray] + d[:,ray]*hits[:,None]
+            coords = v[:,ray] + d[:,ray]*hits[:,None]
             
             # Quadrics can have two intersections. Here we allow child classes
             # to choose based on own method:
