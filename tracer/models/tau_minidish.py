@@ -15,6 +15,8 @@ from ..surface import Surface
 from ..paraboloid import ParabolicDishGM
 from .homogenized_local_receiver import HomogenizedLocalReceiver
 
+from math import sqrt, pi
+
 class MiniDish(HomogenizedLocalReceiver):
     def __init__(self, diameter, focal_length, dish_opt_eff,\
         receiver_pos, receiver_side, homogenizer_depth, homog_opt_eff):
@@ -67,8 +69,8 @@ def standard_minidish(diameter, concentration, reflections,
     f, W, H - the focal length, homogenizer width and receiver distance from
         focal point that were used for the dish.
     """
-    f = (N.sqrt(5) - 1)*diameter/4.
-    W = diameter/2. * N.sqrt(N.pi/concentration)
+    f = (sqrt(5) - 1)*diameter/4.
+    W = diameter/2. * sqrt(pi/concentration)
     n = reflections + 1
     H = n*W*f/(diameter - n*W)
     minidish = MiniDish(diameter, f, dish_opt_eff, f + H, W, H, homog_opt_eff)
