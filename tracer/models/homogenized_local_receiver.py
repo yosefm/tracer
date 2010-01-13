@@ -12,7 +12,7 @@ from .one_sided_mirror import one_sided_receiver
 from .homogenizer import rect_homogenizer
 
 class HomogenizedLocalReceiver(Assembly):
-    def __init__(self, main_reflector, receiver_pos, receiver_side, \
+    def __init__(self, main_reflector, receiver_pos, receiver_dims, \
         homogenizer_depth, homog_opt_eff):
         """
         Arguments:
@@ -21,18 +21,23 @@ class HomogenizedLocalReceiver(Assembly):
         receiver_pos - the distance along the optical axis from the main reflector to the
             receiver's end surface - the PV panel (should be about the focal 
             length)
-        receiver_side - the receiver is square, with this side length.
+        receiver_dims - if scalar, the receiver is square, with this side
+            length. If a tuple, it's the x, y lengths respectively.
         homogenizer_depth - the homogenizer has base dimensions to fit the PV
             square, and this height.
         homog_opt_eff - the optical efficiency of each mirror in the homogenizer
         """
-        self._side = receiver_side
+        if type(receiver_dims) is type(tuple()):
+            self._sides = receiver_dims
+        else:
+            self._sides = (receiver_dims, receiver_dims)
         self._rec_pos = receiver_pos
-        self._rec, rec_obj = one_sided_receiver(self._side, self._side)
+        
+        self._rec, rec_obj = one_sided_receiver(*self._sides)
         receiver_frame = N.dot(sp.translate(0, 0, receiver_pos), sp.rotx(N.pi))
         rec_obj.set_transform(receiver_frame)
         
-        homogenizer = rect_homogenizer(self._side, self._side, \
+        homogenizer = rect_homogenizer(self._sides[0], self._sides[1], \
             homogenizer_depth, homog_opt_eff)
         homogenizer.set_transform(receiver_frame)
         
@@ -62,8 +67,9 @@ class HomogenizedLocalReceiver(Assembly):
         """
         energy, pts = self._rec.get_optics_manager().get_all_hits()
         x, y = self._rec.global_to_local(pts)[:2]
-        rng = self._side/2.
+        rngx = self._sides[0]/2.
+        rngy = self._sides[1]/2.
         
         H, xbins, ybins = N.histogram2d(x, y, bins, \
-            range=([-rng,rng], [-rng,rng]), weights=energy)
+            range=([-rngx,rngx], [-rngy,rngy]), weights=energy)
         return H, xbins, ybins

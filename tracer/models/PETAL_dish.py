@@ -11,7 +11,8 @@ from .homogenized_local_receiver import HomogenizedLocalReceiver
 
 class PETAL(HomogenizedLocalReceiver):
     def __init__(self, diameter, focal_length, dish_opt_eff,\
-        receiver_pos, receiver_side, homogenizer_depth, homog_opt_eff):
+        receiver_pos, receiver_side, homogenizer_depth, homog_opt_eff,\
+        receiver_aspect=1.):
         """
         Arguments:
         diameter - of the circle bounding the hexagonal aperture. 
@@ -24,11 +25,15 @@ class PETAL(HomogenizedLocalReceiver):
         homogenizer_depth - the homogenizer has base dimensions to fit the PV
             square, and this height.
         homog_opt_eff - the optical efficiency of each mirror in the homogenizer
+        receiver_aspect - allows creation of a non-square homogenizer. If this
+            is set to a number not 1, then the x dimension will be changed, y
+            remains == receiver_side
         """
         dish_surf = Surface(HexagonalParabolicDishGM(diameter, focal_length), 
             opt.Reflective(1 - dish_opt_eff))
+        receiver_dims = (receiver_side, receiver_side*receiver_aspect)
         HomogenizedLocalReceiver.__init__(self, dish_surf, receiver_pos, \
-            receiver_side, homogenizer_depth, homog_opt_eff)
+            receiver_dims, homogenizer_depth, homog_opt_eff)
         
         # for later interrogation:
         self._ext_dims = (diameter, receiver_pos)

@@ -19,7 +19,8 @@ from math import sqrt, pi
 
 class MiniDish(HomogenizedLocalReceiver):
     def __init__(self, diameter, focal_length, dish_opt_eff,\
-        receiver_pos, receiver_side, homogenizer_depth, homog_opt_eff):
+        receiver_pos, receiver_side, homogenizer_depth, homog_opt_eff,
+        receiver_aspect=1.):
         """
         Arguments:
         diameter, focal_length - of the parabolic dish
@@ -34,8 +35,9 @@ class MiniDish(HomogenizedLocalReceiver):
         """
         dish_surf = Surface(ParabolicDishGM(diameter, focal_length), 
             opt.Reflective(1 - dish_opt_eff))
+        receiver_dims = (receiver_side, receiver_side*receiver_aspect)
         HomogenizedLocalReceiver.__init__(self, dish_surf, receiver_pos, \
-            receiver_side, homogenizer_depth, homog_opt_eff)
+            receiver_dims, homogenizer_depth, homog_opt_eff)
         
         # for later interrogation:
         self._ext_dims = (diameter, receiver_pos)
