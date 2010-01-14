@@ -120,9 +120,10 @@ class HexagonalParabolicDishGM(Paraboloid):
             N.vstack((self._vertices, N.ones(self._vertices.shape[1]))))
         
         # Use local coordinates to find distance on the local xy plane
-        outside = abs(self._local[0]) > math.sqrt(3)*self._R/2.
         abs_y = abs(self._local[1])
-        outside |= abs_y > math.tan(N.pi/6.)*self._local[0] + self._R
+        abs_x = abs(self._local[0])
+        outside = abs_x > math.sqrt(3)*self._R/2.
+        outside |= abs_y > self._R - math.tan(N.pi/6.)*abs_x
         
         ray_prm[outside] = N.inf
         return ray_prm
