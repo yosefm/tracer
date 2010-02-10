@@ -132,17 +132,16 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
         directions[:, ray] = dir
 
     # Locations:
-    not_inside = N.ones(num_rays,  dtype=N.bool)
-    xs = N.empty(num_rays)
-    ys = N.empty(num_rays)
-    while not_inside.any():
-        xs[not_inside] = random.uniform(low=-radius,  high=radius,  size=len(not_inside))
-        ys[not_inside] = random.uniform(low=-radius,  high=radius,  size=len(not_inside))
-        not_inside = xs**2 + ys**2 > radius**2
+    xi1 = random.uniform(size=num_rays)
+    xi2 = random.uniform(size=num_rays)
+    rs = radius*N.sqrt(xi1)
+    thetas = 2*N.pi*xi2
+    xs = rs * N.cos(thetas)
+    ys = rs * N.sin(thetas)
     
     # Rotate locations to the plane defined by <direction>:
     rot = N.vstack((perp,  N.cross(direction,  perp),  direction))
-    vertices_local = N.array([xs,  ys,  N.zeros(num_rays)])
+    vertices_local = N.vstack((xs,  ys,  N.zeros(num_rays)))
     vertices_global = N.dot(rot.T,  vertices_local)
     
     rayb = RayBundle()
