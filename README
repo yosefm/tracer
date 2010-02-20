@@ -18,8 +18,14 @@ Tracer is written in Python, using NumPy and SciPy for the math side of things.
 
 Status
 ------
-The code is an early proof-of-concept stage. We are focusing on an early
-version useful enough to attract others.
+The code is advanced enough to produce research. It is currently a programming
+library only, without a GUI. 
+
+It is possible to build nested models using flat, paraboloid and spherical
+surfaces, using various optical properties, or to derive new ones. A pillbox
+sunshape model is provided, and any ray bundle can be programmatically created.
+
+There are no provisions for spectral response or polarization yet.
 
 Installation
 ------------
@@ -34,6 +40,6 @@ Both available from http://www.scipy.org/
 To test that things are working, run the test-suite in the tests/
 subdirectory, using nosetests or some similar tool.
 
-Also check out bundle_driver.py as a starting-point to the code. Running it
+Also check out examples/test_case.py as a starting-point to the code. Running it
 requires matplotlib to be installed
 

@@ -55,9 +55,15 @@ def test_case(focus, num_rays=100):
 if __name__ == '__main__':
     import optparse
     
-    parser = optparse.OptionParser()
-    parser.add_option('--focus', '-f', dest='foc', type='float', default=6.25)
-    parser.add_option('--num-rays', '-n', dest='num_rays', type='int', default=100)
+    usage="""
+    Create a dish with a square homogenizer, rotated by quarter-circle, and 
+    shows the distribution of energy on the receiver.
+    """
+    parser = optparse.OptionParser(usage=usage)
+    parser.add_option('--focus', '-f', dest='foc', type='float', default=6.25,
+        help="Dish focal length, default: %default")
+    parser.add_option('--num-rays', '-n', dest='num_rays', type='int', default=100,
+        help="Number of rays in the initial bundle, default %default")
     opts, pos = parser.parse_args()
     test_case(opts.foc, opts.num_rays)
     P.show()
