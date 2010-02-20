@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# References:
+# [1] Monte Carlo Ray Tracing, Siggraph 2003 Course 44
+
 import numpy as N
 
 class RayBundle:
@@ -111,27 +114,27 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
         direction - a 1D 3-array with the unit average direction vector for the
             bundle.
         radius - of the disk.
-        ang_range - in radians, the maximum deviation from <direction).
+        ang_range - in radians, the maximum deviation from <direction>.
     Returns: a RayBundle object with the above charachteristics set.
     """
-    # Divergence from <direction>:
-    phi     = random.uniform(high=2*N.pi,  size=num_rays)
-    theta = random.uniform(high=ang_range,  size=num_rays)
-    # A vector on the xy plane (arbitrary), around which we rotate <direction> 
-    # by theta:
+    # Diffuse divergence from <direction>:
+    # development bassed on eq. 2.12  from [1]
+    xi1 = random.uniform(high=2*N.pi, size=num_rays)
+    xi2 = random.uniform(size=num_rays)
+    theta = N.arcsin(N.sin(ang_range)*N.sqrt(xi2))
+    sin_th = N.sin(theta)
+    a = N.array((N.cos(xi1)*sin_th, N.sin(xi1)*sin_th , N.cos(theta)))
+    # Rotate to a frame in which <direction> is Z:
     perp = N.array([direction[1],  -direction[0],  0])
     if N.all(perp == 0):
         perp = N.array([1.,  0.,  0.])
+    perp = perp/LA.norm(perp)
     
-    perp = perp/N.linalg.norm(perp)
-
-    directions = N.empty((3, num_rays))
-    for ray in xrange(num_rays):
-        dir = N.dot(general_axis_rotation(perp,  theta[ray]),  direction)
-        dir = N.dot(general_axis_rotation(direction,  phi[ray]),  dir)
-        directions[:, ray] = dir
-
+    perp_rot = N.array((perp, N.cross(direction, perp), direction)).T
+    directions = N.sum(perp_rot[...,None] * a[None,...], axis=1)
+    
     # Locations:
+    # See [1]
     xi1 = random.uniform(size=num_rays)
     xi2 = random.uniform(size=num_rays)
     rs = radius*N.sqrt(xi1)

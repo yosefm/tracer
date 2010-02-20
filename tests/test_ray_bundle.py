@@ -66,12 +66,22 @@ class TestDistributions(unittest.TestCase):
         rays = RB.solar_disk_bundle(5000, center, dir, R, theta_max)
         directs = rays.get_directions()
         dir_dots = N.dot(dir, directs)
-        self.assert_((dir_dots >= N.cos(theta_max)).all())
-        self.assert_uniform(N.arccos(dir_dots), ub=theta_max)
+        self.failUnless((dir_dots >= N.cos(theta_max)).all())
         
         on_disk_plane = directs - N.outer(dir, dir_dots)
         angs = N.arctan2(on_disk_plane[0], on_disk_plane[1])
         self.assert_uniform(angs, lb=-N.pi, ub=N.pi)
+    
+    def test_directions_rotated(self):
+        """Ray directions OK when the bundle directions isn't on one of the axes"""
+        dir = N.array([0., N.sqrt(2), N.sqrt(2)])/2.
+        center = N.c_[[0,  0, 0]]
+        R = 2; theta_max = N.pi/100.
+        
+        rays = RB.solar_disk_bundle(5000, center, dir, R, theta_max)
+        directs = rays.get_directions()
+        dir_dots = N.dot(dir, directs)
+        self.failUnless((dir_dots >= N.cos(theta_max)).all())
         
 if __name__ == '__main__':
     unittest.main()
