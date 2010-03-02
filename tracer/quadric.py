@@ -37,28 +37,31 @@ class QuadricGM(GeometryManager):
         delta = B**2 - 4*A*C
         
         # Get this outside the loop:
-        pm = N.r_[-1, 1]
+        pm = N.c_[[-1, 1]]
         any_inters = delta >= 0
         delta[any_inters] = N.sqrt(delta[any_inters])
         
+        hits = N.empty((2, n))
+        almost_planar = A <= 1e-10
+        access_planar = any_inters & almost_planar
+        access_quadric = any_inters & ~almost_planar
+        hits[:,access_planar] = N.tile(-C[access_planar]/B[access_planar], (2,1))
+        hits[:,access_quadric] = \
+            (-B[access_quadric] + pm*delta[access_quadric])/(2*A[access_quadric])
+        inters_coords = N.empty((2, 3, n))
+        inters_coords[...,any_inters] = v[:,any_inters] + d[:,any_inters]*hits[:,any_inters].reshape(2,1,-1)
+        
         for ray in N.where(any_inters)[0]:            
-            if A[ray] <= 1e-10: 
-                hit = -C[ray]/B[ray]
-                hits = N.hstack((hit,hit))
-            else: 
-                hits = (-B[ray] + pm*delta[ray])/(2*A[ray])
-            coords = v[:,ray] + d[:,ray]*hits[:,None]
-            
             # Quadrics can have two intersections. Here we allow child classes
             # to choose based on own method:
-            select = self._select_coords(coords, hits)
+            select = self._select_coords(inters_coords[...,ray], hits[:,ray])
             # Returning None from _select_coords() means the ray missed anyway:
             if select is None: 
                 any_inters[ray] = False
                 continue
             
-            params[ray] = hits[select]
-            vertices[:,ray] = coords[select,:]
+            params[ray] = hits[select, ray]
+            vertices[:,ray] = inters_coords[select,:,ray]
             
         # Normals to the surface at the intersection points are calculated by
         # the subclass' _normals method.
