@@ -51,18 +51,15 @@ class QuadricGM(GeometryManager):
         inters_coords = N.empty((2, 3, n))
         inters_coords[...,any_inters] = v[:,any_inters] + d[:,any_inters]*hits[:,any_inters].reshape(2,1,-1)
         
-        for ray in N.where(any_inters)[0]:            
-            # Quadrics can have two intersections. Here we allow child classes
-            # to choose based on own method:
-            select = self._select_coords(inters_coords[...,ray], hits[:,ray])
-            # Returning None from _select_coords() means the ray missed anyway:
-            if select is None: 
-                any_inters[ray] = False
-                continue
-            
-            params[ray] = hits[select, ray]
-            vertices[:,ray] = inters_coords[select,:,ray]
-            
+        # Quadrics can have two intersections. Here we allow child classes
+        # to choose based on own method:
+        select = self._select_coords(inters_coords, hits)
+        missed_anyway = N.isnan(select)
+        any_inters[missed_anyway] = False
+        select = N.int_(select[any_inters])
+        params[any_inters] = N.choose(select, hits[:,any_inters])
+        vertices[:,any_inters] = N.choose(select, inters_coords[...,any_inters])
+        
         # Normals to the surface at the intersection points are calculated by
         # the subclass' _normals method.
         self._norm = N.empty((3,n))
@@ -94,18 +91,20 @@ class QuadricGM(GeometryManager):
         Returns:
         The index of the selected intersection, or None if neither will do.
         """
-        is_positive = N.where(prm > 0)[0]
+        is_positive = prm > 0
+        select = N.empty(prm.shape[1])
 
         # If both are negative, it is a miss
-        if len(is_positive) == 0:
-            return None
+        select[N.logical_or(*is_positive)] = N.nan
         
-        # If both are positive, us the smaller one
-        if len(is_positive) == 2:
-            return N.argmin(prm)
-        else:
-            # If either one is negative, use the positive one
-            return is_positive[0]
+        # If both are positive, use the smaller one
+        select[N.logical_and(*is_positive)] = 0
+        
+        # If either one is negative, use the positive one
+        one_pos = N.logical_xor(*is_positive)
+        select[one_pos] = N.nonzero(is_positive[:,one_pos])[0]
+        
+        return select
         
     def get_normals(self, selector):
         """

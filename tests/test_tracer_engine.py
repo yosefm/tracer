@@ -206,7 +206,7 @@ class TestTraceProtocol5(unittest.TestCase):
             rotation=general_axis_rotation(N.r_[1,0,0], N.pi))
         self._bund = RayBundle()
         self._bund.set_directions(N.c_[[0,1,0],[0,1,0],[0,-1,0]])
-        self._bund.set_vertices(N.c_[[0,-2.,0],[0,0,0],[0,2,0]])
+        self._bund.set_vertices(N.c_[[0,-2.,0.001],[0,0,0.001],[0,2,0.001]])
         self._bund.set_energy(N.r_[[1,1,1]])
         self._bund.set_ref_index(N.r_[[1,1,1]])
 
@@ -219,9 +219,9 @@ class TestTraceProtocol5(unittest.TestCase):
 
     def test_ray_tracer1(self):
         params = self.engine.ray_tracer(self._bund, 1, .05)[0]
-        correct_params = N.c_[[0,1,0],[0,1,0],[0,1,0]]
+        correct_params = N.c_[[0,-1,0],[0,1,0],[0,1,0]]
          
-        N.testing.assert_array_almost_equal(params,correct_params)
+        N.testing.assert_array_almost_equal(params,correct_params, decimal=3)
 
 class TestTraceProtocol6(unittest.TestCase):
     """
