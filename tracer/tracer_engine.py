@@ -73,7 +73,7 @@ class TracerEngine():
         
         return stack, owned_rays
 
-    def ray_tracer(self, bundle, reps, min_energy):
+    def ray_tracer(self, bundle, reps, min_energy, tree=True):
         """
         Creates a ray bundle or uses a reflected ray bundle, and intersects it
         with all objects, uses intersect_ray(). Based on the intersections,
@@ -86,6 +86,8 @@ class TracerEngine():
             after the original rays intersected some surface this many times).
         min_energy - the minimum energy the rays have to have continue tracking
             them; rays with a lower energy are discarded. A float.
+        tree - if True, register each bundle in self.tree, otherwise only
+            register the last bundle.
         
         Returns: 
         A tuple containing an array of vertices and an array of the the direcitons
@@ -153,6 +155,9 @@ class TracerEngine():
             
             ray_ownership = N.hstack(out_ray_own)
             surfs_relevancy = N.hstack(new_surfs_relevancy)
+            
+            if not tree:
+                self.tree = [self.tree[0]] # Delete earlier store.
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
             
         return bund.get_vertices(), bund.get_directions()
