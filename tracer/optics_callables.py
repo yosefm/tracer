@@ -27,7 +27,7 @@ class Reflective(object):
             rays.get_directions()[:,selector],
             geometry.get_normals(selector)))
         outg.set_energy(rays.get_energy()[selector]*(1 - self._abs))
-        outg.set_parent(N.where(selector)[0]) # Each ray is reflected in order
+        outg.set_parent(selector) # Each ray is reflected in order
         # Moving in the same medium, no change of ref_index
         outg.set_ref_index(rays.get_ref_index()[selector])
         return outg
@@ -105,7 +105,7 @@ class RefractiveHomogenous(object):
             self._ref_idxs[1], self._ref_idxs[0])
     
     def __call__(self, geometry, rays, selector):
-        if not selector.any():
+        if not len(selector):
             return ray_bundle.empty_bund()
         
         n1 = rays.get_ref_index()[selector]
@@ -129,7 +129,7 @@ class RefractiveHomogenous(object):
             out_dirs)))
         
         # Energy:
-        R = N.ones(selector.sum())
+        R = N.ones(len(selector))
         R[refr] = optics.fresnel(rays.get_directions()[:,selector],
             geometry.get_normals(selector), n1, n2)
         reflect_en = rays.get_energy()[selector]*R
@@ -137,7 +137,7 @@ class RefractiveHomogenous(object):
         outg.set_energy(N.hstack((reflect_en, refract_en)))
         
         # Parents:
-        full_p = N.where(selector)[0]
+        full_p = selector
         outg.set_parent(N.hstack((full_p, full_p[refr]))) # Each ray is reflected in order
         # Refractive index:
         outg.set_ref_index(N.hstack((n1, n2[refr])))

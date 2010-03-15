@@ -53,7 +53,7 @@ class TestTraceProtocol1(unittest.TestCase):
         
         params = self.engine.intersect_ray(self._bund, surfaces, objects, \
             surf_ownership, ray_ownership, surfs_relevancy)[0]
-        self.failUnless(params.all())
+        self.failUnless(all([len(p) == self._bund.get_num_rays() for p in params]))
 
     def test_ray_tracer(self):
         """Ray tracer after one iteration returns what the surface would have"""
@@ -96,7 +96,7 @@ class TestTraceProtocol2(unittest.TestCase):
         
         params = engine.intersect_ray(self._bund, surfaces, objects, \
             surf_ownership, ray_ownership, surfs_relevancy)[0]
-        correct_params = N.array([[False, True, False]])
+        correct_params = [[1]])
 
         N.testing.assert_array_almost_equal(params, correct_params)
 
@@ -139,9 +139,9 @@ class TestTraceProtocol3(unittest.TestCase):
         
         params = self.engine.intersect_ray(self._bund, surfaces, objects, \
             surf_ownership, ray_ownership, surfs_relevancy)[0]
-        correct_params = N.array([[True, True],[False, False]])
+        correct_params = [[0, 1],[]]
 
-        N.testing.assert_array_almost_equal(params,correct_params)    
+        self.failUnlessEqual(params,correct_params)
 
     def test_ray_tracer1(self):
         params = self.engine.ray_tracer(self._bund, 1,.05)[0]

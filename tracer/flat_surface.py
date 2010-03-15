@@ -62,17 +62,17 @@ class FlatGeometryManager(GeometryManager):
         the working bundle.
         
         Arguments: 
-        selector - a boolean array stating which columns of the working bundle
+        selector - an index array stating which columns of the working bundle
             are active.
         """
-        return N.tile(self._working_frame[:3,2][:,None], (1, selector.sum()))
+        return N.tile(self._working_frame[:3,2][:,None], (1, len(selector)))
     
     def get_intersection_points_global(self, selector):
         """
         Get the ray/surface intersection points in the global coordinates.
         
         Arguments: 
-        selector - a boolean array stating which columns of the working bundle
+        selector - an index array stating which columns of the working bundle
             are active.
         
         Returns:

@@ -33,43 +33,50 @@ class TracerEngine():
         
         Arguments:
         bundle - the RayBundle instance holding incoming rays.
-        ownership - an array with the owning object instance for each ray in the
-            bundle, or -1 for no ownership.
+        surf_ownership - an array with the object index for each surface in
+            order
+        ray_ownership - an array with the owning object number for each ray in
+            the bundle, or -1 for no ownership (the ray travels in open air).
+        surf_relevancy - an s by r boolean matrix stating whether surface s
+            should be checked for ray r.
         
         Returns:
-        stack - an s by r boolean array for s surfaces and r rays, stating
-            for each surface i=1..s if it is intersected by ray j=1..r
+        stack - a list: for each surface, an array with indices of the rays
+            whose first intersection is at the corresponding surface is given.
         owned_rays - same size as stack, stating whether ray j was tested at all
             by surface i
         """
         ret_shape = (len(surfaces), bundle.get_num_rays())
-        stack = N.zeros(ret_shape)
         owned_rays = N.empty(ret_shape, dtype=N.bool)
         
+        min_inters = N.empty(ret_shape[1])
+        min_inters.fill(N.inf)
+        min_surf_idx = N.empty(ret_shape[1], dtype=N.int)
+        min_surf_idx.fill(-1)
+        
         # Bounce rays off each object
-        for surf_num in xrange(len(surfaces)):
-            owned_rays[surf_num] = ((ray_ownership == -1) | \
-                (ray_ownership == surf_ownership[surf_num])) & surf_relevancy[surf_num]
-            if not owned_rays[surf_num].any():
-                continue
-            in_rays = bundle.delete_rays(N.where(~owned_rays[surf_num])[0])
-            stack[surf_num, owned_rays[surf_num]] = \
-                surfaces[surf_num].register_incoming(in_rays)
+        owned_rays = ((ray_ownership == -1) | \
+            (ray_ownership == surf_ownership[:,None])) & surf_relevancy
+        do_surfaces = N.where(owned_rays.any(axis=1))[0]
+        for surf_num in do_surfaces:
+            so = owned_rays[surf_num]
+            in_rays = bundle.delete_rays(N.where(~so)[0])
+            surf_inters = surfaces[surf_num].register_incoming(in_rays)
+            
+            # Discard rays hittig their source point:
+            surf_inters[surf_inters < 1e-10] = N.inf
+
+            choices = [min_inters[so], surf_inters]
+            which_min = N.argsort(choices, axis=0)[0]
+            min_inters[so] = N.choose(which_min, choices)
+            min_surf_idx[so] = N.where(which_min, surf_num, min_surf_idx[so])
         
         # Raise an error if any of the parameters are negative
-        if (stack < 0).any():
+        if (min_inters < 0).any():
             raise ValueError("Parameters must all be positive")
         
-        # If parameter == 0, ray does not actually hit object, but originates from there; 
-        # so it should be ignored in considering intersections 
-        if (stack <= 1e-10).any():
-            zeros = N.where(stack <= 1e-6)
-            stack[zeros] = N.inf
-
-        # Find the smallest parameter for each ray, and use that as the final one,
-        # returns the indices.  If an entire column of the stack is N.inf (the ray misses
-        # any surfaces), then take that column to be all False
-        stack = ((stack == stack.min(axis=0)) & ~N.isinf(stack))
+        stack = [N.where(min_surf_idx[owned_rays[surf_num]] == surf_num)[0] \
+            for surf_num in xrange(len(surfaces))]
         
         return stack, owned_rays
 
@@ -120,8 +127,8 @@ class TracerEngine():
             new_surfs_relevancy = []
             
             for surf_idx in xrange(num_surfs):
-                inters = front_surf[surf_idx, owned_rays[surf_idx]]
-                if not any(inters): 
+                inters = front_surf[surf_idx]
+                if len(inters) == 0:
                     continue
                 new_outg = surfaces[surf_idx].get_outgoing(inters)
                 

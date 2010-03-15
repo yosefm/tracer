@@ -28,10 +28,10 @@ class TestFlatGeomManagerInterface(unittest.TestCase):
     
     def test_get_normals(self):
         """A flat geometry manager returns parallel normals"""
-        n = self.gm.get_normals(N.ones(4, dtype=N.bool)) # all rays selected
+        n = self.gm.get_normals(N.arange(4)) # all rays selected
         N.testing.assert_array_equal(n, N.tile(N.c_[[0, 0, 1]], (1,4)))
         
-        n = self.gm.get_normals(N.array([0, 1, 0, 1], dtype=N.bool)) # just two rays selected
+        n = self.gm.get_normals(N.array([1, 3])) # just two rays selected
         N.testing.assert_array_equal(n, N.tile(N.c_[[0, 0, 1]], (1,2)))
     
     def test_inters_points_global(self):
@@ -39,10 +39,10 @@ class TestFlatGeomManagerInterface(unittest.TestCase):
         correct_pts = N.zeros((3,4))
         correct_pts[:2,0] = 1
         
-        pts = self.gm.get_intersection_points_global(N.ones(4, dtype=N.bool))
+        pts = self.gm.get_intersection_points_global(N.arange(4))
         N.testing.assert_array_equal(pts, correct_pts)
         
-        pts = self.gm.get_intersection_points_global(N.array([0, 1, 0, 1], dtype=N.bool))
+        pts = self.gm.get_intersection_points_global(N.array([1, 3]))
         N.testing.assert_array_equal(pts, correct_pts[:,[1,3]])
 
 import tracer.spatial_geometry as SP
@@ -71,10 +71,10 @@ class TestFlatGeomTilted(unittest.TestCase):
     def test_get_normals(self):
         """A flat geometry manager returns parallel normals"""
         s2 = math.sqrt(2)
-        n = self.gm.get_normals(N.ones(4, dtype=N.bool)) # all rays selected
+        n = self.gm.get_normals(N.arange(4)) # all rays selected
         N.testing.assert_array_almost_equal(n, N.tile(N.c_[[0,1/s2,1/s2]], (1,4)))
         
-        n = self.gm.get_normals(N.array([0, 1, 0, 1], dtype=N.bool)) # just two rays selected
+        n = self.gm.get_normals(N.array([1, 3])) # just two rays selected
         N.testing.assert_array_almost_equal(n, N.tile(N.c_[[0,1/s2,1/s2]], (1,2)))
     
     def test_inters_points_global(self):
@@ -83,9 +83,9 @@ class TestFlatGeomTilted(unittest.TestCase):
         s2 = math.sqrt(2)
         correct_pts[:,0] = N.r_[1, 1/s2, -1/s2]
                 
-        pts = self.gm.get_intersection_points_global(N.ones(4, dtype=N.bool))
+        pts = self.gm.get_intersection_points_global(N.arange(4))
         N.testing.assert_array_almost_equal(pts, correct_pts)
         
-        pts = self.gm.get_intersection_points_global(N.array([0, 1, 0, 1], dtype=N.bool))
+        pts = self.gm.get_intersection_points_global(N.array([1, 3]))
         N.testing.assert_array_almost_equal(pts, correct_pts[:,[1,3]])
 
