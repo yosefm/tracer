@@ -50,8 +50,7 @@ class FlatGeometryManager(GeometryManager):
         # Local coordinates on the surface:
         hitting = unparallel & ~negative
         hits = v[:,hitting] + params[2,hitting]*d[:,hitting]
-        params[0,hitting] = N.dot(frame[:3,0], hits)
-        params[1,hitting] = N.dot(frame[:3,1], hits)
+        params[:2,hitting] = N.sum(frame[:3,:2,None] * hits[:,None,:], axis=0)
         
         # Storage for later reference:
         self._current_params = params[:2]
@@ -94,8 +93,7 @@ class RectPlateGM(FlatGeometryManager):
         if height <= 0:
             raise ValueError("Height must be positive")
         
-        self._w = width
-        self._h = height
+        self._half_dims = N.c_[[width, height]]/2.
         FlatGeometryManager.__init__(self)
         
     def find_intersections(self, frame, ray_bundle):
@@ -104,8 +102,7 @@ class RectPlateGM(FlatGeometryManager):
         impact points outside a centered rectangle.
         """
         ray_prms = FlatGeometryManager.find_intersections(self, frame, ray_bundle)
-        ray_prms[abs(self._current_params[0]) > self._w/2.] = N.inf
-        ray_prms[abs(self._current_params[1]) > self._h/2.] = N.inf
+        ray_prms[N.any(abs(self._current_params[:2]) > self._half_dims, axis=0)] = N.inf
         return ray_prms
 
 class RoundPlateGM(FlatGeometryManager):

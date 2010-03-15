@@ -47,17 +47,8 @@ def reflections(ray_dirs, normals):
     
     Returns: new ray directions as the result of reflection, 3 by n array.
     """
-    vertical = N.empty_like(ray_dirs)
-    # The case of one normal for all rays necessitates replication to make 
-    # the loop work.
-    if normals.shape[1] == 1:
-        normals = N.tile(normals, (1, ray_dirs.shape[1]))
-
-    for ray in xrange(ray_dirs.shape[1]):
-        vertical[:,ray] = N.inner(ray_dirs[:,ray], normals[:,ray]).T*normals[:,ray]
-    ray_dirs = ray_dirs - 2*vertical
-
-    return ray_dirs
+    vertical = N.sum(ray_dirs*normals, axis=0)*normals # normal dot ray, really
+    return ray_dirs - 2*vertical
 
 def refractions(n1, n2, ray_dirs, normals):
     """Generates directions of rays refracted according to Snells's law (in its vector
