@@ -46,7 +46,6 @@ class AssembledObject(Assembly):
         Arguments:  surface - a surface object
         """
         self.surfaces.append(surface)
-        surface.set_parent_object(self)
 
     def add_boundary(self, boundary):
         """Adds a boundary to the object. Surfaces not enclosed by the boundary

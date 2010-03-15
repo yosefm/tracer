@@ -43,10 +43,6 @@ class Surface(HasFrame):
         """
         return self._geom
     
-    def set_parent_object(self, object):
-        """Describes which object the surface is in """
-        self.parent_object = object
-
     def register_incoming(self, ray_bundle):
         """
         Records the incoming ray bundle, and uses the geometry manager to
