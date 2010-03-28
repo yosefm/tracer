@@ -57,7 +57,7 @@ class TracerEngine():
                 surfaces[surf_num].register_incoming(in_rays)
         
         # Raise an error if any of the parameters are negative
-        if (stack < 0).any():
+        if (stack < -1e-16).any():
             raise ValueError("Parameters must all be positive")
         
         # If parameter == 0, ray does not actually hit object, but originates from there; 
