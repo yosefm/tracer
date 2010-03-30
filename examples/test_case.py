@@ -3,7 +3,7 @@ import math
 import pylab as P
 
 from tracer.tracer_engine import TracerEngine
-from tracer.ray_bundle import RayBundle, solar_disk_bundle
+from tracer.ray_bundle import solar_disk_bundle
 from tracer.spatial_geometry import rotx
 
 from tracer.models.tau_minidish import MiniDish
