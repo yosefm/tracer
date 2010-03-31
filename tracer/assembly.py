@@ -2,24 +2,31 @@
 
 import operator
 import numpy as N
-from spatial_geometry import general_axis_rotation
 
-class Assembly():
-    """ Defines an assembly of objects or sub-assemblies.
+from spatial_geometry import general_axis_rotation
+from has_frame import HasFrame
+
+class Assembly(HasFrame):
+    """
+    Defines an assembly of objects or sub-assemblies.
+    
     Attributes:
     _objects - a list of the objects the assembly contains
     _assemblies - a list of the sub assemblies the assembly contains
-    transform - the transformation matrix (written as an array) describing any transformation
-    of the assembly into the global coordinates
+    transform - the transformation matrix (written as an array) describing any
+        transformation of the assembly into the global coordinates
     """
-    def __init__(self, objects=None, subassemblies=None):
+    def __init__(self, objects=None, subassemblies=None, location=None, rotation=None):
         """
         Arguments:
         objects (optional) - a list of AssembledObject instances that are part
             of this assembly.
         subassemblies (optional) - a list of Assembly instances to be
             transformed together with this assembly.
+        location, rotation - passed on to HasFrame.
         """
+        HasFrame.__init__(self, location, rotation)
+        
         if objects is None:
             objects = []
         self._objects = objects
@@ -28,8 +35,7 @@ class Assembly():
             subassemblies = []
         self._assemblies = subassemblies
         
-        self.transform = N.eye(4)
-        self.transform_assembly()
+        self.transform_children()
 
     def get_objects(self):
         return self.objects
@@ -67,7 +73,7 @@ class Assembly():
             transform = N.eye(4)
         self._objects.append(object)
         object.set_transform(transform)
-        object.transform_object(self.transform)
+        self.transform_children()
 
     def add_assembly(self, assembly, transform=None):
         """Adds an assembly to the current assembly.
@@ -79,25 +85,19 @@ class Assembly():
             transform = N.eye(4)
         self._assemblies.append(assembly)
         assembly.set_transform(transform)
-        assembly.transform_assembly(self.transform)
+        self.transform_children()
 
     def set_transform(self, transform):
-        self.transform = transform
-        self.transform_assembly()
+        HasFrame.set_transform(self, transform)
+        self.transform_children()
 
-    def get_transform(self):
-        return self.transform
-
-    def transform_assembly(self, assembly_transform=N.eye(4)):
+    def transform_children(self, assembly_transform=N.eye(4)):
         """
         Transforms the entire assembly
         Arguments:
         assembly_transform - the transformation into the parent assembly containing the 
         current assembly
         """
-        for object in xrange(len(self._objects)):
-            self._objects[object].transform_object(
-                N.dot(assembly_transform, self.transform))
-        for assembly in xrange(len(self._assemblies)):
-            self._assemblies[assembly].transform_assembly(
-                N.dot(assembly_transform, self.transform))
+        const_t = self.get_transform()
+        for obj in self._assemblies + self._objects:
+            obj.transform_children(N.dot(assembly_transform, const_t))

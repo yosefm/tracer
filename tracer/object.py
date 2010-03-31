@@ -34,9 +34,8 @@ class AssembledObject(Assembly):
             self.boundaries = bounds
         
         if transform is None:
-            self.transform = N.eye(4)
-        else:
-            self.transform = transform
+            transform = N.eye(4)
+        self.set_transform(transform)
     
     def get_surfaces(self):
         return self.surfaces
@@ -47,6 +46,7 @@ class AssembledObject(Assembly):
         """
         self.surfaces.append(surface)
         surface.set_parent_object(self)
+        self.transform_children()
 
     def add_boundary(self, boundary):
         """Adds a boundary to the object. Surfaces not enclosed by the boundary
@@ -54,25 +54,16 @@ class AssembledObject(Assembly):
         Arguments: boundary - a spherical boundary objects
         """
         self.boundaries.append(boundary)
+        self.transform_children()
 
     def get_boundaries(self):
         return self.boundaries
     
-    def set_transform(self, trans):
-        """
-        Sets the object's transformation relative to its assembly.
-        Arguments:
-        trans - a 4x4 array which is the homogenous transf. matrix from the 
-            assembly frame to the object frame.
-        """
-        self.transform = trans
-    
-    def transform_object(self, assembly_transform):
+    def transform_children(self, assembly_transform=N.eye(4)):
         """Transforms an object if the assembly is transformed""" 
-        for surface in self.surfaces:
-            surface.transform_frame(N.dot(assembly_transform, self.transform))
-        for boundary in self.boundaries:
-            boundary.transform_frame(N.dot(assembly_transform, self.transform))
+        const_t = self.get_transform()
+        for member in self.surfaces + self.boundaries:
+            member.transform_frame(N.dot(assembly_transform, const_t))
     
     def own_rays(self, rays, surface_id):
         """
