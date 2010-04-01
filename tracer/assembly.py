@@ -13,8 +13,6 @@ class Assembly(HasFrame):
     Attributes:
     _objects - a list of the objects the assembly contains
     _assemblies - a list of the sub assemblies the assembly contains
-    transform - the transformation matrix (written as an array) describing any
-        transformation of the assembly into the global coordinates
     """
     def __init__(self, objects=None, subassemblies=None, location=None, rotation=None):
         """
@@ -64,10 +62,13 @@ class Assembly(HasFrame):
             [obj.get_surfaces() for obj in self.get_objects()])
 
     def add_object(self, object, transform=None):
-        """Adds an object to the assembly.
-        Arguments: objects - the AssembledObject to add
+        """
+        Adds an object to the assembly.
+        
+        Arguments: 
+        objects - the AssembledObject to add
         transform - the transformation matrix (as an array object) that describes 
-        the object in the coordinate system of the Assembly
+            the object in the coordinate system of the Assembly
         """
         if transform == None:
             transform = N.eye(4)
@@ -94,9 +95,10 @@ class Assembly(HasFrame):
     def transform_children(self, assembly_transform=N.eye(4)):
         """
         Transforms the entire assembly
+        
         Arguments:
         assembly_transform - the transformation into the parent assembly containing the 
-        current assembly
+            current assembly
         """
         const_t = self.get_transform()
         for obj in self._assemblies + self._objects:

@@ -9,13 +9,16 @@ class HasFrame(object):
     accessible from the _rot and _loc attributes, respectively, or from the
     appropriate places in the homogenous transformation stored in _transform
     and kept in sync with _rot and _loc.
+    
     A surface may construct its own local coordinates from the vectors of the
     rotation matrix.
     The rotation matrix is from the global to the local, so its columns are the
-    basis of the local coordinates, written in the global coordinates. See [1] p. 25
+    basis of the local coordinates, written in the global coordinates. See [1]_ p. 25
 
     Tentative transformations are held in _temp_frame, which allows to preserve the
     relative transform while holding a global transform.
+    
+    .. [1] John J. Craig, Introduction to Robotics, 3rd ed., 2005.
     """
     def __init__(self,  location=None,  rotation=None):
         # default location and rotation:
@@ -53,6 +56,7 @@ class HasFrame(object):
     def set_transform(self, transform):
         """Defines the transformation matrix the puts the surface into the coordinates of the
         object containing the surface (the parent object).
+        
         Arguments:
         transform - a 2D array defining the 4 by 4 transformation matrix."""
         self._transform = transform
