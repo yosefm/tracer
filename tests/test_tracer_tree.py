@@ -51,7 +51,6 @@ class TestTree(unittest.TestCase):
 
         self.engine.ray_tracer(bund,3,.05)[0]
         params = self.engine.get_parents_from_tree()
-        print params
         correct_params = [N.r_[0,1,2],N.r_[1,2],N.r_[0]]
         N.testing.assert_equal(params, correct_params)
 
@@ -117,6 +116,12 @@ class TestTree2(unittest.TestCase):
         params = self.engine.get_parents_from_tree()
         correct_params = [N.r_[1,2],N.r_[0,0,1],N.r_[1,2]]
         N.testing.assert_equal(params, correct_params)
+    
+    def test_no_tree(self):
+        """Running with tree=False only saves last bundle."""
+        self.engine.ray_tracer(self._bund, 3, .05, tree=False)
+        parents = self.engine.get_parents_from_tree()
+        N.testing.assert_equal(parents, [N.r_[1,2]])
 
 
 if __name__ == '__main__':

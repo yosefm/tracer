@@ -45,7 +45,6 @@ class AssembledObject(Assembly):
         Arguments:  surface - a surface object
         """
         self.surfaces.append(surface)
-        surface.set_parent_object(self)
         self.transform_children()
 
     def add_boundary(self, boundary):

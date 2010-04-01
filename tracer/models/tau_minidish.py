@@ -71,7 +71,7 @@ def standard_minidish(diameter, concentration, reflections,
     f, W, H - the focal length, homogenizer width and receiver distance from
         focal point that were used for the dish.
     """
-    f = (sqrt(5) - 1)*diameter/4.
+    f = diameter/4./(sqrt(2) - 1)
     W = diameter/2. * sqrt(pi/concentration)
     n = reflections + 1
     H = n*W*f/(diameter - n*W)

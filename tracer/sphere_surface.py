@@ -72,14 +72,18 @@ class HemisphereGM(SphericalGM):
         hemisphere, or if both are below use the default behaviour of choosing
         the first hit.
         """
-        local = N.dot(N.linalg.inv(self._working_frame), N.vstack((coords.T, N.ones(2))))
-        bottom_hem = (local[2,:] < 0) & (prm > 0)
+        select = QuadricGM._select_coords(self, coords, prm) # defaults
         
-        if not bottom_hem.any():
-            return None
-        if bottom_hem.sum() == 1:
-            return N.where(bottom_hem)[0][0]
-        return QuadricGM._select_coords(self, coords, prm)
+        coords = N.concatenate((coords, N.ones((2,1,coords.shape[2]))), axis=1)
+        local = N.sum(N.linalg.inv(self._working_frame)[None,:,:,None] * \
+            coords[:,None,:,:], axis=2)
+        bottom_hem = (local[:,2,:] <= 0) & (prm > 0)
+        
+        select[~N.logical_or(*bottom_hem)] = N.nan
+        one_hit = N.logical_xor(*bottom_hem)
+        select[one_hit] = N.nonzero(bottom_hem[:,one_hit])[0]
+        
+        return select
 
 class CutSphereGM(SphericalGM):
     def __init__(self, radius=1., bounding_volume=None):
@@ -96,13 +100,16 @@ class CutSphereGM(SphericalGM):
         Select from dual intersections by checking which of the  impact points
         is contained in a volume defined at object creation time.
         """
+        select = SphericalGM._select_coords(self, coords, prm)
         if self._bound is None:
-            return SphericalGM._select_coords(self, coords, prm)
+            return select
         
-        in_bd = self._bound.in_bounds(coords) & (prm > 0)
-        if in_bd.all():
-            return SphericalGM._select_coords(self, coords, prm)
-        if not in_bd.any():
-            return None
-        return 0 if in_bd[0] else 1
+        #in_bd = self._bound.in_bounds(coords) & (prm > 0)
+        in_bd = N.array([self._bound.in_bounds(coords[...,c]) for c in xrange(prm.shape[1])]).T
+        in_bd &= prm > 0
+        select[~N.logical_or(*in_bd)] = N.nan
+        one_hit = N.logical_xor(*in_bd)
+        select[one_hit] = N.nonzero(in_bd[:,one_hit])[0]
+        
+        return select
 

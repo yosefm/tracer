@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 # Implements a specularly reflecting, grey surface.
+# 
+# Reference:
+# [1]http://www.siggraph.org/education/materials/HyperGraph/raytrace/rayplane_intersection.htm
 
 from numpy import linalg as LA
 import numpy as N
@@ -10,6 +13,7 @@ class FlatGeometryManager(GeometryManager):
         """
         Register the working frame and ray bundle, calculate intersections
         and save the parametric locations of intersection on the surface.
+        Algorithm taken from [1].
         
         Arguments:
         frame - the current frame, represented as a homogenous transformation
@@ -22,30 +26,31 @@ class FlatGeometryManager(GeometryManager):
         """
         GeometryManager.find_intersections(self, frame, ray_bundle)
         
-        xy = frame[:3,:2]
-        d = -ray_bundle.get_directions()
+        d = ray_bundle.get_directions()
         v = ray_bundle.get_vertices() - frame[:3,3][:,None]
         n = ray_bundle.get_num_rays()
         
         # Vet out parallel rays:
         dt = N.dot(d.T, frame[:3,2])
-        unparallel = N.where(abs(dt) > 1e-10)[0]
+        unparallel = abs(dt) > 1e-10
         
         # `params` holds the parametric location of intersections along x axis, 
         # y-axis and ray, in that order.
         params = N.empty((3, n))
         params.fill(N.inf)
-        eqns = N.concatenate((N.tile(xy[...,None], (1, 1, len(unparallel))), \
-            d[:,unparallel][:,None,:]), axis=1)
         
-        for ray in xrange(len(unparallel)):
-            # Solve the linear equation system of the intersection point:
-            params[:, unparallel[ray]] = LA.solve(eqns[...,ray], v[:, unparallel[ray]])
+        vt = N.dot(frame[:3,2], v[:,unparallel])
+        params[2,unparallel] = -vt/dt[unparallel]
         
         # Takes into account a negative depth
         # Note that only the 3rd row of params is relevant here!
         negative = params[2] < 0
         params[2, negative] = N.Inf
+        
+        # Local coordinates on the surface:
+        hitting = unparallel & ~negative
+        hits = v[:,hitting] + params[2,hitting]*d[:,hitting]
+        params[:2,hitting] = N.sum(frame[:3,:2,None] * hits[:,None,:], axis=0)
         
         # Storage for later reference:
         self._current_params = params[:2]
@@ -88,8 +93,7 @@ class RectPlateGM(FlatGeometryManager):
         if height <= 0:
             raise ValueError("Height must be positive")
         
-        self._w = width
-        self._h = height
+        self._half_dims = N.c_[[width, height]]/2.
         FlatGeometryManager.__init__(self)
         
     def find_intersections(self, frame, ray_bundle):
@@ -98,8 +102,7 @@ class RectPlateGM(FlatGeometryManager):
         impact points outside a centered rectangle.
         """
         ray_prms = FlatGeometryManager.find_intersections(self, frame, ray_bundle)
-        ray_prms[abs(self._current_params[0]) > self._w/2.] = N.inf
-        ray_prms[abs(self._current_params[1]) > self._h/2.] = N.inf
+        ray_prms[N.any(abs(self._current_params[:2]) > self._half_dims, axis=0)] = N.inf
         return ray_prms
 
 class RoundPlateGM(FlatGeometryManager):

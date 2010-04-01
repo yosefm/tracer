@@ -13,13 +13,16 @@ class TracerEngine():
         """
         Arguments:
         parent_assembly - the highest level assembly
+        
         Attributes:
-        surfaces - a list of all the surfaces contained in the entire setup, for use
-        by intersect_ray to determine which surface a ray hit first
-        tree - an empty list to be used to track parent rays and child rays. When 
-        a ray branches, it simply means that both of the child rays point back to 
-        the same index representing that same parent ray. Otherwise, the index of
-        each ray points to the ray in the previous branch
+        _asm - the Assembly instance containing the model to trace through.
+        tree - a list  used for track parent rays and child rays. Each element
+            of the list is a ray bundle created after one iteration of the 
+            tracer. Each bundle contains an array listing the parent ray in the
+            previous bundle (see ray_bundle.py). When a ray branches, the child
+            rays point back to the same index representing that same parent ray.
+            Otherwise, the index of each ray points to the ray in the previous
+            branch.
         """
         self._asm = parent_assembly
         
@@ -54,7 +57,7 @@ class TracerEngine():
                 surfaces[surf_num].register_incoming(in_rays)
         
         # Raise an error if any of the parameters are negative
-        if (stack < 0).any():
+        if (stack < -1e-16).any():
             raise ValueError("Parameters must all be positive")
         
         # If parameter == 0, ray does not actually hit object, but originates from there; 
@@ -70,23 +73,28 @@ class TracerEngine():
         
         return stack, owned_rays
 
-    def ray_tracer(self, bundle, reps, min_energy):
+    def ray_tracer(self, bundle, reps, min_energy, tree=True):
         """
-        Creates a ray bundle or uses a reflected ray bundle, and intersects it with all
-        objects, uses intersect_ray(). Based on the intersections, generates an outgoing
-        ray in accordance with way the incoming ray reflects or refracts off any surfaces
+        Creates a ray bundle or uses a reflected ray bundle, and intersects it
+        with all objects, uses intersect_ray(). Based on the intersections,
+        generates an outgoing ray in accordance with way the incoming ray
+        reflects or refracts off any surfaces.
+        
         Arguments:
         bundle - the initial incoming bundle
-        reps - number of times to repeat the simulation (where each simulation represents
-        a ray bundle being intersected with the global assembly one time, and an outgoing
-        ray bundle being generated), an integer value
-        min_energy - the minimum energy the rays have to have continue tracking them; rays 
-        with a lower energy are discarded. A float.
+        reps - stop iteration after this many ray bundles were generated (i.e. 
+            after the original rays intersected some surface this many times).
+        min_energy - the minimum energy the rays have to have continue tracking
+            them; rays with a lower energy are discarded. A float.
+        tree - if True, register each bundle in self.tree, otherwise only
+            register the last bundle.
+        
         Returns: 
         A tuple containing an array of vertices and an array of the the direcitons
-        of the new outgoing raybundle (note that the vertices of the new bundle are the 
+        of the last outgoing raybundle (note that the vertices of the new bundle are the 
         intersection points of the previous incoming bundle)
-        Note that the order of the rays within the arrays may change, but they are tracked
+        
+        NB: the order of the rays within the arrays may change, but they are tracked
         by the ray tree
         """
         self.tree = []
@@ -147,6 +155,9 @@ class TracerEngine():
             
             ray_ownership = N.hstack(out_ray_own)
             surfs_relevancy = N.hstack(new_surfs_relevancy)
+            
+            if not tree:
+                self.tree = [self.tree[0]] # Delete earlier store.
             self.store_branch(bund)  # stores parent branch for purposes of ray tracking
             
         return bund.get_vertices(), bund.get_directions()
