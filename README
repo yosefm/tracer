@@ -43,3 +43,10 @@ subdirectory, using nosetests or some similar tool.
 Also check out examples/test_case.py as a starting-point to the code. Running it
 requires matplotlib to be installed
 
+Getting Help, Getting Involved
+------------------------------
+Documentation and reference matereial can be found on http://yosefm.github.com/tracer/
+
+Updated information on how to contribute should be on that address too,
+but if it isn't, please contact mellerf@netvision.net.il
+
