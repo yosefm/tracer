@@ -1,0 +1,22 @@
+# Sphinx inventory version 1
+# Project: Tracer
+# Version: 0.1
+tracer.assembly mod assembly.html
+tracer.object mod object.html
+tracer.has_frame mod has_frame.html
+tracer mod tracer.html
+tracer.assembly.Assembly.get_objects method assembly.html
+tracer.assembly.Assembly.add_object method assembly.html
+tracer.has_frame.HasFrame.transform_frame method has_frame.html
+tracer.has_frame.HasFrame.set_location method has_frame.html
+tracer.has_frame.HasFrame class has_frame.html
+tracer.object.AssembledObject.surfaces_for_next_iteration method object.html
+tracer.object.AssembledObject class object.html
+tracer.assembly.Assembly.add_assembly method assembly.html
+tracer.object.AssembledObject.add_boundary method object.html
+tracer.assembly.Assembly class assembly.html
+tracer.object.AssembledObject.add_surface method object.html
+tracer.has_frame.HasFrame.set_rotation method has_frame.html
+tracer.has_frame.HasFrame.set_transform method has_frame.html
+tracer.assembly.Assembly.get_surfaces method assembly.html
+tracer.object.AssembledObject.own_rays method object.html

@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The Tracer Tutorial &mdash; Tracer v0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tracer v0.1 documentation" href="index.html" />
+    <link rel="next" title="Constructing an Optical System" href="opt_sys_construct.html" />
+    <link rel="prev" title="Welcome to Tracer’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="opt_sys_construct.html" title="Constructing an Optical System"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Tracer’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="the-tracer-tutorial">
+<h1>The Tracer Tutorial<a class="headerlink" href="#the-tracer-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>The basic use of Tracer is simple: create an assembly representing your optical
+system; create a ray bundle to trace through the assembly; and feed these to
+the tracer engine. Results, whatever they may be are obtained from the tracer
+engine&#8217;s tree of rays, as well as results accumulated in participating
+objects.</p>
+<p>Here we will follow an example that creates a parabolic dish, fires a ray
+bundle representing the solar light, and shows a map of the flux on the focal
+plane. The full example code is in examples/test_case.py</p>
+<div class="section" id="building-blocks">
+<h2>Building Blocks<a class="headerlink" href="#building-blocks" title="Permalink to this headline">¶</a></h2>
+<p>The first thing to do is to import the required parts of the tracer:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">tracer.tracer_engine</span> <span class="kn">import</span> <span class="n">TracerEngine</span>
+<span class="kn">from</span> <span class="nn">tracer.ray_bundle</span> <span class="kn">import</span> <span class="n">solar_disk_bundle</span>
+<span class="kn">from</span> <span class="nn">tracer.spatial_geometry</span> <span class="kn">import</span> <span class="n">rotx</span>
+<span class="kn">from</span> <span class="nn">tracer.models.tau_minidish</span> <span class="kn">import</span> <span class="n">MiniDish</span>
+</pre></div>
+</div>
+<p>The dish assembly is already there to be imported. Tracer contains some basic
+assemblies that model often-used optical systems. Another convenience is the
+solar_disk_bundle function, which creates a pillbox-sunshape RayBundle
+instance, which we can feed to a TracerEngine instance.</p>
+<p>Note that tracer contains a spatial_geometry module, which deals with
+homogenous transformation matrices mostly.</p>
+<p>We also need to import NumPy and math for setting various parameters, and Pylab
+for the final output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">N</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">pylab</span> <span class="kn">as</span> <span class="nn">P</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p>Most of the work is done in a function called <tt class="docutils literal"><span class="pre">test_case</span></tt>. It starts as follows:</p>
+<div class="highlight-python"><pre>def test_case(focus, num_rays=100):</pre>
+</div>
+<p>It receives the dish&#8217;s focal length, and the number of rays to use. Now we
+create the assembly:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">D</span> <span class="o">=</span> <span class="mf">5.</span>
+<span class="n">side</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">h_depth</span> <span class="o">=</span> <span class="mf">0.7</span>
+<span class="n">assembly</span> <span class="o">=</span> <span class="n">MiniDish</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">focus</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">focus</span> <span class="o">+</span> <span class="n">h_depth</span><span class="p">,</span> <span class="n">side</span><span class="p">,</span> <span class="n">h_depth</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">set_transform</span><span class="p">(</span><span class="n">rotx</span><span class="p">(</span><span class="o">-</span><span class="n">N</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>In the last line the entire dish assembly is rotated around the X axis. This
+affects the dish surface, as well as the homogenizer and receiver which are
+part of a MiniDish assembly. The receiver is a square placed slightly beyond
+the focal plane, and the homogenizer is a square of mirrors (a kaleidoscope)
+that directs all rays to the receiver and is placed before the receiver.</p>
+<p>To make the sun shine, we set the center, direction, radius and angular range
+(half-angle of the light cone) of the bundle to be generated:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">center</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">c_</span><span class="p">[[</span><span class="mf">0</span><span class="p">,</span> <span class="mf">7.</span><span class="p">,</span> <span class="mf">7.</span><span class="p">]]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1</span><span class="o">/</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2</span><span class="p">))</span>
+<span class="n">direction</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">])</span>
+<span class="n">radius_sun</span> <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">ang_range</span> <span class="o">=</span> <span class="mf">0.0005</span> <span class="c"># 5 milirad, approx. the sun&#39;s range.</span>
+
+<span class="n">sun</span> <span class="o">=</span> <span class="n">solar_disk_bundle</span><span class="p">(</span><span class="n">num_rays</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">radius_sun</span><span class="p">,</span> <span class="n">ang_range</span><span class="p">)</span>
+<span class="n">sun</span><span class="o">.</span><span class="n">set_energy</span><span class="p">(</span><span class="n">N</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">num_rays</span><span class="p">))</span>
+<span class="n">sun</span><span class="o">.</span><span class="n">set_ref_index</span><span class="p">(</span><span class="n">N</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">num_rays</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The bundle is placed behind the dish&#8217;s receiver, facing the dish. To trace the
+rays through the dish:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">engine</span> <span class="o">=</span> <span class="n">TracerEngine</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">ray_tracer</span><span class="p">(</span><span class="n">sun</span><span class="p">,</span> <span class="n">iterate</span><span class="p">,</span> <span class="n">min_energy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
+<p>though it is possible to calculate the flux map from the rays impinging on the
+receiver by reading the status of the tracer engine, we will not do so here.
+Instead, the MiniDish class has its own method for this, <tt class="docutils literal"><span class="pre">histogram_hits</span></tt>.
+We use this method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">assembly</span><span class="o">.</span><span class="n">histogram_hits</span><span class="p">()[</span><span class="mf">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Which we then can pass to a function that uses Pylab to show the histogram:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">plot_hits</span><span class="p">(</span><span class="n">hist</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">P</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">P</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">f</span>
+</pre></div>
+</div>
+<p>And show it the usual way.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">The Tracer Tutorial</a><ul>
+<li><a class="reference external" href="#building-blocks">Building Blocks</a></li>
+<li><a class="reference external" href="#setup">Setup</a></li>
+<li><a class="reference external" href="#output">Output</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html"
+                                  title="previous chapter">Welcome to Tracer&#8217;s documentation!</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="opt_sys_construct.html"
+                                  title="next chapter">Constructing an Optical System</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/tutorial.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="opt_sys_construct.html" title="Constructing an Optical System"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Tracer’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>

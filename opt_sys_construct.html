@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Constructing an Optical System &mdash; Tracer v0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tracer v0.1 documentation" href="index.html" />
+    <link rel="next" title="Tracer Package" href="tracer.html" />
+    <link rel="prev" title="The Tracer Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="tracer.html" title="Tracer Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="The Tracer Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="constructing-an-optical-system">
+<h1>Constructing an Optical System<a class="headerlink" href="#constructing-an-optical-system" title="Permalink to this headline">¶</a></h1>
+<p>Each optical system is composed of a hierarchy consisting of at least three
+levels. The lowest is the surface level, responsible for finding ray
+intersections and generating a ray bundle transformed from the incoming bundle
+using optical laws. Surfaces are contained in optical objects, which may
+provide information about dependence or relationships between surfaces.
+Finally, an assembly object contains objects and/or other assemblies.</p>
+<div class="section" id="spatial-representation">
+<h2>Spatial Representation<a class="headerlink" href="#spatial-representation" title="Permalink to this headline">¶</a></h2>
+<p>Each object is represented by a <strong>frame</strong> - a representation of its axes
+relative to the object containing it. For example, a surface&#8217;s frame represents
+its axes in the optical object&#8217;s axes; the top-level assembly has a frame
+representing its axes in the &#8220;world&#8221; coordinate system. By convention, this
+system is represented in local coordinates, i.e. the Z axis is up (normal to
+the ground), the X axis points north, and the Y axis west.</p>
+<p>The Surface and Assembly class are subclasses of the HasFrame class which keeps
+track of the frame. the AssembledObject (optical object) class is a subclass of
+Assembly, and hence of HasFrame.</p>
+<p>Each HasFrame object has its own frame and a temporary frame. The temporary
+frame is updated whenever the object&#8217;s frame or one of its parents&#8217; frames
+changes, and it reflects the object&#8217;s frame relative to the world coordinates.</p>
+<p>See also <a class="reference external" href="has_frame.html"><em>The has_frame module</em></a></p>
+</div>
+<div class="section" id="assemblies">
+<h2>Assemblies<a class="headerlink" href="#assemblies" title="Permalink to this headline">¶</a></h2>
+<p>An assembly is just a way to hold together parts of the optical system. Aside
+from having its own frame, it is also responsible for informing its
+constituents of transformation changes relative to the world coordinates.</p>
+<p>As example of usage, say you want to build a concentrating system with a
+homogenizer component close to the focus. You create an assembly for your
+concentrator, then add to it the assembly receiver from
+<tt class="docutils literal"><span class="pre">tracer.models.homogenizer.rect_homogenizer()</span></tt>; you set this sub-assembly to
+point toward your concentrator by using its <tt class="docutils literal"><span class="pre">set_transform()</span></tt> method.</p>
+<p>Assemblies do not directly hold surfaces, but only other assemblies or optical
+objects.</p>
+<p>See also <a class="reference external" href="assembly.html"><em>The assembly module</em></a>.</p>
+</div>
+<div class="section" id="optical-objects">
+<h2>Optical Objects<a class="headerlink" href="#optical-objects" title="Permalink to this headline">¶</a></h2>
+<p>These are a special kind of assembly, that does not hold other assemblies or
+objects, but only surfaces. In the assembly tree, objects hold the leaves.</p>
+<p>An object also provides the tracer engine with information on owned rays, and
+ray relevancy; owned rays are rays whose next hit will certainly be on a
+surface belonging to this object (as in rays refracted into a lens); relevancy
+is the ability of determining in advance that some surfaces will not be hit by
+a ray. The standard AssembledObject never owns anything and marks all rays as
+relevant, but derived classes may change this: <tt class="docutils literal"><span class="pre">tracer.models.one_sided_mirror</span></tt>
+for example, marks its sole surface as irrelevant for rays that originate from
+it.</p>
+<p>See also <a class="reference external" href="object.html"><em>The object module</em></a></p>
+</div>
+<div class="section" id="surfaces">
+<h2>Surfaces<a class="headerlink" href="#surfaces" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">Constructing an Optical System</a><ul>
+<li><a class="reference external" href="#spatial-representation">Spatial Representation</a></li>
+<li><a class="reference external" href="#assemblies">Assemblies</a></li>
+<li><a class="reference external" href="#optical-objects">Optical Objects</a></li>
+<li><a class="reference external" href="#surfaces">Surfaces</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="tutorial.html"
+                                  title="previous chapter">The Tracer Tutorial</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="tracer.html"
+                                  title="next chapter">Tracer Package</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/opt_sys_construct.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tracer.html" title="Tracer Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="The Tracer Tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>

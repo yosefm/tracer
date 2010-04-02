@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The object module &mdash; Tracer v0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tracer v0.1 documentation" href="index.html" />
+    <link rel="up" title="Tracer Package" href="tracer.html" />
+    <link rel="prev" title="The assembly module" href="assembly.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="assembly.html" title="The assembly module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" accesskey="U">Tracer Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-tracer.object">
+<h1>The <tt class="docutils literal"><span class="pre">object</span></tt> module<a class="headerlink" href="#module-tracer.object" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tracer.object.AssembledObject">
+<em class="property">
+class </em><tt class="descclassname">tracer.object.</tt><tt class="descname">AssembledObject</tt><big>(</big><em>surfs=None</em>, <em>bounds=None</em>, <em>transform=None</em><big>)</big><a class="headerlink" href="#tracer.object.AssembledObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines an assembly of surfaces as an object. The object has its own set of
+coordinates such that each surface composing the object can be described in terms of
+the object&#8217;s coordinate system, and thus the user can rotate or translate the entire
+object together as one piece.
+The object also tracks refractive indices as a ray bundle leaves or enters a new
+material.</p>
+<dl class="method">
+<dt id="tracer.object.AssembledObject.add_boundary">
+<tt class="descname">add_boundary</tt><big>(</big><em>boundary</em><big>)</big><a class="headerlink" href="#tracer.object.AssembledObject.add_boundary" title="Permalink to this definition">¶</a></dt>
+<dd>Adds a boundary to the object. Surfaces not enclosed by the boundary
+sphere will not count as hit.
+Arguments: boundary - a spherical boundary objects</dd></dl>
+
+<dl class="method">
+<dt id="tracer.object.AssembledObject.add_surface">
+<tt class="descname">add_surface</tt><big>(</big><em>surface</em><big>)</big><a class="headerlink" href="#tracer.object.AssembledObject.add_surface" title="Permalink to this definition">¶</a></dt>
+<dd>Adds a surface to the object
+Arguments:  surface - a surface object</dd></dl>
+
+<dl class="method">
+<dt id="tracer.object.AssembledObject.own_rays">
+<tt class="descname">own_rays</tt><big>(</big><em>rays</em>, <em>surface_id</em><big>)</big><a class="headerlink" href="#tracer.object.AssembledObject.own_rays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decide which of the rays continue to propagate inside the object, so
+only the object&#8217;s surfaces need be checked for intersection.
+This default implementation owns nothing.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>rays: the RayBundle to check.</li>
+<li>surface_id: the index of the surface which generated this bundle.</li>
+</ul>
+<p><em>Returns</em></p>
+<p>a boolean array of length rays.get_num_rays() with False if not owned,
+True if owned.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracer.object.AssembledObject.surfaces_for_next_iteration">
+<tt class="descname">surfaces_for_next_iteration</tt><big>(</big><em>rays</em>, <em>surface_id</em><big>)</big><a class="headerlink" href="#tracer.object.AssembledObject.surfaces_for_next_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Informs the ray tracer that some of the surfaces can be skipped in the
+next ireration for some of the rays.
+This default implementation marks all surfaces as relevant to all rays.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>rays: the RayBundle to check.</li>
+<li>surface_id: the index of the surface which generated this bundle.</li>
+</ul>
+<p><em>Returns</em></p>
+<p>an array of size s by r for s surfaces in this object and r rays,
+stating whether ray i=1..r should be intersected with surface j=1..s
+in the next iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<tt class="descname">AssembledObject.transform_children(assembly_transform=array([[ 1.,  0.,  0.,  0.],</tt></dt>
+<dt>
+<tt class="descname">[ 0.,  1.,  0.,  0.],</tt></dt>
+<dt>
+<tt class="descname">[ 0.,  0.,  1.,  0.],</tt></dt>
+<dt>
+<tt class="descname">[ 0.,  0.,  0.,  1.]]))</tt></dt>
+<dd>Transforms an object if the assembly is transformed</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="assembly.html"
+                                  title="previous chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">assembly</span></tt> module</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/object.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="assembly.html" title="The assembly module"
+             >previous</a> |</li>
+        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" >Tracer Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The assembly module &mdash; Tracer v0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tracer v0.1 documentation" href="index.html" />
+    <link rel="up" title="Tracer Package" href="tracer.html" />
+    <link rel="next" title="The object module" href="object.html" />
+    <link rel="prev" title="The has_frame module" href="has_frame.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="object.html" title="The object module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="has_frame.html" title="The has_frame module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" accesskey="U">Tracer Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-tracer.assembly">
+<h1>The <tt class="docutils literal"><span class="pre">assembly</span></tt> module<a class="headerlink" href="#module-tracer.assembly" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tracer.assembly.Assembly">
+<em class="property">
+class </em><tt class="descclassname">tracer.assembly.</tt><tt class="descname">Assembly</tt><big>(</big><em>objects=None</em>, <em>subassemblies=None</em>, <em>location=None</em>, <em>rotation=None</em><big>)</big><a class="headerlink" href="#tracer.assembly.Assembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines an assembly of objects or sub-assemblies.</p>
+<p><em>Attributes</em></p>
+<ul class="simple">
+<li>_objects: a list of the objects the assembly contains</li>
+<li>_assemblies: a list of the sub assemblies the assembly contains</li>
+</ul>
+<dl class="method">
+<dt id="tracer.assembly.Assembly.add_assembly">
+<tt class="descname">add_assembly</tt><big>(</big><em>assembly</em>, <em>transform=None</em><big>)</big><a class="headerlink" href="#tracer.assembly.Assembly.add_assembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an assembly to the current assembly.
+Arguments: assembly - the assembly object to add</p>
+<ul class="simple">
+<li>transform: the transformation matrix (as an array object) that describes the</li>
+</ul>
+<p>new assembly in the coordinate system of the current assembly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracer.assembly.Assembly.add_object">
+<tt class="descname">add_object</tt><big>(</big><em>object</em>, <em>transform=None</em><big>)</big><a class="headerlink" href="#tracer.assembly.Assembly.add_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an object to the assembly.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>objects: the AssembledObject to add</li>
+<li>transform: the transformation matrix (as an array object) that describes</li>
+</ul>
+<p>the object in the coordinate system of the Assembly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracer.assembly.Assembly.get_objects">
+<tt class="descname">get_objects</tt><big>(</big><big>)</big><a class="headerlink" href="#tracer.assembly.Assembly.get_objects" title="Permalink to this definition">¶</a></dt>
+<dd>Generates a list of AssembledObject instances belonging to this assembly
+or its subassemblies.</dd></dl>
+
+<dl class="method">
+<dt id="tracer.assembly.Assembly.get_surfaces">
+<tt class="descname">get_surfaces</tt><big>(</big><big>)</big><a class="headerlink" href="#tracer.assembly.Assembly.get_surfaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a list of surface objects out of all the surfaces in the
+objects and subassemblies belonging to this assembly.</p>
+<p>The surfaces are guarantied to be in the order that each object returns
+them, and the objects are guarantied to be ordered the same as in
+self.get_objects()</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<tt class="descname">Assembly.transform_children(assembly_transform=array([[ 1.,  0.,  0.,  0.],</tt></dt>
+<dt>
+<tt class="descname">[ 0.,  1.,  0.,  0.],</tt></dt>
+<dt>
+<tt class="descname">[ 0.,  0.,  1.,  0.],</tt></dt>
+<dt>
+<tt class="descname">[ 0.,  0.,  0.,  1.]]))</tt></dt>
+<dd><p>Transforms the entire assembly</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>assembly_transform: the transformation into the parent assembly containing the</li>
+</ul>
+<p>current assembly</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="has_frame.html"
+                                  title="previous chapter">The <tt class="docutils literal"><span class="pre">has_frame</span></tt> module</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="object.html"
+                                  title="next chapter">The <tt class="docutils literal"><span class="pre">object</span></tt> module</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/assembly.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="object.html" title="The object module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="has_frame.html" title="The has_frame module"
+             >previous</a> |</li>
+        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" >Tracer Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>
