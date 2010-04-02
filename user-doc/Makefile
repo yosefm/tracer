@@ -4,6 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
+OUTPUT        = _build/html
 PAPER         =
 
 # Internal variables.
@@ -30,7 +31,7 @@ clean:
 	-rm -rf _build/*
 
 html:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(OUTPUT)
 	@echo
 	@echo "Build finished. The HTML pages are in _build/html."
 
