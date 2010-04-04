@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The surface module &mdash; Tracer v0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tracer v0.1 documentation" href="index.html" />
+    <link rel="up" title="Tracer Package" href="tracer.html" />
+    <link rel="prev" title="The object module" href="object.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="object.html" title="The object module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" accesskey="U">Tracer Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-tracer.surface">
+<h1>The <tt class="docutils literal"><span class="pre">surface</span></tt> module<a class="headerlink" href="#module-tracer.surface" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tracer.surface.Surface">
+<em class="property">
+class </em><tt class="descclassname">tracer.surface.</tt><tt class="descname">Surface</tt><big>(</big><em>geometry</em>, <em>optics</em>, <em>location=None</em>, <em>rotation=None</em><big>)</big><a class="headerlink" href="#tracer.surface.Surface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the base of surfaces that interact with rays.</p>
+<dl class="method">
+<dt id="tracer.surface.Surface.get_geometry_manager">
+<tt class="descname">get_geometry_manager</tt><big>(</big><big>)</big><a class="headerlink" href="#tracer.surface.Surface.get_geometry_manager" title="Permalink to this definition">¶</a></dt>
+<dd>Returns the geometry-manager instance. May be useful for introspection.
+Note that it is a read-only attribute.</dd></dl>
+
+<dl class="method">
+<dt id="tracer.surface.Surface.get_optics_manager">
+<tt class="descname">get_optics_manager</tt><big>(</big><big>)</big><a class="headerlink" href="#tracer.surface.Surface.get_optics_manager" title="Permalink to this definition">¶</a></dt>
+<dd>Returns the optics-manager callable. May be useful for introspection.
+Note that it is a read-only attribute.</dd></dl>
+
+<dl class="method">
+<dt id="tracer.surface.Surface.get_outgoing">
+<tt class="descname">get_outgoing</tt><big>(</big><em>selector</em><big>)</big><a class="headerlink" href="#tracer.surface.Surface.get_outgoing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a new ray bundle, which is the reflections/refractions of the</p>
+<ul class="simple">
+<li>user: selected rays out of the incoming ray-bundle that was previously</li>
+</ul>
+<p>registered.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>selector: a boolean array specifying which rays of the incoming</li>
+</ul>
+<p>bundle are still relevant.</p>
+<p><em>Returns</em></p>
+<p>a RayBundle object with the new bundle, with vertices on the surface
+and directions according to optics laws.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracer.surface.Surface.global_to_local">
+<tt class="descname">global_to_local</tt><big>(</big><em>points</em><big>)</big><a class="headerlink" href="#tracer.surface.Surface.global_to_local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a set of points in the global coordinates back into the frame
+used during tracing.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>points: a 3 x n array for n 3D points</li>
+</ul>
+<p><em>returns</em></p>
+<ul class="simple">
+<li>local: a 3 x n array with the respective points in local coordinates.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracer.surface.Surface.register_incoming">
+<tt class="descname">register_incoming</tt><big>(</big><em>ray_bundle</em><big>)</big><a class="headerlink" href="#tracer.surface.Surface.register_incoming" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records the incoming ray bundle, and uses the geometry manager to
+return the parametric positions of intersection with the surface along
+the ray.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>ray_bundle: a RayBundle object with at-least its vertices and</li>
+</ul>
+<p>directions specified.</p>
+<p>Returns
+A 1D array with the parametric position of intersection along each of
+the rays. Rays that missed the surface return +infinity.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="object.html"
+                                  title="previous chapter">The <tt class="docutils literal"><span class="pre">object</span></tt> module</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/surface.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="object.html" title="The object module"
+             >previous</a> |</li>
+        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" >Tracer Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>

@@ -102,6 +102,23 @@ it.</p>
 </div>
 <div class="section" id="surfaces">
 <h2>Surfaces<a class="headerlink" href="#surfaces" title="Permalink to this headline">¶</a></h2>
+<p>A surface is the basic interacion unit with rays. Each ray is checked for
+possible intersections with all surfaces (subject to relevancy information from
+the various objects), and the intersection closest to the ray&#8217;s starting
+position is selected for further processing. After a ray is determined to
+intersect a surface, that surface is responsible for generating the next
+segment of the ray, by reflection or refraction.</p>
+<p>Each of the two responsibilities of a surface requires knowlwdge a different
+property of the surface: intersection finding is related to the surface&#8217;s
+<em>Geometry</em>; generating the resulting rays is related to <em>optical properties</em>
+such as reflectivity, index of refraction, etc.</p>
+<p>This seperation is kept when constructing a surface. Each new Surface instance
+requires as arguments a GeometryManager instance, and an optics-callable. The
+GeometryManager class and the optics_callable module documentation details the
+required interfaces. The optics callable is a python callable object (e.g. a
+function or a class with the <tt class="docutils literal"><span class="pre">__call__()</span></tt> method) which handles the required
+interface.</p>
+<p>See also: <a class="reference external" href="surface.html"><em>The surface module</em></a></p>
 </div>
 </div>
 
