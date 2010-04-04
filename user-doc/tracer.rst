@@ -10,3 +10,5 @@ Tracer Package
    has_frame
    assembly
    object
+   surface
+
