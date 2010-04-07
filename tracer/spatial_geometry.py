@@ -52,6 +52,16 @@ def roty(ang):
         [0, 0, 0, 1]
     ])
 
+def rotz(ang):
+    """Generate a homogenous trransform for ang radians around the z axis"""
+    s = sin(ang); c = cos(ang)
+    return N.array([
+        [c,-s, 0, 0],
+        [s, c, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ])
+
 def translate(x, y, z):
     """Generate a homogenous transform for translation by x, y, z"""
     return N.array([
