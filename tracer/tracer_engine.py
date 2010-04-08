@@ -121,9 +121,10 @@ class TracerEngine():
             
             for surf_idx in xrange(num_surfs):
                 inters = front_surf[surf_idx, owned_rays[surf_idx]]
+                surfaces[surf_idx].select_rays(N.nonzero(inters)[0])
                 if not any(inters): 
                     continue
-                new_outg = surfaces[surf_idx].get_outgoing(inters)
+                new_outg = surfaces[surf_idx].get_outgoing()
                 
                 # Delete rays with negligible energies
                 delete = N.where(new_outg.get_energy() <= min_energy)[0] 

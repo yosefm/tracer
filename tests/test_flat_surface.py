@@ -32,7 +32,8 @@ class TestTraceProtocol(unittest.TestCase):
     def test_get_outgoing(self):
         """Flat mirror: the correct outgoing bundle is returned"""
         params = self._surf.register_incoming(self._bund)
-        outg = self._surf.get_outgoing(N.ones(4, dtype=N.bool))
+        self._surf.select_rays(N.arange(4))
+        outg = self._surf.get_outgoing()
         
         correct_pts = N.zeros((3,4))
         correct_pts[:2,0] = 1

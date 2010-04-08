@@ -60,21 +60,21 @@ class Surface(HasFrame):
         self._current_bundle = ray_bundle
         return self._geom.find_intersections(self._temp_frame, ray_bundle)
     
-    def get_outgoing(self, selector):
+    def select_rays(self, idxs):
+        self._selected = idxs
+        self._geom.select_rays(idxs)
+    
+    def get_outgoing(self):
         """
         Generates a new ray bundle, which is the reflections/refractions of the
         user-selected rays out of the incoming ray-bundle that was previously
         registered.
         
-        Arguments: 
-        selector - a boolean array specifying which rays of the incoming
-            bundle are still relevant.
-        
         Returns: 
         a RayBundle object with the new bundle, with vertices on the surface
             and directions according to optics laws.
         """
-        return self._opt(self._geom, self._current_bundle, selector)
+        return self._opt(self._geom, self._current_bundle, self._selected)
     
     def global_to_local(self, points):
         """

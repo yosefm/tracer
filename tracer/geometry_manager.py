@@ -14,8 +14,11 @@ class GeometryManager(object):
         if type(self) is GeometryManager:
             raise TypeError("Find intersections must be extended by a base class")
     
-    def get_normals(self, selector):
+    def select_rays(self, idxs):
         pass
     
-    def get_intersection_points_global(self, selector):
+    def get_normals(self):
+        pass
+    
+    def get_intersection_points_global(self):
         pass

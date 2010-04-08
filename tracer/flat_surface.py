@@ -34,29 +34,39 @@ class FlatGeometryManager(GeometryManager):
         dt = N.dot(d.T, frame[:3,2])
         unparallel = abs(dt) > 1e-10
         
-        # `params` holds the parametric location of intersections along x axis, 
-        # y-axis and ray, in that order.
-        params = N.empty((3, n))
+        # `params` holds the parametric location of intersections along the ray 
+        params = N.empty(n)
         params.fill(N.inf)
         
         vt = N.dot(frame[:3,2], v[:,unparallel])
-        params[2,unparallel] = -vt/dt[unparallel]
+        params[unparallel] = -vt/dt[unparallel]
         
         # Takes into account a negative depth
         # Note that only the 3rd row of params is relevant here!
-        negative = params[2] < 0
-        params[2, negative] = N.Inf
+        negative = params < 0
+        params[negative] = N.Inf
+        self._params = params
         
-        # Local coordinates on the surface:
-        hitting = unparallel & ~negative
-        hits = v[:,hitting] + params[2,hitting]*d[:,hitting]
-        params[:2,hitting] = N.sum(frame[:3,:2,None] * hits[:,None,:], axis=0)
+        return params
         
-        # Storage for later reference:
-        self._current_params = params[:2]
-        return params[2]
+    def select_rays(self, idxs):
+        """
+        Arguments: 
+        idxs - an index array stating which rays of the working bundle
+            are active.
+        """
+        self._idxs = idxs # For slicing ray bundles etc.
+        
+        v = self._working_bundle.get_vertices()[:,idxs] - \
+            self._working_frame[:3,3][:,None]
+        d = self._working_bundle.get_directions()[:,idxs]
+        p = self._params[idxs]
+        del self._params
+        
+        # Global coordinates on the surface:
+        self._current_params = v + p[None,:]*d
     
-    def get_normals(self, selector):
+    def get_normals(self):
         """
         Report the normal to the surface at the hit point of selected rays in
         the working bundle.
@@ -65,21 +75,16 @@ class FlatGeometryManager(GeometryManager):
         selector - a boolean array stating which columns of the working bundle
             are active.
         """
-        return N.tile(self._working_frame[:3,2][:,None], (1, selector.sum()))
+        return N.tile(self._working_frame[:3,2][:,None], (1, len(self._idxs)))
     
-    def get_intersection_points_global(self, selector):
+    def get_intersection_points_global(self):
         """
         Get the ray/surface intersection points in the global coordinates.
-        
-        Arguments: 
-        selector - a boolean array stating which columns of the working bundle
-            are active.
         
         Returns:
         A 3-by-n array for 3 spatial coordinates and n rays selected.
         """
-        return N.dot(self._working_frame[:3,:2],
-            self._current_params[:,selector]) + self._working_frame[:3,3][:,None]
+        return self._current_params
 
 class RectPlateGM(FlatGeometryManager):
     def __init__(self, width, height):
