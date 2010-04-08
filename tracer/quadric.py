@@ -68,7 +68,6 @@ class QuadricGM(GeometryManager):
         
         # Storage for later reference:
         self._vertices = vertices
-        self._current_bundle = ray_bundle
         
         return N.array(params)
     
