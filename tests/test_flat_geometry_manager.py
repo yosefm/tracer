@@ -110,3 +110,38 @@ class TestFlatGeomTilted(unittest.TestCase):
         pts = self.gm.get_intersection_points_global()
         N.testing.assert_array_almost_equal(pts, correct_pts)
 
+class TestFlatGeomTranslated(unittest.TestCase):
+    def setUp(self):
+        dir = N.c_[[1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]] / math.sqrt(3)
+        position = N.c_[[0,0,1], [1,-1,1], [1,1,1], [-1,1,1]]
+
+        self._bund = RayBundle()
+        self._bund.set_vertices(position)
+        self._bund.set_directions(dir)
+
+        self.gm = FlatGeometryManager()
+        frame = SP.translate(1., 0., 0.)
+        self.prm = self.gm.find_intersections(frame, self._bund)
+        
+    def test_find_intersections(self):
+        """The correct parametric locations are found for translated flat geometry"""
+        self.failUnlessEqual(self.prm.shape, (4,),
+            "Shape of parametric location array is wrong: " + \
+            str(self.prm.shape))
+        N.testing.assert_array_almost_equal(self.prm, N.sqrt(3))
+    
+    def test_get_normals(self):
+        """A translated flat geometry manager returns parallel normals"""
+        self.gm.select_rays(N.arange(4))
+        n = self.gm.get_normals()
+        N.testing.assert_array_equal(n, N.tile(N.c_[[0, 0, 1]], (1,4)))
+    
+    def test_inters_points_global(self):
+        """When translated, a flat surface returns correct intersections"""
+        correct_pts = N.zeros((3,4))
+        correct_pts[:2,0] = 1
+        
+        self.gm.select_rays(N.arange(4))
+        pts = self.gm.get_intersection_points_global()
+        N.testing.assert_array_equal(pts, correct_pts)
+

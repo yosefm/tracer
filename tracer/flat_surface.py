@@ -57,14 +57,13 @@ class FlatGeometryManager(GeometryManager):
         """
         self._idxs = idxs # For slicing ray bundles etc.
         
-        v = self._working_bundle.get_vertices()[:,idxs] - \
-            self._working_frame[:3,3][:,None]
+        v = self._working_bundle.get_vertices()[:,idxs]
         d = self._working_bundle.get_directions()[:,idxs]
         p = self._params[idxs]
         del self._params
         
         # Global coordinates on the surface:
-        self._current_params = v + p[None,:]*d
+        self._global = v + p[None,:]*d
     
     def get_normals(self):
         """
@@ -84,9 +83,36 @@ class FlatGeometryManager(GeometryManager):
         Returns:
         A 3-by-n array for 3 spatial coordinates and n rays selected.
         """
-        return self._current_params
+        return self._global
 
-class RectPlateGM(FlatGeometryManager):
+class FiniteFlatGM(FlatGeometryManager):
+    """
+    Calculates intersection points before select_rays(), so that those outside
+    the aperture can be dropped, and on select_rays trims it.
+    """
+    def __init__(self):
+        FlatGeometryManager.__init__(self)
+    
+    def find_intersections(self, frame, ray_bundle):
+        ray_prms = FlatGeometryManager.find_intersections(self, frame, ray_bundle)
+        v = self._working_bundle.get_vertices() 
+        d = self._working_bundle.get_directions()
+        p = self._params
+        del self._params
+        
+        # Global coordinates on the surface:
+        self._global = v + p[None,:]*d
+        # Local should be deleted by children in their find_intersections.
+        self._local = N.dot(N.linalg.inv(self._working_frame),
+            N.vstack((self._global, N.ones(self._global.shape[1]))))
+        
+        return ray_prms
+        
+    def select_rays(self, idxs):
+        self._idxs = idxs
+        self._global = self._global[:,idxs].copy()
+    
+class RectPlateGM(FiniteFlatGM):
     def __init__(self, width, height):
         """
         Arguments:
@@ -99,18 +125,19 @@ class RectPlateGM(FlatGeometryManager):
             raise ValueError("Height must be positive")
         
         self._half_dims = N.c_[[width, height]]/2.
-        FlatGeometryManager.__init__(self)
+        FiniteFlatGM.__init__(self)
         
     def find_intersections(self, frame, ray_bundle):
         """
         Extends the parent flat geometry manager by discarding in advance
         impact points outside a centered rectangle.
         """
-        ray_prms = FlatGeometryManager.find_intersections(self, frame, ray_bundle)
-        ray_prms[N.any(abs(self._current_params[:2]) > self._half_dims, axis=0)] = N.inf
+        ray_prms = FiniteFlatGM.find_intersections(self, frame, ray_bundle)
+        ray_prms[N.any(abs(self._local[:2]) > self._half_dims, axis=0)] = N.inf
+        del self._local
         return ray_prms
 
-class RoundPlateGM(FlatGeometryManager):
+class RoundPlateGM(FiniteFlatGM):
     def __init__(self, R):
         """
         Arguments:
@@ -120,13 +147,14 @@ class RoundPlateGM(FlatGeometryManager):
             raise ValueError("Radius must be positive")
         
         self._R = R
-        FlatGeometryManager.__init__(self)
+        FiniteFlatGM.__init__(self)
     
     def find_intersections(self, frame, ray_bundle):
         """
         Extends the parent flat geometry manager by discarding in advance
         impact points outside a centered circle.
         """
-        ray_prms = FlatGeometryManager.find_intersections(self, frame, ray_bundle)
-        ray_prms[N.sum(self._current_params[:2]**2, axis=0) > self._R**2] = N.inf
+        ray_prms = FiniteFlatGM.find_intersections(self, frame, ray_bundle)
+        ray_prms[N.sum(self._local[:2]**2, axis=0) > self._R**2] = N.inf
+        del self._local
         return ray_prms
