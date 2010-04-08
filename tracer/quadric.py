@@ -127,6 +127,10 @@ class QuadricGM(GeometryManager):
         return self._vertices
     
     def done(self):
+        """
+        Discard internal data structures. This should be called after all
+        information on the latest bundle's results have been extracted already.
+        """
         del self._vertices
         del self._norm
         if hasattr(self, '_idxs'):

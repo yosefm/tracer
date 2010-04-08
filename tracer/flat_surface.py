@@ -86,6 +86,10 @@ class FlatGeometryManager(GeometryManager):
         return self._global
     
     def done(self):
+        """
+        Discard internal data structures. This should be called after all
+        information on the latest bundle's results have been extracted already.
+        """
         GeometryManager.done(self)
         if hasattr(self, '_global'):
             del self._global
