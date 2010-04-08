@@ -30,14 +30,16 @@ class TestInterface(unittest.TestCase):
     
     def test_get_normals(self):
         """Cut sphere surface returns center-pointing normals"""
-        n = self.gm.get_normals(N.ones(self.num_rays, dtype=N.bool)) # all rays selected
+        self.gm.select_rays(N.arange(self.num_rays))
+        n = self.gm.get_normals()
         N.testing.assert_array_almost_equal(n[-1,0], n[-1,1:])
         N.testing.assert_array_almost_equal(self._bund.get_vertices()[:2],
             -n[:2]/N.sqrt((n[:2]**2).sum(axis=0)))
     
     def test_inters_points_global(self):
         """Cut sphere returns correct intersections"""
-        pts = self.gm.get_intersection_points_global(N.ones(self.num_rays, dtype=N.bool))
+        self.gm.select_rays(N.arange(self.num_rays))
+        pts = self.gm.get_intersection_points_global()
         N.testing.assert_array_equal(pts[:2], self._bund.get_vertices()[:2])
         N.testing.assert_array_almost_equal(pts[2], -2*N.sin(N.pi/3))
         
