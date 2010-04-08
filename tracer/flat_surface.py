@@ -51,6 +51,9 @@ class FlatGeometryManager(GeometryManager):
         
     def select_rays(self, idxs):
         """
+        Inform the geometry manager that only the given rays are to be used,
+        so that internal data size is kept small.
+        
         Arguments: 
         idxs - an index array stating which rays of the working bundle
             are active.
@@ -69,10 +72,6 @@ class FlatGeometryManager(GeometryManager):
         """
         Report the normal to the surface at the hit point of selected rays in
         the working bundle.
-        
-        Arguments: 
-        selector - a boolean array stating which columns of the working bundle
-            are active.
         """
         return N.tile(self._working_frame[:3,2][:,None], (1, len(self._idxs)))
     
@@ -105,6 +104,24 @@ class FiniteFlatGM(FlatGeometryManager):
         FlatGeometryManager.__init__(self)
     
     def find_intersections(self, frame, ray_bundle):
+        """
+        Register the working frame and ray bundle, calculate intersections
+        and save the parametric locations of intersection on the surface.
+        Algorithm taken from [1].
+        
+        In this class, global- and local-coordinates of intersection points
+        are calculated and kept. _global is handled in select_rays(), but
+        _local must be taken care off by subclasses.
+        
+        Arguments:
+        frame - the current frame, represented as a homogenous transformation
+            matrix stored in a 4x4 array.
+        ray_bundle - a RayBundle object with the incoming rays' data.
+        
+        Returns:
+        A 1D array with the parametric position of intersection along each of
+            the rays. Rays that missed the surface return +infinity.
+        """
         ray_prms = FlatGeometryManager.find_intersections(self, frame, ray_bundle)
         v = self._working_bundle.get_vertices() 
         d = self._working_bundle.get_directions()
@@ -120,6 +137,14 @@ class FiniteFlatGM(FlatGeometryManager):
         return ray_prms
         
     def select_rays(self, idxs):
+        """
+        Inform the geometry manager that only the given rays are to be used,
+        so that internal data size is kept small.
+        
+        Arguments: 
+        idxs - an index array stating which rays of the working bundle
+            are active.
+        """
         self._idxs = idxs
         self._global = self._global[:,idxs].copy()
     

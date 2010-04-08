@@ -7,6 +7,17 @@ import numpy as N
 
 class GeometryManager(object):
     def find_intersections(self, frame, ray_bundle):
+        """
+        First part of the trace protocol: tell the surface about the ray bundle
+        to check. The subclass should respond with an array of parametric
+        locations along the rays, where each rays intersects the surface.
+        
+        Arguments:
+        frame - a 4x4 homogenous transform (array) representing the surface's
+            frame in global coordinates.
+        ray_bundle - a RayBundle instance with the information on the incoming
+            bundle.
+        """
         self._working_frame = frame
         self._working_bundle = ray_bundle
         
@@ -24,10 +35,21 @@ class GeometryManager(object):
             del self._working_bundle
     
     def select_rays(self, idxs):
+        """
+        Inform the surface that only the rays at indices `idxs` will be used.
+        """
         pass
     
     def get_normals(self):
+        """
+        Return a 3 by n array with the normals to the surface at each of the
+        previously selected hit points.
+        """
         pass
     
     def get_intersection_points_global(self):
+        """
+        Return the intersection points of the previously selected rays, in
+        global coordinates.
+        """
         pass

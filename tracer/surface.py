@@ -61,6 +61,14 @@ class Surface(HasFrame):
         return self._geom.find_intersections(self._temp_frame, ray_bundle)
     
     def select_rays(self, idxs):
+        """
+        Informs the geometry manager that only the specified rays are to be
+        used henceforth.
+        
+        Arguments:
+        idxs - an array with indices into the last registered ray bundle,
+            marking rays that will be used.
+        """
         self._selected = idxs
         self._geom.select_rays(idxs)
     

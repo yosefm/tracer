@@ -105,6 +105,15 @@ class QuadricGM(GeometryManager):
         return select
         
     def select_rays(self, idxs):
+        """
+        With this method, the ray tracer informs the surface that of the
+        registered rays, only those with the given indexes will be used next.
+        This is used here to trim the internal data structures and save memory.
+        
+        Arguments:
+        idx - an array of indexes referring to the rays registered in
+            register_incoming()
+        """
         self._idxs = idxs
         self._norm = self._norm[:,idxs].copy()
         self._vertices = self._vertices[:,idxs].copy()
