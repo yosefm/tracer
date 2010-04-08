@@ -63,12 +63,11 @@ class AbsorberReflector(Reflective):
         """
         Rays coming from the "up" side are reflected like in a Reflective
         instance, rays coming from the "down" side have their energy set to 0.
-        "down" is the side of rays whose dot product with the normal is
-        positive.
+        As usual, "up" is the surface's Z axis.
         """
         outg = Reflective.__call__(self, geometry, rays, selector)
         energy = outg.get_energy()
-        proj = N.sum(rays.get_directions()[:,selector] * geometry.get_normals(), axis=0)
+        proj = N.sum(rays.get_directions()[:,selector] * geometry.up()[:,None], axis=0)
         energy[proj > 0] = 0
         outg.set_energy(energy)
         return outg

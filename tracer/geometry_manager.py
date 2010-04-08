@@ -25,6 +25,13 @@ class GeometryManager(object):
         if type(self) is GeometryManager:
             raise TypeError("Find intersections must be extended by a base class")
     
+    def up(self):
+        """
+        Returns a single direction that is considered "up" in the woking frame
+        (the Z axis) in global coordinates.
+        """
+        return self._working_frame[:3,2]
+    
     def done(self):
         """
         Discard internal data structures. After calling done(), the information

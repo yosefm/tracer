@@ -145,3 +145,21 @@ class TestFlatGeomTranslated(unittest.TestCase):
         pts = self.gm.get_intersection_points_global()
         N.testing.assert_array_equal(pts, correct_pts)
 
+class TestBacksideNormals(unittest.TestCase):
+    def setUp(self):
+        dir = N.c_[[1, 1, 1], [-1, 1, 1], [-1, -1, 1], [1, -1, 1]] / math.sqrt(3)
+        position = N.c_[[0,0,-1], [1,-1,-1], [1,1,-1], [-1,1,-1]]
+        
+        self._bund = RayBundle()
+        self._bund.set_vertices(position)
+        self._bund.set_directions(dir)
+
+        self.gm = FlatGeometryManager()
+        self.prm = self.gm.find_intersections(N.eye(4), self._bund)
+    
+    def test_get_normals(self):
+        """A translated flat geometry manager returns parallel normals"""
+        self.gm.select_rays(N.arange(4))
+        n = self.gm.get_normals()
+        N.testing.assert_array_equal(n, N.tile(N.c_[[0, 0, -1]], (1,4)))
+

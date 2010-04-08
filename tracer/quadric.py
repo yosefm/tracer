@@ -63,8 +63,8 @@ class QuadricGM(GeometryManager):
         # the subclass' _normals method.
         self._norm = N.empty((3,n))
         if any_inters.any():
-            sides = N.sum((c - vertices[:,any_inters].T) * d[:,any_inters].T, axis=1)
-            self._norm[:,any_inters] = self._normals(sides, vertices[:,any_inters].T, c)
+            self._norm[:,any_inters] = self._normals(vertices[:,any_inters].T,
+                d[:,any_inters].T)
         
         # Storage for later reference:
         self._vertices = vertices

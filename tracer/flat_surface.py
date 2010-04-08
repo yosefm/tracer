@@ -45,7 +45,9 @@ class FlatGeometryManager(GeometryManager):
         # Note that only the 3rd row of params is relevant here!
         negative = params < 0
         params[negative] = N.Inf
+        
         self._params = params
+        self._backside = dt > 0
         
         return params
         
@@ -59,6 +61,7 @@ class FlatGeometryManager(GeometryManager):
             are active.
         """
         self._idxs = idxs # For slicing ray bundles etc.
+        self._backside = N.nonzero(self._backside[idxs])[0]
         
         v = self._working_bundle.get_vertices()[:,idxs]
         d = self._working_bundle.get_directions()[:,idxs]
@@ -73,7 +76,9 @@ class FlatGeometryManager(GeometryManager):
         Report the normal to the surface at the hit point of selected rays in
         the working bundle.
         """
-        return N.tile(self._working_frame[:3,2][:,None], (1, len(self._idxs)))
+        norms = N.tile(self._working_frame[:3,2].copy()[:,None], (1, len(self._idxs)))
+        norms[:,self._backside] *= -1
+        return norms
     
     def get_intersection_points_global(self):
         """
@@ -146,6 +151,7 @@ class FiniteFlatGM(FlatGeometryManager):
             are active.
         """
         self._idxs = idxs
+        self._backside = N.nonzero(self._backside[idxs])[0]
         self._global = self._global[:,idxs].copy()
     
 class RectPlateGM(FiniteFlatGM):

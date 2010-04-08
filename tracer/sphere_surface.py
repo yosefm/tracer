@@ -31,17 +31,18 @@ class SphericalGM(QuadricGM):
             raise ValuError("Radius must be positive")
         self._rad = rad
      
-    def _normals(self, sides, hits, c):
+    def _normals(self, hits, directs):
         """
         Finds the normal to the sphere in a bunch of intersection points, by
         taking the derivative and rotating it. Used internally by quadric.
         
         Arguments:                                                                      
-        sides - the dot product of the normal vector and the incoming ray, used
-            to determine which side is the outer side of the sphere.
         hits - the coordinates of intersections, as an n by 3 array.
-        c - the center/vertex of the surface 
+        directs - corresponding directions of the hitting rays, n by 3 array.
         """
+        c = self._working_frame[:3,3]
+        sides = N.sum((c - hits) * directs, axis=1)
+        
         normal = (hits - c).T
         normal[:,sides < 0] *= -1
         normal = normal/N.sqrt(N.sum(normal**2, axis=0))

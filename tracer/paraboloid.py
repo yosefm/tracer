@@ -22,22 +22,25 @@ class Paraboloid(QuadricGM):
         self.a = 1./(a**2)
         self.b = 1./(b**2)
 
-    def _normals(self, sides, hits, c):
+    def _normals(self, hits, directs):
         """
         Finds the normal to the parabola in a bunch of intersection points, by
         taking the derivative and rotating it. Used internally by quadric.
         
         Arguments:
-        sides - not used here.
         hits - the coordinates of intersections, as an n by 3 array.
-        c - the center/vertex of the surface
+        directs - directions of the corresponding rays, n by 3 array.
         """
-        hit = N.dot(self._working_frame[:3,:3].T, hits.T)
+        hit = N.dot(N.linalg.inv(self._working_frame), 
+            N.vstack((hits.T, N.ones(hits.shape[0]))))
+        dir_loc = N.dot(self._working_frame[:3,:3].T, directs.T)
         partial_x = 2*hit[0]*self.a
         partial_y = 2*hit[1]*self.b
         
         local_normal = N.vstack((-partial_x, -partial_y, N.ones_like(partial_x)))
         local_unit = local_normal/N.sqrt(N.sum(local_normal**2, axis=0))
+        down = N.sum(dir_loc * local_unit, axis=0) > 0
+        local_unit[:,down] *= -1
         normals = N.dot(self._working_frame[:3,:3], local_unit)
         
         return normals  
@@ -83,11 +86,11 @@ class ParabolicDishGM(Paraboloid):
         """
         ray_prm = Paraboloid.find_intersections(self, frame, ray_bundle)
         # Save a copy of the local coordinates of impact for use later
-        self._local = N.dot(N.linalg.inv(self._working_frame), 
+        local = N.dot(N.linalg.inv(self._working_frame), 
             N.vstack((self._vertices, N.ones(self._vertices.shape[1]))))
         
         # Use local coordinates to find distance on the local xy plane
-        hit_dist = (self._local[:2]**2).sum(axis=0)
+        hit_dist = (local[:2]**2).sum(axis=0)
         ray_prm[hit_dist > self._R**2] = N.inf
         
         return ray_prm
@@ -116,12 +119,12 @@ class HexagonalParabolicDishGM(Paraboloid):
         """
         ray_prm = Paraboloid.find_intersections(self, frame, ray_bundle)
         # Save a copy of the local coordinates of impact for use later
-        self._local = N.dot(N.linalg.inv(self._working_frame), 
+        local = N.dot(N.linalg.inv(self._working_frame), 
             N.vstack((self._vertices, N.ones(self._vertices.shape[1]))))
         
         # Use local coordinates to find distance on the local xy plane
-        abs_y = abs(self._local[1])
-        abs_x = abs(self._local[0])
+        abs_y = abs(local[1])
+        abs_x = abs(local[0])
         outside = abs_x > math.sqrt(3)*self._R/2.
         outside |= abs_y > self._R - math.tan(N.pi/6.)*abs_x
         
