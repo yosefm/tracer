@@ -84,6 +84,13 @@ class FlatGeometryManager(GeometryManager):
         A 3-by-n array for 3 spatial coordinates and n rays selected.
         """
         return self._global
+    
+    def done(self):
+        GeometryManager.done(self)
+        if hasattr(self, '_global'):
+            del self._global
+        if hasattr(self, '_idxs'):
+            del self._idxs
 
 class FiniteFlatGM(FlatGeometryManager):
     """

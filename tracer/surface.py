@@ -76,6 +76,16 @@ class Surface(HasFrame):
         """
         return self._opt(self._geom, self._current_bundle, self._selected)
     
+    def done(self):
+        """
+        When this is called, the surface will no longer be queried on the
+        results of the latest trace iteration, so it can discard internal
+        data to relieve memory pressure.
+        """
+        if hasattr(self, '_current_bundle'):
+            del self._current_bundle
+        self._geom.done()
+        
     def global_to_local(self, points):
         """
         Transform a set of points in the global coordinates back into the frame

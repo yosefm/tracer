@@ -125,4 +125,11 @@ class QuadricGM(GeometryManager):
         A 3-by-n array for 3 spatial coordinates and n rays selected.
         """
         return self._vertices
+    
+    def done(self):
+        del self._vertices
+        del self._norm
+        if hasattr(self, '_idxs'):
+            del self._idxs
+        GeometryManager.done(self)
 

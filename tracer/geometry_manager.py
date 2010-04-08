@@ -14,6 +14,15 @@ class GeometryManager(object):
         if type(self) is GeometryManager:
             raise TypeError("Find intersections must be extended by a base class")
     
+    def done(self):
+        """
+        Discard internal data structures. After calling done(), the information
+        on the latest trace iteration is lost. 
+        """
+        if hasattr(self, '_working_frame'):
+            del self._working_frame
+            del self._working_bundle
+    
     def select_rays(self, idxs):
         pass
     
