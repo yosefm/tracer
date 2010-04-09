@@ -10,11 +10,11 @@ from tracer.boundary_shape import BoundarySphere
 from tracer.flat_surface import FlatGeometryManager
 from tracer.object import AssembledObject
 from tracer.assembly import Assembly
-from tracer import assembly
-from tracer.paraboloid import Paraboloid
 
 import tracer.optics_callables as opt
 from tracer.surface import Surface
+
+from tracer.models import homogenizer
 
 class TestTree(unittest.TestCase):
     """Tests an assembly composed of objects"""
@@ -117,6 +117,33 @@ class TestTree2(unittest.TestCase):
         self.engine.ray_tracer(self._bund, 3, .05, tree=False)
         parents = self.engine.get_parents_from_tree()
         N.testing.assert_equal(parents, [N.r_[1,2]])
+
+class TestRayCulling(unittest.TestCase):
+    def setUp(self):
+        asm = homogenizer.rect_homogenizer(1., 1., 1.2, 1.)
+        
+        self.bund = RayBundle()
+        # 4 rays starting somewhat above (+z) the homogenizer
+        pos = N.zeros((3,4))
+        pos[2] = 1.6
+        self.bund.set_vertices(pos)
+
+        # One ray going to each wall, bearing down (-z):
+        dir = N.c_[[1, 0, -1], [-1, 0, -1], [0, 1, -1], [0, -1, -1]]/N.sqrt(2)
+        self.bund.set_directions(dir)
+
+        # Laborious setup details:
+        self.bund.set_energy(N.ones(4)*4.)
+        self.bund.set_ref_index(N.ones(4))
+        
+        self.engine = TracerEngine(asm)
+    
+    def test_final_order(self):
+        """Rays come out of a homogenizer with the right parents order"""
+        self.engine.ray_tracer(self.bund, 300, .05)
+        parents = self.engine.get_parents_from_tree()
+        correct_parents = [N.r_[0, 1, 2, 3], N.r_[1, 0, 3, 2]]
+        N.testing.assert_equal(parents, correct_parents)
 
 if __name__ == '__main__':
     unittest.main()

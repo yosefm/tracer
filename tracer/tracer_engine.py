@@ -132,6 +132,10 @@ class TracerEngine():
                 if N.shape(delete)[0] != 0:
                     new_outg = new_outg.delete_rays(delete)
                 surfaces[surf_idx].done()
+                
+                # Fix parent indexing to refer to the full original bundle:
+                parents = N.nonzero(owned_rays[surf_idx])[0][new_outg.get_parent()]
+                new_outg.set_parent(parents)
         
                 # add the outgoing bundle from each object into a new bundle
                 # that stores all the outgoing bundles from all the objects
