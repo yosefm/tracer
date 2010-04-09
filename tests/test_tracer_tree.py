@@ -4,7 +4,7 @@ import math
 
 from tracer.tracer_engine import TracerEngine
 from tracer.ray_bundle import RayBundle
-from tracer.spatial_geometry import general_axis_rotation, generate_transform
+from tracer.spatial_geometry import translate, generate_transform
 from tracer.sphere_surface import CutSphereGM
 from tracer.boundary_shape import BoundarySphere
 from tracer.flat_surface import FlatGeometryManager
@@ -31,7 +31,7 @@ class TestTree(unittest.TestCase):
         self.object2.add_surface(surface3)
 
         self.transform1 = generate_transform(N.r_[1.,0,0], N.pi/4, N.c_[[0,0,-1.]])
-        self.transform2 = generate_transform(N.r_[0,0.,0], 0., N.c_[[0.,0,2]])
+        self.transform2 = translate(0., 0., 2.)
         self.assembly.add_object(self.object1, self.transform1)
         self.assembly.add_object(self.object2, self.transform2)
       
@@ -84,19 +84,14 @@ class TestTree2(unittest.TestCase):
         surface2 = Surface(FlatGeometryManager(), 
             opt.RefractiveHomogenous(1., 1.5),
             location=N.array([0,0,1.]))
-
-        self.object1 = AssembledObject()
-        self.object1.add_surface(surface1)
-        self.object1.add_surface(surface2)
+        object1 = AssembledObject(surfs=[surface1, surface2])
 
         boundary = BoundarySphere(location=N.r_[0,0.,3], radius=3.)
         surface3 = Surface(CutSphereGM(2., boundary), opt.perfect_mirror)
-        self.object2 = AssembledObject()
-        self.object2.add_surface(surface3)
+        object2 = AssembledObject(surfs=[surface3], 
+            transform=translate(0., 0., 2.))
         
-        self.transform = generate_transform(N.r_[0,0.,0],0.,N.c_[[0.,0,2]])
-        self.assembly.add_object(self.object1)
-        self.assembly.add_object(self.object2, self.transform)
+        self.assembly = Assembly(objects=[object1, object2])
 
         x = 1./(math.sqrt(2))
         dir = N.c_[[0,1.,0.],[0,x,x],[0,0,1.]]
@@ -122,7 +117,6 @@ class TestTree2(unittest.TestCase):
         self.engine.ray_tracer(self._bund, 3, .05, tree=False)
         parents = self.engine.get_parents_from_tree()
         N.testing.assert_equal(parents, [N.r_[1,2]])
-
 
 if __name__ == '__main__':
     unittest.main()
