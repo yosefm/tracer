@@ -60,22 +60,40 @@ class Surface(HasFrame):
         self._current_bundle = ray_bundle
         return self._geom.find_intersections(self._temp_frame, ray_bundle)
     
-    def get_outgoing(self, selector):
+    def select_rays(self, idxs):
+        """
+        Informs the geometry manager that only the specified rays are to be
+        used henceforth.
+        
+        Arguments:
+        idxs - an array with indices into the last registered ray bundle,
+            marking rays that will be used.
+        """
+        self._selected = idxs
+        self._geom.select_rays(idxs)
+    
+    def get_outgoing(self):
         """
         Generates a new ray bundle, which is the reflections/refractions of the
         user-selected rays out of the incoming ray-bundle that was previously
         registered.
         
-        Arguments: 
-        selector - a boolean array specifying which rays of the incoming
-            bundle are still relevant.
-        
         Returns: 
         a RayBundle object with the new bundle, with vertices on the surface
             and directions according to optics laws.
         """
-        return self._opt(self._geom, self._current_bundle, selector)
+        return self._opt(self._geom, self._current_bundle, self._selected)
     
+    def done(self):
+        """
+        When this is called, the surface will no longer be queried on the
+        results of the latest trace iteration, so it can discard internal
+        data to relieve memory pressure.
+        """
+        if hasattr(self, '_current_bundle'):
+            del self._current_bundle
+        self._geom.done()
+        
     def global_to_local(self, points):
         """
         Transform a set of points in the global coordinates back into the frame

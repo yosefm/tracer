@@ -82,6 +82,7 @@ class TestObjectBuilding1(unittest.TestCase):
 
 class TestObjectBuilding2(unittest.TestCase):
     """Tests an object composed of two flat surfaces"""
+    flat_only = True
     def setUp(self):
         self.assembly = Assembly()
         surface1 = Surface(flat_surface.FlatGeometryManager(),
@@ -211,6 +212,7 @@ class TestNestedAssemblies(unittest.TestCase):
     Create an assembly within an assembly, with an object, and check that 
     all transformation activities are handled correctly.
     """
+    flat_only = True
     def setUp(self):
         self.eighth_circle_trans = generate_transform(N.r_[1., 0, 0], N.pi/4, 
             N.c_[[0., 1, 0]])

@@ -36,11 +36,10 @@ class QuadricGM(GeometryManager):
         A, B, C = self.get_ABC(ray_bundle)
         delta = B**2 - 4*A*C
         
-        # Get this outside the loop:
-        pm = N.c_[[-1, 1]]
         any_inters = delta >= 0
         delta[any_inters] = N.sqrt(delta[any_inters])
         
+        pm = N.c_[[-1, 1]]
         hits = N.empty((2, n))
         almost_planar = A <= 1e-10
         access_planar = any_inters & almost_planar
@@ -64,12 +63,11 @@ class QuadricGM(GeometryManager):
         # the subclass' _normals method.
         self._norm = N.empty((3,n))
         if any_inters.any():
-            sides = N.sum((c - vertices[:,any_inters].T) * d[:,any_inters].T, axis=1)
-            self._norm[:,any_inters] = self._normals(sides, vertices[:,any_inters].T, c)
+            self._norm[:,any_inters] = self._normals(vertices[:,any_inters].T,
+                d[:,any_inters].T)
         
         # Storage for later reference:
         self._vertices = vertices
-        self._current_bundle = ray_bundle
         
         return N.array(params)
     
@@ -106,27 +104,44 @@ class QuadricGM(GeometryManager):
         
         return select
         
-    def get_normals(self, selector):
+    def select_rays(self, idxs):
+        """
+        With this method, the ray tracer informs the surface that of the
+        registered rays, only those with the given indexes will be used next.
+        This is used here to trim the internal data structures and save memory.
+        
+        Arguments:
+        idx - an array of indexes referring to the rays registered in
+            register_incoming()
+        """
+        self._idxs = idxs
+        self._norm = self._norm[:,idxs].copy()
+        self._vertices = self._vertices[:,idxs].copy()
+    
+    def get_normals(self):
         """
         Report the normal to the surface at the hit point of selected rays in
         the working bundle.
-
-        Arguments:
-        selector - a boolean array stating which columns of the working bundle
-            are active.
         """
-        return self._norm[:,selector]
+        return self._norm
     
-    def get_intersection_points_global(self, selector):
+    def get_intersection_points_global(self):
         """
         Get the ray/surface intersection points in the global coordinates.
-
-        Arguments:
-        selector - a boolean array stating which columns of the working bundle
-            are active.
 
         Returns:
         A 3-by-n array for 3 spatial coordinates and n rays selected.
         """
-        return self._vertices[:,selector]
+        return self._vertices
+    
+    def done(self):
+        """
+        Discard internal data structures. This should be called after all
+        information on the latest bundle's results have been extracted already.
+        """
+        del self._vertices
+        del self._norm
+        if hasattr(self, '_idxs'):
+            del self._idxs
+        GeometryManager.done(self)
 
