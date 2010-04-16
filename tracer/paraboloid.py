@@ -77,28 +77,40 @@ class ParabolicDishGM(Paraboloid):
         """
         par_param = 2*math.sqrt(focal_length) # [2]
         Paraboloid.__init__(self, par_param, par_param)
-        self._R = diameter/2.
+        self._h = (diameter/2./par_param)**2
     
-    def find_intersections(self, frame, ray_bundle):
+    def _select_coords(self, coords, prm):
         """
-        Extend the quadric surface's general routine by marking rays outside
-        the diameter as missing.
+        Choose between two intersection points on a quadric surface.
+        This implementation extends QuadricGM's behaviour by not choosing
+        intersections outside the circular aperture.
+        
+        Arguments:
+        coords - a 2 by 3 by n array whose each column is the global coordinates
+            of one intersection point of a ray with the sphere.
+        prm - the corresponding parametric location on the ray where the
+            intersection occurs.
+
+        Returns:
+        The index of the selected intersection, or None if neither will do.
         """
-        ray_prm = Paraboloid.find_intersections(self, frame, ray_bundle)
-        # Save a copy of the local coordinates of impact for use later
-        local = N.dot(N.linalg.inv(self._working_frame), 
-            N.vstack((self._vertices, N.ones(self._vertices.shape[1]))))
-        
-        # Use local coordinates to find distance on the local xy plane
-        hit_dist = (local[:2]**2).sum(axis=0)
-        ray_prm[hit_dist > self._R**2] = N.inf
-        
-        return ray_prm
+        select = QuadricGM._select_coords(self, coords, prm) # defaults
+
+        coords = N.concatenate((coords, N.ones((2,1,coords.shape[2]))), axis=1)
+        local = N.sum(N.linalg.inv(self._working_frame)[None,:,:,None] * \
+            coords[:,None,:,:], axis=2)
+        under_cut = (local[:,2,:] <= self._h) & (prm > 0)
+
+        select[~N.logical_or(*under_cut)] = N.nan
+        one_hit = N.logical_xor(*under_cut)
+        select[one_hit] = N.nonzero(under_cut[:,one_hit])[0]
+
+        return select
 
 class HexagonalParabolicDishGM(Paraboloid):
     def __init__(self, diameter, focal_length):
         """
-        A paraboloid that marks rays outside a regular hexagon perimiter as
+        A paraboloid that marks rays outside a regular hexagon perimeter as
         missing. The parameters for the paraboloid's equation are determined
         from the focal length. The hexagon is oriented with two parallel to the
         Y axis.
@@ -112,21 +124,36 @@ class HexagonalParabolicDishGM(Paraboloid):
         Paraboloid.__init__(self, par_param, par_param)
         self._R = diameter/2.
     
-    def find_intersections(self, frame, ray_bundle):
+    def _select_coords(self, coords, prm):
         """
-        Extend the paraboloid's general routine by marking rays outside
-        the hexagonal aperture as missing.
-        """
-        ray_prm = Paraboloid.find_intersections(self, frame, ray_bundle)
-        # Save a copy of the local coordinates of impact for use later
-        local = N.dot(N.linalg.inv(self._working_frame), 
-            N.vstack((self._vertices, N.ones(self._vertices.shape[1]))))
+        Choose between two intersection points on a quadric surface.
+        This implementation extends QuadricGM's behaviour by not choosing
+        intersections outside the hexagon aperture.
         
-        # Use local coordinates to find distance on the local xy plane
-        abs_y = abs(local[1])
-        abs_x = abs(local[0])
+        Arguments:
+        coords - a 2 by 3 by n array whose each column is the global coordinates
+            of one intersection point of a ray with the sphere.
+        prm - the corresponding parametric location on the ray where the
+            intersection occurs.
+
+        Returns:
+        The index of the selected intersection, or None if neither will do.
+        """
+        select = QuadricGM._select_coords(self, coords, prm) # defaults
+
+        coords = N.concatenate((coords, N.ones((2,1,coords.shape[2]))), axis=1)
+        local = N.sum(N.linalg.inv(self._working_frame)[None,:,:,None] * \
+            coords[:,None,:,:], axis=2)
+        
+        abs_x = abs(local[:,0,:])
+        abs_y = abs(local[:,1,:])
         outside = abs_x > math.sqrt(3)*self._R/2.
         outside |= abs_y > self._R - math.tan(N.pi/6.)*abs_x
+        inside = ~outside
         
-        ray_prm[outside] = N.inf
-        return ray_prm
+        select[~N.logical_or(*inside)] = N.nan
+        one_hit = N.logical_xor(*inside)
+        select[one_hit] = N.nonzero(inside[:,one_hit])[0]
+
+        return select
+
