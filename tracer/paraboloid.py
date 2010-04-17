@@ -95,11 +95,11 @@ class ParabolicDishGM(Paraboloid):
         The index of the selected intersection, or None if neither will do.
         """
         select = QuadricGM._select_coords(self, coords, prm) # defaults
-
+        
         coords = N.concatenate((coords, N.ones((2,1,coords.shape[2]))), axis=1)
-        local = N.sum(N.linalg.inv(self._working_frame)[None,:,:,None] * \
-            coords[:,None,:,:], axis=2)
-        under_cut = (local[:,2,:] <= self._h) & (prm > 0)
+        local_z = N.sum(N.linalg.inv(self._working_frame)[None,2,:,None] * \
+            coords, axis=1)
+        under_cut = (local_z <= self._h) & (prm > 0)
 
         select[~N.logical_or(*under_cut)] = N.nan
         one_hit = N.logical_xor(*under_cut)
@@ -142,14 +142,14 @@ class HexagonalParabolicDishGM(Paraboloid):
         select = QuadricGM._select_coords(self, coords, prm) # defaults
 
         coords = N.concatenate((coords, N.ones((2,1,coords.shape[2]))), axis=1)
-        local = N.sum(N.linalg.inv(self._working_frame)[None,:,:,None] * \
+        local = N.sum(N.linalg.inv(self._working_frame)[None,:2,:,None] * \
             coords[:,None,:,:], axis=2)
         
         abs_x = abs(local[:,0,:])
         abs_y = abs(local[:,1,:])
         outside = abs_x > math.sqrt(3)*self._R/2.
         outside |= abs_y > self._R - math.tan(N.pi/6.)*abs_x
-        inside = ~outside
+        inside = (~outside) & (prm > 0)
         
         select[~N.logical_or(*inside)] = N.nan
         one_hit = N.logical_xor(*inside)
