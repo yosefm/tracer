@@ -29,10 +29,11 @@ There are no provisions for spectral response or polarization yet.
 
 Installation
 ------------
-Currently there is no installation package, just copy the files into
-the Python path.
+To install Tracer on your system, run the following from the command line:
 
-Make sure the following dependencies are installed:
+  python setup.py install
+
+Before installing, make sure that the following dependencies are installed:
 * NumPy
 * SciPy
 Both available from http://www.scipy.org/
@@ -45,8 +46,6 @@ requires matplotlib to be installed
 
 Getting Help, Getting Involved
 ------------------------------
-Documentation and reference matereial can be found on http://yosefm.github.com/tracer/
-
-Updated information on how to contribute should be on that address too,
-but if it isn't, please contact mellerf@netvision.net.il
+Documentation and reference matereial can be found on http://tracer.berlios.de/
+Updated information on how to contribute can also be found on the same place.
 
