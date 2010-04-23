@@ -60,3 +60,38 @@ class InfiniteCylinder(QuadricGM):
         return N.dot(self._working_frame[:3,:3], local_norm)
 
 
+class FiniteCylinder(InfiniteCylinder):
+    """
+    This geometry manager represents a cylinder with a given height, centered
+    on its origin, (so that the top Z is at height/2).
+    """
+    def __init__(self, diameter, height):
+        self._half_h = height/2.
+        InfiniteCylinder.__init__(self, diameter)
+    
+    def _select_coords(self, coords, prm):
+        """
+        Choose between two intersection points on a quadric surface.
+        This implementation extends QuadricGM's behaviour by not choosing
+        intersections higher or lower than half the cylinder height.
+
+        Arguments:
+        coords - a 2 by 3 by n array whose each column is the global coordinates
+            of one intersection point of a ray with the sphere.
+        prm - the corresponding parametric location on the ray where the
+            intersection occurs.
+
+        Returns:
+        The index of the selected intersection, or None if neither will do.
+        """
+        select = InfiniteCylinder._select_coords(self, coords, prm) # defaults
+        
+        height = N.sum(self._working_frame[None,:3,2,None] * coords, axis=1)
+        inside = abs(height) <= self._half_h
+        
+        select[~N.logical_or(*inside)] = N.nan
+        one_hit = N.logical_xor(*inside)
+        select[one_hit] = N.nonzero(inside[:,one_hit])[0]
+        
+        return select
+
