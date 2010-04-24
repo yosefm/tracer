@@ -23,6 +23,7 @@ def parse_docstring(app, what, name, obj, options, lines):
     out_lines = []
     place = 0
     section = []
+    bullet = False
     for place in xrange(len(lines)):
         line = lines[place]
         
@@ -31,6 +32,7 @@ def parse_docstring(app, what, name, obj, options, lines):
         if m is not None:
             out_lines.extend(section + [line])
             section = []
+            bullet = False
             continue
         
         if len(section) == 0:
@@ -42,10 +44,16 @@ def parse_docstring(app, what, name, obj, options, lines):
         
         m = def_line.match(line)
         if m is not None:
+            out_lines.extend(section + [''])
+            section = []
+            bullet = True
             section.extend(['', '* ' + m.group(1) + ': ' + m.group(2)])
             continue
         
-        section.append(line.strip())
+        line = line.strip()
+        if bullet:
+            line = '  ' + line
+        section.append(line)
     
     # Flush last section:
     out_lines.extend(section)
