@@ -3,7 +3,7 @@
 import unittest
 import numpy as N
 
-from tracer.spatial_geometry import generate_transform
+from tracer.spatial_geometry import generate_transform, rotx
 from tracer.boundary_shape import *
 
 class TestInBounds(unittest.TestCase):
@@ -22,6 +22,11 @@ class TestInBounds(unittest.TestCase):
         """Cylinder bounding volume"""
         cyl = BoundaryCylinder(diameter=3.)
         N.testing.assert_array_equal(cyl.in_bounds(self.points), [True, True, False])
+    
+    def test_plane(self):
+        """Translated plane section of a volume"""
+        plane = BoundaryPlane(rotation=rotx(-N.pi/6)[:3,:3], location=N.r_[0., 1., 0.])
+        N.testing.assert_array_equal(plane.in_bounds(self.points), [False, True, True])
 
 class TestSphereBoundingRect(unittest.TestCase):
     def setUp(self):

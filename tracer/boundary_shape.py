@@ -112,7 +112,7 @@ class BoundaryCylinder(BoundaryShape):
     def in_bounds(self, vertices):
         """
         Returns a boolean array for whether or not a ray intersection was within the 
-        bounding sphere.
+        bounding cylinder.
         
         Arguments: 
         vertices - an array of the points to check for inclusion, (n,3)
@@ -120,4 +120,17 @@ class BoundaryCylinder(BoundaryShape):
         local_xy = N.dot(self._temp_frame[:2], 
             N.vstack((vertices.T, N.ones(vertices.shape[1]))))
         return N.sum(local_xy**2, axis=0) <= self._R**2
+
+class BoundaryPlane(BoundaryShape):
+    def in_bounds(self, vertices):
+        """
+        Returns a boolean array for whether or not a ray intersection is on the
+        positive local Z side of the plane defined by this object's XY plane.
+
+        Arguments:
+        vertices - an array of the points to check for inclusion, (n,3)
+        """
+        local_z = N.dot(N.linalg.inv(self._temp_frame)[2], 
+            N.vstack((vertices.T, N.ones(vertices.shape[0]))))
+        return local_z >= 0
 
