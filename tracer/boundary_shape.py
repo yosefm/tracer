@@ -100,3 +100,24 @@ class BoundarySphere(BoundaryShape):
         return cent_proj[0] - Reff, cent_proj[0] + Reff, \
             cent_proj[1] - Reff, cent_proj[1] + Reff
 
+class BoundaryCylinder(BoundaryShape):
+    def __init__(self, diameter=1., location=None, rotation=None):
+        """
+        Defines an infinite cylinder along the Z axis as a volume in which
+        intersection points are valid.
+        """
+        self._R = diameter/2.
+        BoundaryShape.__init__(self, location, None)
+    
+    def in_bounds(self, vertices):
+        """
+        Returns a boolean array for whether or not a ray intersection was within the 
+        bounding sphere.
+        
+        Arguments: 
+        vertices - an array of the points to check for inclusion, (n,3)
+        """
+        local_xy = N.dot(self._temp_frame[:2], 
+            N.vstack((vertices.T, N.ones(vertices.shape[1]))))
+        return N.sum(local_xy**2, axis=0) <= self._R**2
+

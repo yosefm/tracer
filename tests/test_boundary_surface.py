@@ -7,13 +7,21 @@ from tracer.spatial_geometry import generate_transform
 from tracer.boundary_shape import *
 
 class TestInBounds(unittest.TestCase):
-    def runTest(self):
-        sphere = BoundarySphere(radius=2.)
-        points = N.array([
+    def setUp(self):
+        self.points = N.array([
             [0.,0.,0.],
             [1.,1.,1.],
             [2.,2.,2.]])
-        N.testing.assert_array_equal(sphere.in_bounds(points), [True, True, False])
+    
+    def test_sphere(self):
+        """Sphere bounding volume"""
+        sphere = BoundarySphere(radius=2.)
+        N.testing.assert_array_equal(sphere.in_bounds(self.points), [True, True, False])
+    
+    def test_cylinder(self):
+        """Cylinder bounding volume"""
+        cyl = BoundaryCylinder(diameter=3.)
+        N.testing.assert_array_equal(cyl.in_bounds(self.points), [True, True, False])
 
 class TestSphereBoundingRect(unittest.TestCase):
     def setUp(self):
