@@ -15,6 +15,7 @@ Contents:
    
    tutorial
    opt_sys_construct
+   trace_protocol
    Reference <tracer>
 
 Indices and tables
