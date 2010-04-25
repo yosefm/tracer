@@ -6,6 +6,57 @@ import numpy as N
 from scipy import stats
 import tracer.ray_bundle as RB
 
+class TestInheritance(unittest.TestCase):
+    def test_inherit_empty_from_empty(self):
+        """Inherit empty bundle completely"""
+        father = RB.RayBundle()
+        child = father.inherit()
+    
+    def test_inherit_empty_from_full(self):
+        """Inherit a populated bundle completely"""
+        pos = N.ones((3,4))
+        dir = N.zeros((3,4))
+        energy = N.ones(4)
+        ref_ind = N.zeros(4)
+        prn = N.ones(4)
+        
+        father = RB.RayBundle(pos, dir, energy, prn, ref_ind)
+        child = father.inherit()
+        
+        N.testing.assert_array_equal(child.get_vertices(), pos)
+        N.testing.assert_array_equal(child.get_directions(), dir)
+        N.testing.assert_array_equal(child.get_energy(), energy)
+        N.testing.assert_array_equal(child.get_ref_index(), ref_ind)
+        N.testing.assert_array_equal(child.get_parent(), prn)
+    
+    def test_inherit_full_from_full(self):
+        """Inherit a populated bundle from otherwise-populated bundle"""
+        pos = N.ones((3,4))
+        dir = N.zeros((3,4))
+        energy = N.ones(4)
+        ref_ind = N.zeros(4)
+        prn = N.ones(4)
+
+        father = RB.RayBundle(pos, dir, energy, prn, ref_ind)
+        child = father.inherit(N.s_[:], dir, pos, prn, energy, N.ones(4)*5)
+        
+        N.testing.assert_array_equal(child.get_vertices(), dir)
+        N.testing.assert_array_equal(child.get_directions(), pos)
+        N.testing.assert_array_equal(child.get_energy(), prn)
+        N.testing.assert_array_equal(child.get_ref_index(), N.ones(4)*5)
+        N.testing.assert_array_equal(child.get_parent(), energy)
+    
+    def test_inherit_part_from_full(self):
+        """Inherit part of a populated bundle"""
+        pos = N.ones((3,4))
+        dir = N.zeros((3,4))
+        
+        father = RB.RayBundle(pos, dir)
+        child = father.inherit(selector=N.r_[0,1], direction=N.ones((3,2)))
+        
+        N.testing.assert_array_equal(child.get_vertices(), pos[:,[0,1]])
+        N.testing.assert_array_equal(child.get_directions(), N.ones((3,2)))
+        
 class TestDistributions(unittest.TestCase):
     def assert_radius(self,  vertices,  center,  R):
         """Asserts that the vertices of a bundle are within the given radius of
