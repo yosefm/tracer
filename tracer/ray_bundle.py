@@ -100,15 +100,25 @@ class RayBundle:
 
     def __add__(self,  added):
         """Merge two energy bundles. return a new bundle with the rays from the 
-        two bundles appearing in the order of addition.
+        two bundles appearing in the order of addition.         
+        
+        Arguments:
+        added - a RayBundle instance to concatenate with this one.
         """
-        new_parent = N.append(self.get_parent(), added.get_parent())
         newbund = RayBundle()
-        newbund.set_directions(N.hstack((self.get_directions(),  added.get_directions())))
-        newbund.set_vertices(N.hstack((self.get_vertices(),  added.get_vertices())))
-        newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
-        newbund.set_parent(new_parent)
-        newbund.set_ref_index(N.hstack((self._ref_index, added.get_ref_index()))) 
+        
+        if hasattr(self, '_direct') and hasattr(added, '_direct'):
+            newbund.set_directions(N.hstack((self.get_directions(),  added.get_directions())))
+        if hasattr(self, '_vertices') and hasattr(added, '_vertices'):
+            newbund.set_vertices(N.hstack((self.get_vertices(),  added.get_vertices())))
+        if hasattr(self, '_energy') and hasattr(added, '_energy'):
+            newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
+        if hasattr(self, '_parent') and hasattr(added, '_parent'):
+            new_parent = N.append(self.get_parent(), added.get_parent())
+            newbund.set_parent(new_parent)
+        if hasattr(self, '_ref_index') and hasattr(added, '_ref_index'):
+            newbund.set_ref_index(N.hstack((self._ref_index, added.get_ref_index()))) 
+        
         return newbund
 
     @staticmethod
@@ -125,11 +135,8 @@ class RayBundle:
 
     def delete_rays(self, selector):
         """Deletes rays"""
-        outg = RayBundle()
-        outg.set_directions(N.delete(self.get_directions(), selector, axis=1))
-        outg.set_vertices(N.delete(self.get_vertices(), selector, axis=1))
-        outg.set_energy(N.delete(self.get_energy(), selector))
-        outg.set_ref_index(N.delete(self.get_ref_index(), selector))
+        inherit_select = N.delete(N.arange(self.get_num_rays()), selector)
+        outg = self.inherit(inherit_select)
         if hasattr(self, '_parent'):
             outg.set_parent(N.delete(self.get_parent(), selector))
          
