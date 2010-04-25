@@ -78,9 +78,11 @@ class Assembly(HasFrame):
 
     def add_assembly(self, assembly, transform=None):
         """Adds an assembly to the current assembly.
-        Arguments: assembly - the assembly object to add
+        
+        Arguments:
+        assembly - the assembly object to add
         transform - the transformation matrix (as an array object) that describes the 
-        new assembly in the coordinate system of the current assembly
+            new assembly in the coordinate system of the current assembly
         """
         if transform == None:
             transform = N.eye(4)
