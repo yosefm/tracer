@@ -52,7 +52,10 @@ class TracerEngine():
                 (ray_ownership == surf_ownership[surf_num])) & surf_relevancy[surf_num]
             if not owned_rays[surf_num].any():
                 continue
-            in_rays = bundle.delete_rays(N.where(~owned_rays[surf_num])[0])
+            if (~owned_rays[surf_num]).any():
+                in_rays = bundle.delete_rays(N.nonzero(~owned_rays[surf_num])[0])
+            else:
+                in_rays = bundle
             stack[surf_num, owned_rays[surf_num]] = \
                 surfaces[surf_num].register_incoming(in_rays)
         

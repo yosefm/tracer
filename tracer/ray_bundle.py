@@ -22,12 +22,24 @@ class RayBundle:
     _temp_ref_index: like _ref_index, but used to temporarily store the values that will be
     used in the next iteration of the simulation
     """
-    _parent = None
+    def __init__(self, vertices=None, directions=None, energy=None,
+        parents=None, ref_index=None):
+        """
+        Initialize the ray bundle as empty or using the given arrays.
+        """
+        if vertices is not None:
+            self.set_vertices(vertices)
+        if directions is not None:
+            self.set_directions(directions)
+        if energy is not None:
+            self.set_energy(energy)
+        if parents is not None:
+            self.set_parent(parents)
+        if ref_index is not None:
+            self.set_ref_index(ref_index)
     
     def set_vertices(self,  vert):
         """Sets the starting point of each ray."""
-       # if vert.shape != (3,  self.get_num_rays()):
-       #     raise ValueError("Number of vertices != number of rays")
         self._vertices = vert
     
     def get_vertices(self):
@@ -60,18 +72,53 @@ class RayBundle:
         
     def get_ref_index(self):
         return self._ref_index
+    
+    def inherit(self, selector=N.s_[:], vertices=None, direction=None, energy=None,
+        parents=None, ref_index=None):
+        """
+        Create a bundle with some ray properties given, and  unspecified
+        properties copied from this bundle, at the places noted by `selector`.
+        
+        Arguments:
+        selector - array of ray indices in the current bundle to use, must be
+            the same length as the number of rays in the given properties
+        vertices, direction, energy, parents, ref_index - set the corresponding
+            properties instead of using this bundle.
+        """
+        if vertices is None and hasattr(self, '_vertices'):
+            vertices = self.get_vertices()[:,selector]
+        if direction is None and hasattr(self, '_direct'):
+            direction = self.get_directions()[:,selector]
+        if energy is None and hasattr(self, '_energy'):
+            energy = self.get_energy()[selector]
+        if parents is None and hasattr(self, '_parent'):
+            parents = self.get_parent()[selector]
+        if ref_index is None and hasattr(self, '_ref_index'):
+            ref_index = self.get_ref_index()[selector]
+        
+        return RayBundle(vertices, direction, energy, parents, ref_index)
 
     def __add__(self,  added):
         """Merge two energy bundles. return a new bundle with the rays from the 
-        two bundles appearing in the order of addition.
+        two bundles appearing in the order of addition.         
+        
+        Arguments:
+        added - a RayBundle instance to concatenate with this one.
         """
-        new_parent = N.append(self.get_parent(), added.get_parent())
         newbund = RayBundle()
-        newbund.set_directions(N.hstack((self.get_directions(),  added.get_directions())))
-        newbund.set_vertices(N.hstack((self.get_vertices(),  added.get_vertices())))
-        newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
-        newbund.set_parent(new_parent)
-        newbund.set_ref_index(N.hstack((self._ref_index, added.get_ref_index()))) 
+        
+        if hasattr(self, '_direct') and hasattr(added, '_direct'):
+            newbund.set_directions(N.hstack((self.get_directions(),  added.get_directions())))
+        if hasattr(self, '_vertices') and hasattr(added, '_vertices'):
+            newbund.set_vertices(N.hstack((self.get_vertices(),  added.get_vertices())))
+        if hasattr(self, '_energy') and hasattr(added, '_energy'):
+            newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
+        if hasattr(self, '_parent') and hasattr(added, '_parent'):
+            new_parent = N.append(self.get_parent(), added.get_parent())
+            newbund.set_parent(new_parent)
+        if hasattr(self, '_ref_index') and hasattr(added, '_ref_index'):
+            newbund.set_ref_index(N.hstack((self._ref_index, added.get_ref_index()))) 
+        
         return newbund
 
     @staticmethod
@@ -88,12 +135,9 @@ class RayBundle:
 
     def delete_rays(self, selector):
         """Deletes rays"""
-        outg = RayBundle()
-        outg.set_directions(N.delete(self.get_directions(), selector, axis=1))
-        outg.set_vertices(N.delete(self.get_vertices(), selector, axis=1))
-        outg.set_energy(N.delete(self.get_energy(), selector))
-        outg.set_ref_index(N.delete(self.get_ref_index(), selector))
-        if self._parent is not None:
+        inherit_select = N.delete(N.arange(self.get_num_rays()), selector)
+        outg = self.inherit(inherit_select)
+        if hasattr(self, '_parent'):
             outg.set_parent(N.delete(self.get_parent(), selector))
          
         return outg 

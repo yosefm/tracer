@@ -80,13 +80,6 @@ class QuadricGM(GeometryManager):
         params[any_inters] = N.choose(select, hits[:,any_inters])
         vertices[:,any_inters] = N.choose(select, inters_coords[...,any_inters])
         
-        # Normals to the surface at the intersection points are calculated by
-        # the subclass' _normals method.
-        self._norm = N.empty((3,n))
-        if any_inters.any():
-            self._norm[:,any_inters] = self._normals(vertices[:,any_inters].T,
-                d[:,any_inters].T)
-        
         # Storage for later reference:
         self._vertices = vertices
         
@@ -137,8 +130,12 @@ class QuadricGM(GeometryManager):
             register_incoming()
         """
         self._idxs = idxs
-        self._norm = self._norm[:,idxs].copy()
         self._vertices = self._vertices[:,idxs].copy()
+        
+        # Normals to the surface at the intersection points are calculated by
+        # the subclass' _normals method.
+        self._norm = self._normals(self._vertices.T,
+                self._working_bundle.get_directions()[:,idxs].T)
     
     def get_normals(self):
         """
@@ -162,8 +159,8 @@ class QuadricGM(GeometryManager):
         information on the latest bundle's results have been extracted already.
         """
         del self._vertices
-        del self._norm
         if hasattr(self, '_idxs'):
+            del self._norm
             del self._idxs
         GeometryManager.done(self)
 
