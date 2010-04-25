@@ -1,4 +1,4 @@
-# Implements spherical surface 
+# Implements quadric surfaces.
 #
 # References:
 # [1] http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter4.htm
@@ -7,6 +7,27 @@ import numpy as N
 from geometry_manager import GeometryManager
 
 class QuadricGM(GeometryManager):
+    """
+    A base class for quadric surfaces, to be derived for creation of specific
+    quadric geometries. Each subclass should define the following methods:
+    
+    get_ABC(ray_bundle) - Given a RAyBundle instance, return A, B, C, the
+        coefficients of a quadratic equation of t, the parametric position
+        on each ray where it hits the surface (each of A, B, C is as long as
+        the number of rays in ray_bundle).
+    
+    _normals(verts, dirs)
+        Arguments:
+        verts - an n by 3 array whose rows are points on the surace in global
+            coordinates
+        dirs - an n by 3 array whose columns are the respective incidence directions
+        
+        Returns:
+        A 3 by n array with the rewpective normals to the surface at each of `verts`
+    
+    Additionally, overriding _select_coords(self, coords, prm) may be required.
+    """
+    
     def find_intersections(self, frame, ray_bundle):
         """
         Register the working frame and ray bundle, calculate intersections
@@ -86,6 +107,7 @@ class QuadricGM(GeometryManager):
         select = N.empty(prm.shape[1])
 
         # If both are negative, it is a miss
+        # This line also catches the cases of the last xor.
         select[N.logical_or(*is_positive)] = N.nan
         
         # If both are positive, use the smaller one

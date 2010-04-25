@@ -4,7 +4,7 @@ import unittest
 import numpy as N
 
 from tracer.ray_bundle import RayBundle
-from tracer.paraboloid import Paraboloid
+from tracer.paraboloid import Paraboloid, ParabolicDishGM, HexagonalParabolicDishGM
 
 class TestInterface(unittest.TestCase):
     def setUp(self):
@@ -40,3 +40,32 @@ class TestInterface(unittest.TestCase):
         N.testing.assert_array_equal(pts[:2], self._bund.get_vertices()[:2])
         N.testing.assert_array_almost_equal(pts[2], 0.04)
         
+class TestParabolicDishGM(unittest.TestCase):
+    def setUp(self):
+        dir = N.c_[[0., 0, -1], [0, 1, -1], [0, 11, -2], [0, 1, 0]]
+        dir /= N.sqrt(N.sum(dir**2, axis=0))
+        position = N.c_[[0., 0, 1], [0, -1, 1], [0, -11, 2], [0, 1, 1]]
+
+        bund = RayBundle()
+        bund.set_vertices(position)
+        bund.set_directions(dir)
+        self.bund = bund
+        
+        self.correct = N.r_[1., N.sqrt(2), N.sqrt(11**2 + 4)]
+        
+    def test_circular_aperture(self):
+        """Rays that intersect a paraboloid above the cut plane handled correctly"""
+        gm = ParabolicDishGM(diameter=10., focal_length=12.)
+        prm = gm.find_intersections(N.eye(4), self.bund)
+        
+        N.testing.assert_array_almost_equal(prm[:3], self.correct)
+        self.failUnless(prm[3] == N.inf)
+    
+    def test_hex_aperture(self):
+        """Rays intersecting a paraboloid with hex aperture handled correctly"""
+        gm = HexagonalParabolicDishGM(diameter=10., focal_length=12.)
+        prm = gm.find_intersections(N.eye(4), self.bund)
+        
+        N.testing.assert_array_almost_equal(prm[:3], self.correct)
+        self.failUnless(prm[3] == N.inf)
+

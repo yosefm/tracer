@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Developer guidelines</title><style type="text/css"></style><link rel="stylesheet" href="site-front.css" type="text/css"></head><body>
+<h1>Developer Guidelines</h1>
+<p>It is a challenge to successfully develop a project by a commitee;
+yet it is done by the Free Software community on a large scale and with
+many successful examples. The success of this method is built on a set
+of loose standards that have evolved over the years. These standards
+help streamline collaboration, save time and avoid duplicated efforts;
+some of them have direct corrolaries in the world of academic research,
+and should not be hard to adapt to. In this page we describe some of
+those practices that the Tracer project adopts.<br>
+</p>
+<h2>Version Control System (VCS)<br>
+</h2>
+<p>A <a href="http://en.wikipedia.org/wiki/Revision_control">version control system</a>
+is a software that keeps track of changes to the code, and can provide
+information on differences between versions of the code, authors of
+different changes, and so on. Tracer's code is tracked by a VCS called
+Git. The <a href="http://git-scm.com/">Git community website</a> provides information on its usage: getting someone else's code, commiting changes, publishing those, etc.</p>
+<p>It is the nature of Git that many versions (so-called "forks") of
+the code can exist in the wild, owned by different developers. The
+reference version, to be used for incorporating the community's favored
+changes, for making releasses, and for starting new development lines,
+is <a href="http://github.com/yosefm/tracer/tree">Yosef Meller's original tree</a>, hosted on GitHub.<br>
+</p>
+<h2>Submitting Changes Using Patches</h2>
+<p>The standard way in Open-Source world to describe changes you have made to a program is the <a href="http://en.wikipedia.org/wiki/Patch_%28Unix%29">patch</a>.
+Experienced collaborators on open source software can use a patch to
+review changes without having to look for them first; if they are
+familiar with the code, they usually don't have to look beyond the
+patch in order to understand it.<br>
+</p>
+<p>Furthermore, patches can be automatically incorporated into source
+code, and can also be automatically produced by various software,
+including Git (using the format-patch command).<br>
+</p>
+<p>When submitting a change to Tracer's code, please do so by sending a patch to the <a href="https://lists.berlios.de/mailman/listinfo/tracer-user">mailing list</a>,
+describing in your e-mail the nature of the change, the main places in
+the code that it touches, and the rationale for making the change. </p>
+<p>A patch is not always accepted in its first version. Be prepared to
+respond to review of other Tracer developers and make changes as deemed
+necessary - just as you would when submiting a paperto be published in a peer-reviewed journal. </p>
+<p>You are encouraged to submit even imperfect code for discussion; however, for a code to finally be accepted, it needs to have:<br>
+</p>
+<ul>
+  <li>some <a href="http://en.wikipedia.org/wiki/Unit_testing">unit-tests</a> that show it is working and will catch problems with future changes. Tracer uses the <a href="http://docs.python.org/library/unittest.html">unittest</a> module for this.</li>
+  <li>At least source documentation in the form of comments and
+docstrings, describing function arguments and return values. Additions
+to the user documentation (on the user-doc directory of the Git tree)
+are also welcome.<br>
+  </li>
+</ul>
+<h2>Open Discussion</h2>
+<p>It is usually beneficial to start a feature implementation by
+talking about it in the mailing list. Bug fixes and code changes -
+likewise. The direction that the project takes and the state of its
+code are everyone's interest. Each party that takes part in Tracer's
+development does it for its own reasons, and collaborates with a
+project that fits its needs. It is important to see that developers see
+eye to eye on important issues.<br>
+</p>
+<p>For this to happen, we request that discussions regarding Tracer are carried on publicly over the mailing list. <br>
+<br>
+</p>
+</body></html>
