@@ -28,7 +28,7 @@ class SphericalGM(QuadricGM):
     
     def set_radius(self, rad):
         if rad <= 0:
-            raise ValuError("Radius must be positive")
+            raise ValueError("Radius must be positive")
         self._rad = rad
      
     def _normals(self, hits, directs):
