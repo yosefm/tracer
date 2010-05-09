@@ -53,7 +53,7 @@ class TracerEngine():
             if not owned_rays[surf_num].any():
                 continue
             if (~owned_rays[surf_num]).any():
-                in_rays = bundle.inherit(N.nonzero(owned_rays[surf_num])[0])
+                in_rays = bundle.inherit(owned_rays[surf_num])
             else:
                 in_rays = bundle
             stack[surf_num, owned_rays[surf_num]] = \
