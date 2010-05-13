@@ -178,6 +178,16 @@ class RectPlateGM(FiniteFlatGM):
         ray_prms[N.any(abs(self._local[:2]) > self._half_dims, axis=0)] = N.inf
         del self._local
         return ray_prms
+    
+    def mesh(self, resolution):
+        """
+        """
+        eps_rng = self._half_dims[:,0] + resolution/100.
+        x, y = N.mgrid[
+            -self._half_dims[0,0]:eps_rng[0]:resolution,
+            -self._half_dims[1,0]:eps_rng[1]:resolution]
+        z = N.zeros_like(x)
+        return x, y, z
 
 class RoundPlateGM(FiniteFlatGM):
     def __init__(self, R):

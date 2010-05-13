@@ -107,4 +107,23 @@ class Surface(HasFrame):
         """
         return N.dot(N.linalg.inv(self._temp_frame), 
             N.vstack((points, N.ones(points.shape[1]))))
+    
+    def mesh(self, resolution):
+        """
+        Represent the surface as a mesh in global coordinates.
+        
+        Arguments:
+        resolution - in points per unit length (so the number of points 
+            returned is O(A*resolution**2) for area A)
+        
+        Returns:
+        x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+            coordinate (respectively) of point (i,j) in the mesh.
+        """
+        # The geometry manager has the local-coordinates mesh.
+        x, y, z = self._geom.mesh(resolution)
+        local = N.array((x, y, z, N.ones_like(x)))
+        glob = N.tensordot(self._temp_frame, local, axes=([1], [0]))
+        
+        return glob[:3]
 

@@ -95,3 +95,19 @@ A reflective object requires no co-operation.
 A default object: owns nothing, all surfaces relevant.
 One-sided mirror: own nothing, all surfaces irrelevant.
 
+
+Meshes
+------
+In the current architecture, all knowledge about a surface is encapsualted in
+the Surface object or its geometry manager and optics manager. The only exposed
+information about it is its transform. It might be desired by some external
+tool to handle assemblies in a way that requires some knowledge about the
+surfaces, without having that knowledge in advance; off the top of my head I
+can think of scene graph manipulation, volume and extent calculations, or (the
+use case that prompted this) drawing the assembly in a UI.
+
+Since future uses are hard to predict, meshes are a tool that gives some very
+general information about a surface, from which a lot of information can be
+gleaned. Therefore, surfaces will have a mesh() method that provides a mesh
+representing the object in a given resolution. 
+

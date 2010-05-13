@@ -28,4 +28,14 @@ class TestRectPlateGM(unittest.TestCase):
         misses = N.isinf(surf.register_incoming(bund))
         
         N.testing.assert_array_equal(misses, N.r_[False, False, True, True])
-
+    
+    def test_mesh(self):
+        """Correct mesh for recxt-plate"""
+        r = RectPlateGM(5, 6)
+        res = 0.1
+        x, y, z = r.mesh(res)
+        
+        cx, cy = N.mgrid[-2.5:2.51:res, -3:3.01:0.1]
+        N.testing.assert_array_equal(x, cx)
+        N.testing.assert_array_equal(y, cy)
+        N.testing.assert_array_equal(z, N.zeros_like(x))
