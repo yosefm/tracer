@@ -6,9 +6,8 @@ from enthought.mayavi.core.ui.mayavi_scene import MayaviScene
 
 import numpy as N
 
-from ..flat_surface import FlatSurface
+from ..models.one_sided_mirror import rect_one_sided_mirror
 from ..assembly import Assembly
-from ..object import AssembledObject
 from ..ray_bundle import RayBundle
 from ..tracer_engine import TracerEngine
 from .. import spatial_geometry as G
@@ -29,28 +28,16 @@ class ExampleScene(t_api.HasTraits):
         
         # The energy bundle we'll use for now:
         nrm = 1/(N.sqrt(2))
-        dir = N.c_[[0,-nrm, nrm],[0,0,-1]]
+        direct = N.c_[[0,-nrm, nrm],[0,0,-1]]
         position = N.tile(N.c_[[0, self.source_y, self.source_z]], (1, 2))
-
-        bund = RayBundle()
-        bund.set_vertices(position)
-        bund.set_directions(dir)
-        bund.set_ref_index(N.r_[[1,1,1]]) 
-        
-        energy = N.array([1,1])
-        bund.set_energy(energy)
-
-        self.bund = bund
+        self.bund = RayBundle(vertices=position, directions=direct, energy=N.r_[1, 1])
         
         # The assembly for ray tracing:
-        rot1 = G.general_axis_rotation([1,0,0], N.pi/4)
-        surf1 = FlatSurface(rotation=rot1, width=10,height=10)
-        surf2 = FlatSurface(width=10,height=10)
-        self.assembly = Assembly()
-        object = AssembledObject()
-        object.add_surface(surf1)
-        object.add_surface(surf2)
-        self.assembly.add_object(object)
+        rot1 = G.rotx(N.pi/4)[:3,:3]
+        surf1 = rect_one_sided_mirror(width=10, height=10)
+        surf1.set_rotation(rot1)
+        surf2 = rect_one_sided_mirror(width=10, height=10)
+        self.assembly = Assembly(objects=[surf1, surf2])
         
         # First plot:
         self.lines = []
