@@ -28,4 +28,12 @@ class TestRectPlateGM(unittest.TestCase):
         misses = N.isinf(surf.register_incoming(bund))
         
         N.testing.assert_array_equal(misses, N.r_[False, False, True, True])
+        
+    def test_mesh(self):
+        """The mesh representing the circle looks right"""
+        p = RoundPlateGM(5)
+        x, y, z = p.mesh(5)
+        
+        N.testing.assert_array_equal(z, 0) # Easy
+        self.failUnless(N.any(x**2 + y**2 > 25))
 

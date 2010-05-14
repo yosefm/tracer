@@ -210,3 +210,27 @@ class RoundPlateGM(FiniteFlatGM):
         ray_prms[N.sum(self._local[:2]**2, axis=0) > self._R**2] = N.inf
         del self._local
         return ray_prms
+    
+    def mesh(self, resolution):
+        """
+        Represent the surface as a mesh in local coordinates.
+        
+        Arguments:
+        resolution - in points per unit length (so the number of points 
+            returned is O(A*resolution**2) for area A)
+        
+        Returns:
+        x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+            coordinate (respectively) of point (i,j) in the mesh.
+        """
+        # Generate a circular-edge mesh using polar coordinates.
+        r_end = self._R + resolution/100.
+        rs = N.r_[0:r_end:1./resolution]
+        # Make the circumferential points at the requested resolution.
+        angs = N.r_[0:2*N.pi:1./(self._R*resolution)]
+        
+        x = N.outer(rs, N.cos(angs))
+        y = N.outer(rs, N.sin(angs))
+        z = N.zeros_like(x)
+        return x, y, z
+
