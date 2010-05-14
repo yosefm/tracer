@@ -35,5 +35,5 @@ class TestRectPlateGM(unittest.TestCase):
         x, y, z = p.mesh(5)
         
         N.testing.assert_array_equal(z, 0) # Easy
-        self.failUnless(N.any(x**2 + y**2 > 25))
+        self.failIf(N.any(x**2 + y**2 > 25.001))
 
