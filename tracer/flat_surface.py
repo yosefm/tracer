@@ -181,6 +181,15 @@ class RectPlateGM(FiniteFlatGM):
     
     def mesh(self, resolution):
         """
+        Represent the surface as a mesh in local coordinates.
+        
+        Arguments:
+        resolution - in points per unit length (so the number of points 
+            returned is O(A*resolution**2) for area A)
+        
+        Returns:
+        x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+            coordinate (respectively) of point (i,j) in the mesh.
         """
         eps_rng = self._half_dims[:,0] + resolution/100.
         x, y = N.mgrid[
@@ -213,7 +222,9 @@ class RoundPlateGM(FiniteFlatGM):
     
     def mesh(self, resolution):
         """
-        Represent the surface as a mesh in local coordinates.
+        Represent the surface as a mesh in local coordinates. Uses polar
+        bins, i.e. the points are equally distributed by angle and radius,
+        not by x,y.
         
         Arguments:
         resolution - in points per unit length (so the number of points 
