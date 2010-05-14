@@ -77,6 +77,7 @@ class ParabolicDishGM(Paraboloid):
         """
         par_param = 2*math.sqrt(focal_length) # [2]
         Paraboloid.__init__(self, par_param, par_param)
+        self._R = diameter/2. # For the mesh
         self._h = (diameter/2./par_param)**2
     
     def _select_coords(self, coords, prm):
@@ -106,6 +107,32 @@ class ParabolicDishGM(Paraboloid):
         select[one_hit] = N.nonzero(under_cut[:,one_hit])[0]
 
         return select
+    
+    def mesh(self, resolution):
+        """
+        Represent the surface as a mesh in local coordinates. Uses polar
+        bins, i.e. the points are equally distributed by angle and radius,
+        not by x,y.
+        
+        Arguments:
+        resolution - in points per unit length (so the number of points 
+            returned is O(A*resolution**2) for area A)
+        
+        Returns:
+        x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+            coordinate (respectively) of point (i,j) in the mesh.
+        """
+        # Generate a circular-edge mesh using polar coordinates.
+        r_end = self._R + resolution/100.
+        rs = N.r_[0:r_end:1./resolution]
+        # Make the circumferential points at the requested resolution.
+        angs = N.r_[0:2*N.pi:1./(self._R*resolution)]
+
+        x = N.outer(rs, N.cos(angs))
+        y = N.outer(rs, N.sin(angs))
+        z = self.a*x**2 + self.b*y**2
+        
+        return x, y, z
 
 class HexagonalParabolicDishGM(Paraboloid):
     def __init__(self, diameter, focal_length):

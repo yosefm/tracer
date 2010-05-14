@@ -34,6 +34,14 @@ class TestParabolicDish(unittest.TestCase):
         self.surf.transform_frame(trans)
         misses = N.isinf(self.surf.register_incoming(self.bund))
         N.testing.assert_array_equal(misses, N.r_[False, False, True, True])
+    
+    def test_mesh(self):
+        """Parabolic dish mesh looks OK"""
+        p = ParabolicDishGM(5, 3)
+        x, y, z = p.mesh(5)
+        
+        N.testing.assert_array_almost_equal(z, p.a*(x**2 + y**2))
+        self.failIf(N.any(x**2 + y**2 > 6.25))
 
 class TestHexDish(unittest.TestCase):
     def runTest(self):
