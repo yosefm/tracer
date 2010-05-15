@@ -39,4 +39,10 @@ class TestInterface(unittest.TestCase):
         pts = self.gm.get_intersection_points_global()
         N.testing.assert_array_equal(pts[:2], self._bund.get_vertices()[:2])
         N.testing.assert_array_almost_equal(pts[2], -2*N.sin(N.pi/3))
-        
+    
+    def test_mesh(self):
+        """The HemisphereGM mesh represents the lower hemisphere only"""
+        x, y, z = self.gm.mesh(10)
+        self.failUnless(N.all(z <= 1e-15))
+        self.failIf(N.any(x**2 + y**2 > 4.0001))
+

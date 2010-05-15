@@ -65,6 +65,31 @@ class SphericalGM(QuadricGM):
         C = ((v - c[:,None])**2).sum(axis=0) - self.get_radius()**2
         
         return A, B, C
+    
+    def mesh(self, resolution):
+        """
+        Represent the surface as a mesh in local coordinates. Uses spherical-
+        coordinates bins, i.e. the points are equally distributed by two angles,
+        not by x,y.
+        
+        Arguments:
+        resolution - in points per unit length (so the number of points 
+            returned is O(A*resolution**3) for area A)
+        
+        Returns:
+        x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+            coordinate (respectively) of point (i,j) in the mesh.
+        """
+        rng = N.pi + 1./(self._rad*resolution)
+        theta, phi = N.mgrid[
+            0:rng:1./(self._rad*resolution),
+            0:2*rng:1./(self._rad*resolution)]
+        
+        x = self._rad * N.sin(theta) * N.cos(phi)
+        y = self._rad * N.sin(theta) * N.sin(phi)
+        z = self._rad * N.cos(theta)
+        
+        return x, y, z
 
 class HemisphereGM(SphericalGM):
     def _select_coords(self, coords, prm):
@@ -85,6 +110,31 @@ class HemisphereGM(SphericalGM):
         select[one_hit] = N.nonzero(bottom_hem[:,one_hit])[0]
         
         return select
+    
+    def mesh(self, resolution):
+        """
+        Represent the surface as a mesh in local coordinates. Uses spherical-
+        coordinates bins, i.e. the points are equally distributed by two angles,
+        not by x,y.
+        
+        Arguments:
+        resolution - in points per unit length (so the number of points 
+            returned is O(A*resolution**3) for area A)
+        
+        Returns:
+        x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+            coordinate (respectively) of point (i,j) in the mesh.
+        """
+        rng = N.pi + 1./(self._rad*resolution)
+        theta, phi = N.mgrid[
+            N.pi/2:rng:1./(self._rad*resolution),
+            0:2*rng:1./(self._rad*resolution)]
+
+        x = self._rad * N.sin(theta) * N.cos(phi)
+        y = self._rad * N.sin(theta) * N.sin(phi)
+        z = self._rad * N.cos(theta)
+        
+        return x, y, z
 
 class CutSphereGM(SphericalGM):
     def __init__(self, radius=1., bounding_volume=None):
