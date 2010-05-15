@@ -119,6 +119,7 @@ class TracerEngine():
             front_surf, owned_rays = self.intersect_ray(bund, surfaces, objects, \
                 surf_ownership, ray_ownership, surfs_relevancy)
             outg = bundle.empty_bund()
+            record = bundle.empty_bund()
             out_ray_own = []
             new_surfs_relevancy = []
             
@@ -129,20 +130,23 @@ class TracerEngine():
                     continue
                 surfaces[surf_idx].select_rays(N.nonzero(inters)[0])
                 new_outg = surfaces[surf_idx].get_outgoing()
-                
-                # Delete rays with negligible energies
-                delete = N.where(new_outg.get_energy() <= min_energy)[0] 
-                if N.shape(delete)[0] != 0:
-                    new_outg = new_outg.delete_rays(delete)
-                surfaces[surf_idx].done()
+                new_record = new_outg
                 
                 # Fix parent indexing to refer to the full original bundle:
                 parents = N.nonzero(owned_rays[surf_idx])[0][new_outg.get_parent()]
                 new_outg.set_parent(parents)
         
+                # Delete rays with negligible energies
+                delete = N.where(new_outg.get_energy() <= min_energy)[0] 
+                if len(delete) != 0:
+                    new_outg = new_outg.delete_rays(delete)
+                surfaces[surf_idx].done()
+                
                 # add the outgoing bundle from each object into a new bundle
                 # that stores all the outgoing bundles from all the objects
                 outg = outg + new_outg
+                # Move absorbed rays (low energy) to the end:
+                record = record + new_outg + new_record.inherit(delete)
                 
                 # Add new ray-ownership information to the total list:
                 obj_idx = surf_ownership[surf_idx]
@@ -158,6 +162,9 @@ class TracerEngine():
                     objects[obj_idx].surfaces_for_next_iteration(new_outg, surf_rel_idx)
                 new_surfs_relevancy.append(surf_relev)
             
+            if tree and record.get_num_rays() != 0:
+                self.store_branch(record)  # stores parent branch for purposes of ray tracking
+            
             bund = outg
             if bund.get_num_rays() == 0:
                 # All rays escaping
@@ -166,10 +173,9 @@ class TracerEngine():
             ray_ownership = N.hstack(out_ray_own)
             surfs_relevancy = N.hstack(new_surfs_relevancy)
             
-            if not tree:
-                self.tree = [self.tree[0]] # Delete earlier store.
-            self.store_branch(bund)  # stores parent branch for purposes of ray tracking
-            
+        if not tree:
+            self.store_branch(record) # Only the last one
+        
         return bund.get_vertices(), bund.get_directions()
     
     def store_branch(self, bundle):

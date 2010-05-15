@@ -300,8 +300,9 @@ class TestNestedAssemblies(unittest.TestCase):
         bund.set_ref_index(N.r_[1])
         
         self.engine.ray_tracer(bund, 15, 10.)
-        v = self.engine.tree[-1].get_vertices()
-        d = self.engine.tree[-1].get_directions()
+        non_degenerate = self.engine.tree[-1].get_energy() > 10
+        v = self.engine.tree[-1].get_vertices()[:,non_degenerate]
+        d = self.engine.tree[-1].get_directions()[:,non_degenerate]
         # Not high equality demanded, because of spherical aberration.
         N.testing.assert_array_almost_equal(v, N.c_[[-0.01, 0., 1.5]], 2)
         N.testing.assert_array_almost_equal(d, N.c_[[0., 0., 1.]], 2)

@@ -109,14 +109,14 @@ class TestTree2(unittest.TestCase):
         """Tests the assembly after three iterations"""
         self.engine.ray_tracer(self._bund,3,.05)[0]
         params = self.engine.get_parents_from_tree()
-        correct_params = [N.r_[1,2],N.r_[0,0,1],N.r_[1,2]]
+        correct_params = [N.r_[1,2],N.r_[0,0,1,1],N.r_[1,2,1,2]]
         N.testing.assert_equal(params, correct_params)
     
     def test_no_tree(self):
         """Running with tree=False only saves last bundle."""
         self.engine.ray_tracer(self._bund, 3, .05, tree=False)
         parents = self.engine.get_parents_from_tree()
-        N.testing.assert_equal(parents, [N.r_[1,2]])
+        self.failUnlessEqual(len(parents), 1)
 
 class TestRayCulling(unittest.TestCase):
     def setUp(self):

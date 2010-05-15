@@ -31,8 +31,10 @@ class TestRectOneSided(unittest.TestCase):
         
         correct_verts = N.zeros((3,2))
         correct_verts[0] = N.r_[0, 0.5]
-        N.testing.assert_array_equal(outg.get_vertices(), correct_verts)
-        N.testing.assert_array_almost_equal(outg.get_energy(), N.r_[100., 100.])
+        N.testing.assert_array_equal(
+            outg.get_vertices()[:,outg.get_energy() > 0], correct_verts)
+        N.testing.assert_array_almost_equal(
+            outg.get_energy(), N.r_[100., 100., 0, 0])
     
     def test_rotated(self):
         """One-sided plate with rotation"""
@@ -44,5 +46,7 @@ class TestRectOneSided(unittest.TestCase):
         outg = e.tree[-1]
         
         correct_verts = N.array([[0., 0.5], [0., 0.], [0., -0.5]])
-        N.testing.assert_array_almost_equal(outg.get_vertices(), correct_verts)
-        N.testing.assert_array_almost_equal(outg.get_energy(), N.r_[100., 100.])
+        N.testing.assert_array_almost_equal(
+            outg.get_vertices()[:,outg.get_energy() > 0], correct_verts)
+        N.testing.assert_array_almost_equal(
+            outg.get_energy(), N.r_[100., 100., 0, 0])
