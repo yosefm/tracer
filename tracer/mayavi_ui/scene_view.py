@@ -1,3 +1,10 @@
+"""
+This module holds basic building blocks for displaying ray tracing scenes using
+the MayaVi package of 3D plotting. A traited scene class is used to hold an
+assembly and ray bundle (source), and show_assembly() and show_rays() help
+with the drawing.
+"""
+
 import enthought.traits.api as t_api
 import enthought.traits.ui.api as tui
 from enthought.mayavi.tools.mlab_scene_model import MlabSceneModel
@@ -12,9 +19,15 @@ class TracerScene(t_api.HasTraits):
     
     def __init__(self, assembly, source):
         """
-        Argumennts:
+        TracerScene manages a MayaVi scene with one tracer assembly and one
+        tracer ray bundle. It redraws the assembly whenever it is replaced, 
+        and the path of the source rays from the given source bundle to their
+        escape from the system.
+        
+        Arguments:
         assembly - the assembly to be used for tracing, an Assembly instance.
-            The assembly's surfaces are drawn on the scene.
+            The assembly's surfaces are drawn on the scene. All surfaces must
+            provide a mesh() method.
         source - a RayBundle instance with the rays to trace.
         """
         t_api.HasTraits.__init__(self)
@@ -30,16 +43,34 @@ class TracerScene(t_api.HasTraits):
         self.plot_ray_trace()
     
     def set_assembly(self, asm):
+        """
+        Replace the scene's assembly with a new one, and redraw.
+        
+        Arguments:
+        asm - an Assembly instance, whose all surfacesd have a mesh() method.
+        """
         self._asm = asm
         for mesh in self._meshes:
             mesh.remove()
         self._meshes = show_assembly(self._scene, self._asm)
     
     def set_source(self, source):
+        """
+        Replace the source, and replot the full trace from the new source.
+        
+        Arguments:
+        source - a RayBundle instance.
+        """
         self._source = source
         self.plot_ray_trace()
     
     def set_background(self, bg):
+        """
+        Change the background colour for the scene.
+        
+        Arguments:
+        gb - a tuple of (R, G, B) values, each a float from 0 to 1.
+        """
         self._scene.background = bg
     
     def plot_ray_trace(self):
