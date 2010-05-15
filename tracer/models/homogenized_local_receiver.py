@@ -41,6 +41,7 @@ class HomogenizedLocalReceiver(Assembly):
             homogenizer_depth, homog_opt_eff)
         self._hom.set_transform(receiver_frame)
         
+        self._mr = main_reflector
         refl = AssembledObject(surfs=[main_reflector])
         Assembly.__init__(self, objects=[rec_obj, refl], subassemblies=[self._hom])
     
@@ -51,6 +52,9 @@ class HomogenizedLocalReceiver(Assembly):
     def get_homogenizer(self):
         """Direct access to the homogenizer subassembly"""
         return self._hom
+    
+    def get_main_reflector(self):
+        return self._mr
     
     def histogram_hits(self, bins=50):
         """
