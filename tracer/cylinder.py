@@ -94,4 +94,28 @@ class FiniteCylinder(InfiniteCylinder):
         select[one_hit] = N.nonzero(inside[:,one_hit])[0]
         
         return select
+    
+    def mesh(self, resolution):
+        """
+        Represent the surface as a mesh in local coordinates. Uses cylindrical
+        bins, i.e. the points are equally distributed by angle and axial 
+        location, not by x,y.
+        
+        Arguments:
+        resolution - in points per unit length (so the number of points 
+            returned is O(height*pi*diameter*resolution**2))
+        
+        Returns:
+        x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+            coordinate (respectively) of point (i,j) in the mesh.
+        """
+        h = N.r_[-self._half_h:self._half_h+.5/resolution:1./resolution]
+        ang_end = 2*N.pi + 1./(self._R*resolution)
+        angs = N.r_[0:ang_end:1./(self._R*resolution)]
+        
+        x = N.tile(self._R*N.cos(angs), (len(h), 1))
+        y = N.tile(self._R*N.sin(angs), (len(h), 1))
+        z = N.tile(h[:,None], (1, len(angs)))
+        
+        return x, y, z
 

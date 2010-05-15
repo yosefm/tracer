@@ -101,3 +101,9 @@ class TestFiniteCylinder(unittest.TestCase):
         correct_prm.fill(N.inf)
         prm = self.gm.find_intersections(frame, self.bund)
         N.testing.assert_array_equal(prm, correct_prm)
+    
+    def test_mesh(self):
+        """Cylindrical mesh OK"""
+        x, y, z = self.gm.mesh(20)
+        self.failUnless(N.allclose(x**2 + y**2, 0.25))
+
