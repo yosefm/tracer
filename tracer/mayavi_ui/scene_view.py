@@ -29,6 +29,14 @@ class TracerScene(t_api.HasTraits):
         self._lines = []
         self.plot_ray_trace()
     
+    def set_assembly(self, asm):
+        self._asm = asm
+        show_assembly(self._scene, self._asm)
+    
+    def set_source(self, source):
+        self._source = source
+        self.plot_ray_trace()
+    
     def plot_ray_trace(self):
         """
         Removes any previously plotted ray sections from the last trace of rays
@@ -48,7 +56,7 @@ class TracerScene(t_api.HasTraits):
         tui.Item('_scene', editor=SceneEditor(scene_class=MayaviScene),
             height=400, width=300, show_label=False))
 
-def show_assembly(scene, assembly, colour=(0.5, 0.5, 0.5), resolution=0.1):
+def show_assembly(scene, assembly, colour=(0.5, 0.5, 0.5), resolution=10):
     """
     Add to a scene meshes for the surfaces composing an assembly
     
@@ -60,7 +68,11 @@ def show_assembly(scene, assembly, colour=(0.5, 0.5, 0.5), resolution=0.1):
     """
     meshes = []
     for surf in assembly.get_surfaces():
-        mesh = scene.mlab.mesh(*surf.mesh(resolution), color=colour)
+        if hasattr(surf, 'resolution'):
+            sres = surf.resolution
+        else:
+            sres = resolution
+        mesh = scene.mlab.mesh(*surf.mesh(sres), color=colour)
         meshes.append(mesh)
     
     return meshes
@@ -84,27 +96,30 @@ def show_rays(scene, tree, escaping_len):
     
     for level in xrange(len(tree)):
         start_rays = tree[level]
+        sv = start_rays.get_vertices()
+        sd = start_rays.get_directions()
+        se = start_rays.get_energy()
+        
         if level == len(tree) - 1:
             parents = []
         else:
             end_rays = tree[level + 1]
+            ev = end_rays.get_vertices()
             parents = end_rays.get_parent()
 
         for ray in xrange(start_rays.get_num_rays()):
+            if se[ray] == 0:
+                continue
+            
             if ray in parents:
                 # Has a hit on another surface
                 first_child = N.where(ray == parents)[0][0]
-                endpoints = N.c_[
-                    start_rays.get_vertices()[:,ray],
-                    end_rays.get_vertices()[:,first_child] ]
+                endpoints = N.c_[sv[:,ray], ev[:,first_child]]
             else:
                 # Escaping ray.
-                endpoints = N.c_[
-                    start_rays.get_vertices()[:,ray],
-                    start_rays.get_vertices()[:,ray] + \
-                        start_rays.get_directions()[:,ray]*escaping_len ]
+                endpoints = N.c_[sv[:,ray], sv[:,ray] + sd[:,ray]*escaping_len]
             
-            lines.append(scene.mlab.plot3d(*endpoints))
+            lines.append(scene.mlab.plot3d(*endpoints, tube_radius=None))
     tree.pop()
     return lines
 

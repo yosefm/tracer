@@ -37,16 +37,20 @@ class HomogenizedLocalReceiver(Assembly):
         receiver_frame = N.dot(sp.translate(0, 0, receiver_pos), sp.rotx(N.pi))
         rec_obj.set_transform(receiver_frame)
         
-        homogenizer = rect_homogenizer(self._sides[0], self._sides[1], \
+        self._hom = rect_homogenizer(self._sides[0], self._sides[1], \
             homogenizer_depth, homog_opt_eff)
-        homogenizer.set_transform(receiver_frame)
+        self._hom.set_transform(receiver_frame)
         
         refl = AssembledObject(surfs=[main_reflector])
-        Assembly.__init__(self, objects=[rec_obj, refl], subassemblies=[homogenizer])
+        Assembly.__init__(self, objects=[rec_obj, refl], subassemblies=[self._hom])
     
     def get_receiver_surf(self):
         """for anyone wishing to directly access the receiver"""
         return self._rec
+    
+    def get_homogenizer(self):
+        """Direct access to the homogenizer subassembly"""
+        return self._hom
     
     def histogram_hits(self, bins=50):
         """

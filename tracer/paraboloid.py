@@ -123,10 +123,11 @@ class ParabolicDishGM(Paraboloid):
             coordinate (respectively) of point (i,j) in the mesh.
         """
         # Generate a circular-edge mesh using polar coordinates.
-        r_end = self._R + resolution/100.
+        r_end = self._R + 1./100./resolution
         rs = N.r_[0:r_end:1./resolution]
         # Make the circumferential points at the requested resolution.
-        angs = N.r_[0:2*N.pi:1./(self._R*resolution)]
+        ang_end = 2*N.pi + 1./(self._R*resolution)
+        angs = N.r_[0:ang_end:1./(self._R*resolution)]
 
         x = N.outer(rs, N.cos(angs))
         y = N.outer(rs, N.sin(angs))

@@ -191,10 +191,10 @@ class RectPlateGM(FiniteFlatGM):
         x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
             coordinate (respectively) of point (i,j) in the mesh.
         """
-        eps_rng = self._half_dims[:,0] + resolution/100.
+        eps_rng = self._half_dims[:,0] + 0.01/resolution
         x, y = N.mgrid[
-            -self._half_dims[0,0]:eps_rng[0]:resolution,
-            -self._half_dims[1,0]:eps_rng[1]:resolution]
+            -self._half_dims[0,0]:eps_rng[0]:1./resolution,
+            -self._half_dims[1,0]:eps_rng[1]:1./resolution]
         z = N.zeros_like(x)
         return x, y, z
 
@@ -235,7 +235,7 @@ class RoundPlateGM(FiniteFlatGM):
             coordinate (respectively) of point (i,j) in the mesh.
         """
         # Generate a circular-edge mesh using polar coordinates.
-        r_end = self._R + resolution/100.
+        r_end = self._R + 0.01/resolution
         rs = N.r_[0:r_end:1./resolution]
         # Make the circumferential points at the requested resolution.
         angs = N.r_[0:2*N.pi:1./(self._R*resolution)]
