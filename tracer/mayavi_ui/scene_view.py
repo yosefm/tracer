@@ -23,7 +23,7 @@ class TracerScene(t_api.HasTraits):
         self._source = source
         
         # Initialize drawn surfaces:
-        show_assembly(self._scene, self._asm)
+        self._meshes = show_assembly(self._scene, self._asm)
         
         # First plot:
         self._lines = []
@@ -31,11 +31,16 @@ class TracerScene(t_api.HasTraits):
     
     def set_assembly(self, asm):
         self._asm = asm
-        show_assembly(self._scene, self._asm)
+        for mesh in self._meshes:
+            mesh.remove()
+        self._meshes = show_assembly(self._scene, self._asm)
     
     def set_source(self, source):
         self._source = source
         self.plot_ray_trace()
+    
+    def set_background(self, bg):
+        self._scene.background = bg
     
     def plot_ray_trace(self):
         """
@@ -59,6 +64,9 @@ class TracerScene(t_api.HasTraits):
 def show_assembly(scene, assembly, colour=(0.5, 0.5, 0.5), resolution=10):
     """
     Add to a scene meshes for the surfaces composing an assembly
+    The colour used is that given as an argument, unless a surface is
+    annotated with a .color attribute, in which case this colour is used.
+    The same applies to the 'resolution' argument and .resolution attribute.
     
     Arguments:
     assembly - an Assembly instance.
@@ -72,7 +80,12 @@ def show_assembly(scene, assembly, colour=(0.5, 0.5, 0.5), resolution=10):
             sres = surf.resolution
         else:
             sres = resolution
-        mesh = scene.mlab.mesh(*surf.mesh(sres), color=colour)
+        if hasattr(surf, 'colour'):
+            scol = surf.colour
+        else:
+            scol = colour
+        
+        mesh = scene.mlab.mesh(*surf.mesh(sres), color=scol)
         meshes.append(mesh)
     
     return meshes
