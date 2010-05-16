@@ -52,7 +52,7 @@ class DishScene(TracerScene):
         return dish, source
 
     @t_api.on_trait_change('refl, concent')
-    def recreate_dish(self, new):
+    def recreate_dish(self):
         """
         Makes sure that the scene is redrawn upon dish design changes.
         """
