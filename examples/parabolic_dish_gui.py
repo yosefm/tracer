@@ -22,8 +22,8 @@ class DishScene(TracerScene):
     handling of simulation-specific details, like colouring the dish elements
     and setting proper resolution.
     """
-    refl = t_api.Float(1.)
-    concent = t_api.Float(450)
+    refl = t_api.Float(1., label='Edge reflections')
+    concent = t_api.Float(450, label='Concentration')
     disp_num_rays = t_api.Int(10)
     
     def __init__(self):
