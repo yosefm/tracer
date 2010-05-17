@@ -31,6 +31,7 @@ class TracerScene(t_api.HasTraits):
         source - a RayBundle instance with the rays to trace.
         """
         t_api.HasTraits.__init__(self)
+        self._esc = 1.
         
         self._asm = assembly
         self._source = source
@@ -42,6 +43,15 @@ class TracerScene(t_api.HasTraits):
         self._lines = []
         self.plot_ray_trace()
     
+    def clear_scene(self):
+        """
+        Removes all objects from the MayaVi scene, in one shot, instead of
+        removing elements one by one.
+        """
+        self._scene.mlab.clf()
+        self._lines = []
+        self._meshes = []
+        
     def set_assembly(self, asm):
         """
         Replace the scene's assembly with a new one, and redraw.
@@ -86,7 +96,7 @@ class TracerScene(t_api.HasTraits):
         # Trace new rays:
         engine = TracerEngine(self._asm)
         params = engine.ray_tracer(self._source, 20000000, .05)[0]
-        self._lines = show_rays(self._scene, engine.tree, 1)
+        self._lines = show_rays(self._scene, engine.tree, self._esc)
     
     view = tui.View(
         tui.Item('_scene', editor=SceneEditor(scene_class=MayaviScene),
