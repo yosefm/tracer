@@ -8,8 +8,7 @@ setup(name='Tracer',
       author='The Tracer developers',
       author_email='tracer-user@lists.berlios.de',
       url='http://tracer.berlios.de',
-      packages=['tracer', 'tracer.models'],
+      packages=['tracer', 'tracer.models', 'tracer.mayavi_ui'],
       license="GPL v3.0 or later, see LICENSE file"
      )
-
 
