@@ -62,10 +62,7 @@ class HeliostatField(Assembly):
         elevation - angle created between the solar vector and the Z axis, 
             in radians.
         """
-        sun_z = N.cos(elevation)
-        sun_xy = N.r_[-N.sin(azimuth), -N.cos(azimuth)] # unit vector, can't combine with z
-        
-        sun_vec = N.r_[sun_xy*N.sqrt(1 - sun_z**2), sun_z]
+        sun_vec = solar_vector(azimuth, elevation)
         tower_vec = -self._pos 
         tower_vec[:,2] += self._th
         tower_vec /= N.sqrt(N.sum(tower_vec**2, axis=1)[:,None])
@@ -83,6 +80,22 @@ class HeliostatField(Assembly):
             trans[:3,3] = self._pos[hidx]
             
             self._heliostats[hidx].set_transform(trans)
+
+def solar_vector(azimuth, elevation):
+    """
+    Calculate the solar vector using elevation and azimuth.
+    
+    Arguments:
+    azimuth - the sun's azimuth, in radians from east, counterclockwise.
+    elevation - angle created between the solar vector and the Z axis, 
+        in radians.
+    
+    Returns: a 3-component 1D array with the solar vector.
+    """
+    sun_z = N.cos(elevation)
+    sun_xy = N.r_[-N.sin(azimuth), -N.cos(azimuth)] # unit vector, can't combine with z
+    sun_vec = N.r_[sun_xy*N.sqrt(1 - sun_z**2), sun_z]
+    return sun_vec
 
 def radial_stagger(start_ang, end_ang, az_space, rmin, rmax, r_space):
     """
