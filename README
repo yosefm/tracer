@@ -38,11 +38,16 @@ Before installing, make sure that the following dependencies are installed:
 * SciPy
 Both available from http://www.scipy.org/
 
+Optional dependencies:
+* Matplotlib - http://matplotlib.sourceforge.net/
+* MayaVi - http://code.enthought.com/projects/mayavi/
+
 To test that things are working, run the test-suite in the tests/
 subdirectory, using nosetests or some similar tool.
 
 Also check out examples/test_case.py as a starting-point to the code. Running it
-requires matplotlib to be installed
+requires Matplotlib to be installed. The other examples in that directory
+require MayaVi to run.
 
 Getting Help, Getting Involved
 ------------------------------
