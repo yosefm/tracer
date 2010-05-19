@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Implements a specularly reflecting, grey surface.
+# Implements the geometry of several types of flat surfaces.
 # 
 # Reference:
 # [1]http://www.siggraph.org/education/materials/HyperGraph/raytrace/rayplane_intersection.htm
@@ -9,6 +9,10 @@ import numpy as N
 from geometry_manager import GeometryManager
 
 class FlatGeometryManager(GeometryManager):
+    """
+    Implements the geometry of an infinite flat surface, an the XY plane of its
+    local coordinates (so the local Z is the surface normal).
+    """
     def find_intersections(self, frame, ray_bundle):
         """
         Register the working frame and ray bundle, calculate intersections
@@ -155,6 +159,10 @@ class FiniteFlatGM(FlatGeometryManager):
         self._global = self._global[:,idxs].copy()
     
 class RectPlateGM(FiniteFlatGM):
+    """
+    Trims the infinite flat surface by marking rays whose intersection with
+    the surface are outside the given width and height.
+    """
     def __init__(self, width, height):
         """
         Arguments:
@@ -199,6 +207,10 @@ class RectPlateGM(FiniteFlatGM):
         return x, y, z
 
 class RoundPlateGM(FiniteFlatGM):
+    """
+    Trims the infinite flat surface by marking as missing the rays falling
+    outside the given radius.
+    """
     def __init__(self, R):
         """
         Arguments:

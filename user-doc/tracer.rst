@@ -12,3 +12,4 @@ Tracer Package
    object
    surface
    opt_call
+   geometry

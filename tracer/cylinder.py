@@ -1,9 +1,7 @@
 """
 Geometry managers based on a cylinder along the Z axis.
 
-References
-----------
-
+References:
 .. [1] http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter4.htm
 """
 

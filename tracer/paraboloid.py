@@ -64,12 +64,13 @@ class Paraboloid(QuadricGM):
 
 import math
 class ParabolicDishGM(Paraboloid):
+    """
+    A paraboloid that marks rays outside its diameter as missing. The
+    parameters for the paraboloid's equation are determined from the focal
+    length.
+    """
     def __init__(self, diameter, focal_length):
         """
-        A paraboloid that marks rays outside its diameter as missing. The
-        parameters for the paraboloid's equation are determined from the focal
-        length.
-        
         Arguments:
         diameter - of the circular aperture created by cutting the paraboloid
             with a plane parallel to the xy plane.
@@ -136,13 +137,14 @@ class ParabolicDishGM(Paraboloid):
         return x, y, z
 
 class HexagonalParabolicDishGM(Paraboloid):
+    """
+    A paraboloid that marks rays outside a regular hexagon perimeter as
+    missing. The parameters for the paraboloid's equation are determined
+    from the focal length. The hexagon is oriented with two parallel to the
+    Y axis.
+    """    
     def __init__(self, diameter, focal_length):
         """
-        A paraboloid that marks rays outside a regular hexagon perimeter as
-        missing. The parameters for the paraboloid's equation are determined
-        from the focal length. The hexagon is oriented with two parallel to the
-        Y axis.
-        
         Arguments:
         diameter - of the circle bounding the regular hexagonal aperture of the
             dish.

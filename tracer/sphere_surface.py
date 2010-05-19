@@ -16,9 +16,10 @@ class SphericalGM(QuadricGM):
     def __init__(self, radius=1.):
         """
         Arguments:  
-        radius - Set as the sphere's radius
+        radius - Set as the sphere's radius.
+        
         Private attributes:
-        _rad - radius of the sphere, a float 
+        _rad - radius of the sphere, a float. 
         """
         QuadricGM.__init__(self)
         self.set_radius(radius)  
@@ -92,6 +93,10 @@ class SphericalGM(QuadricGM):
         return x, y, z
 
 class HemisphereGM(SphericalGM):
+    """
+    Trims the SphericalGM by only selecting intersection points in the lower
+    hemisphere (z < 0).
+    """
     def _select_coords(self, coords, prm):
         """
         Select from dual intersections by vetting out rays in the upper
@@ -137,7 +142,17 @@ class HemisphereGM(SphericalGM):
         return x, y, z
 
 class CutSphereGM(SphericalGM):
+    """
+    Trims the SphericalGM by only selecting intersection points inside a
+    bounding volume. This GM still can't supply a mesh of itself.
+    """
     def __init__(self, radius=1., bounding_volume=None):
+        """
+        Arguments:
+        radius - of the sphere to cut.
+        bunding_volume - an instance BoundaryShape subclass (see 
+            ``boundary_shape.py``)
+        """
         SphericalGM.__init__(self, radius)
         self._bound = bounding_volume
     

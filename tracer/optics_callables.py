@@ -32,6 +32,12 @@ class Reflective(object):
 perfect_mirror = Reflective(0)
 
 class ReflectiveReceiver(Reflective):
+    """
+    This optics manager remembers all of the locations where rays hit it
+    in all iterations, and the energy absorbed from each ray. The surface is 
+    reflective, but by default its absorptivity is 1. The energy remembered
+    is the incoming energy, not that remaining after reflection.
+    """
     def __init__(self, absorptivity=1.):
         Reflective.__init__(self, absorptivity)
         self._absorbed = []
@@ -57,6 +63,11 @@ class ReflectiveReceiver(Reflective):
             N.hstack([h for h in self._hits if h.shape[1]])
 
 class AbsorberReflector(Reflective):
+    """
+    This optics manager behaves similarly to the ReflectiveReceiver class,
+    but adds directionality. In this way a simple one-side receiver doesn't
+    necessitate an extra surface in the back.
+    """
     def __call__(self, geometry, rays, selector):
         """
         Rays coming from the "up" side are reflected like in a Reflective
