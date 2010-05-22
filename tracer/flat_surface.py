@@ -199,10 +199,11 @@ class RectPlateGM(FiniteFlatGM):
         x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
             coordinate (respectively) of point (i,j) in the mesh.
         """
-        eps_rng = self._half_dims[:,0] + 0.01/resolution
-        x, y = N.mgrid[
-            -self._half_dims[0,0]:eps_rng[0]:1./resolution,
-            -self._half_dims[1,0]:eps_rng[1]:1./resolution]
+        points = N.ceil(resolution*self._half_dims.reshape(-1)*2)
+        xs = N.linspace(-self._half_dims[0,0], self._half_dims[0,0], points[0])
+        ys = N.linspace(-self._half_dims[1,0], self._half_dims[1,0], points[1])
+        
+        x, y = N.broadcast_arrays(xs[:,None], ys)
         z = N.zeros_like(x)
         return x, y, z
 

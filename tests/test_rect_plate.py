@@ -30,12 +30,15 @@ class TestRectPlateGM(unittest.TestCase):
         N.testing.assert_array_equal(misses, N.r_[False, False, True, True])
     
     def test_mesh(self):
-        """Correct mesh for recxt-plate"""
+        """Correct mesh for rect-plate"""
         r = RectPlateGM(5, 6)
         res = 10
         x, y, z = r.mesh(res)
         
-        cx, cy = N.mgrid[-2.5:2.51:1./res, -3:3.01:0.1]
+        rx = N.linspace(-2.5, 2.5, res*5)
+        ry = N.linspace(-3, 3, res*6)
+        cx, cy = N.broadcast_arrays(rx[:,None], ry)
+        
         N.testing.assert_array_equal(x, cx)
         N.testing.assert_array_equal(y, cy)
         N.testing.assert_array_equal(z, N.zeros_like(x))
