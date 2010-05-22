@@ -82,13 +82,13 @@ class SphericalGM(QuadricGM):
             coordinate (respectively) of point (i,j) in the mesh.
         """
         rng = N.pi + 1./(self._rad*resolution)
-        theta, phi = N.mgrid[
+        theta, phi = N.ogrid[
             0:rng:1./(self._rad*resolution),
             0:2*rng:1./(self._rad*resolution)]
         
         x = self._rad * N.sin(theta) * N.cos(phi)
         y = self._rad * N.sin(theta) * N.sin(phi)
-        z = self._rad * N.cos(theta)
+        z = N.tile(self._rad * N.cos(theta), (1, x.shape[1]))
         
         return x, y, z
 
@@ -131,13 +131,13 @@ class HemisphereGM(SphericalGM):
             coordinate (respectively) of point (i,j) in the mesh.
         """
         rng = N.pi + 1./(self._rad*resolution)
-        theta, phi = N.mgrid[
+        theta, phi = N.ogrid[
             N.pi/2:rng:1./(self._rad*resolution),
             0:2*rng:1./(self._rad*resolution)]
 
         x = self._rad * N.sin(theta) * N.cos(phi)
         y = self._rad * N.sin(theta) * N.sin(phi)
-        z = self._rad * N.cos(theta)
+        z = N.tile(self._rad * N.cos(theta), (1, x.shape[1]))
         
         return x, y, z
 
