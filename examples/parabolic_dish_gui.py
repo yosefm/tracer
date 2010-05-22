@@ -40,9 +40,7 @@ class DishScene(TracerScene):
         dish, f, W, H = standard_minidish(1., self.concent, self.refl, 1., 1.)
         # Add GUI annotations to the dish assembly:
         for surf in dish.get_homogenizer().get_surfaces():
-            surf.resolution = 1000.
             surf.colour = (1., 0., 0.)
-        dish.get_receiver_surf().resolution = 1000.
         dish.get_main_reflector().colour = (0., 0., 1.)
 
         source = solar_disk_bundle(self.disp_num_rays,

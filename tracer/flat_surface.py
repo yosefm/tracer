@@ -200,6 +200,7 @@ class RectPlateGM(FiniteFlatGM):
             coordinate (respectively) of point (i,j) in the mesh.
         """
         points = N.ceil(resolution*self._half_dims.reshape(-1)*2)
+        points[points < 2] = 2 # At least the edges of the range.
         xs = N.linspace(-self._half_dims[0,0], self._half_dims[0,0], points[0])
         ys = N.linspace(-self._half_dims[1,0], self._half_dims[1,0], points[1])
         
