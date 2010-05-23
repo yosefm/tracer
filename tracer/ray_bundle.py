@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# References:
-# [1] Monte Carlo Ray Tracing, Siggraph 2003 Course 44
 
 import numpy as N
 
