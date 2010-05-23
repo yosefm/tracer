@@ -101,6 +101,7 @@ class TowerScene(TracerScene):
         rays = RayBundle(rpos, direct, energy=N.ones(rpos.shape[1]))
         
         # Perform the trace:
+        self.rec.get_optics_manager().reset()
         e = TracerEngine(self.plant)
         e.ray_tracer(rays, 1000, 0.05)
         

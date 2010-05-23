@@ -40,6 +40,10 @@ class ReflectiveReceiver(Reflective):
     """
     def __init__(self, absorptivity=1.):
         Reflective.__init__(self, absorptivity)
+        self.reset()
+    
+    def reset(self):
+        """Clear the memory of hits (best done before a new trace)."""
         self._absorbed = []
         self._hits = []
     
