@@ -11,6 +11,7 @@ from numpy import random, linalg as LA
 import numpy as N
 
 from ray_bundle import RayBundle
+from spatial_geometry import rotation_to_z
 
 def pillbox_sunshape_directions(num_rays, ang_range):
     """
@@ -57,12 +58,7 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
     a = pillbox_sunshape_directions(num_rays, ang_range)
     
     # Rotate to a frame in which <direction> is Z:
-    perp = N.array([direction[1],  -direction[0],  0])
-    if N.all(perp == 0):
-        perp = N.array([1.,  0.,  0.])
-    perp = perp/LA.norm(perp)
-
-    perp_rot = N.array((perp, N.cross(direction, perp), direction)).T
+    perp_rot = rotation_to_z(direction)
     directions = N.sum(perp_rot[...,None] * a[None,...], axis=1)
 
     # Locations:
@@ -75,9 +71,8 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
     ys = rs * N.sin(thetas)
 
     # Rotate locations to the plane defined by <direction>:
-    rot = N.vstack((perp,  N.cross(direction,  perp),  direction))
     vertices_local = N.vstack((xs,  ys,  N.zeros(num_rays)))
-    vertices_global = N.dot(rot.T,  vertices_local)
+    vertices_global = N.dot(perp_rot,  vertices_local)
 
     rayb = RayBundle()
     rayb.set_vertices(vertices_global + center)
@@ -85,11 +80,7 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
     return rayb
 
 def square_bundle(num_rays, center, direction, width):
-    perp = N.array([direction[1],  -direction[0],  0])
-    if N.all(perp == 0):
-        perp = N.array([1.,  0.,  0.])
-    perp = perp/N.linalg.norm(perp)
-    rot = N.vstack((perp,  N.cross(direction,  perp),  direction))
+    rot = rotation_to_z(direction)
     directions = N.tile(direction[:,None], (1, num_rays))
     range = N.s_[-width:width:float(2*width)/N.sqrt(num_rays)]
     xs, ys = N.mgrid[range, range]

@@ -21,6 +21,30 @@ def general_axis_rotation(axis,  angle):
                             [-axis[1], axis[0],  0        ] ])
     return N.multiply.outer(axis,  axis)*v + N.eye(3)*c + add*s
 
+def rotation_to_z(vec):
+    """
+    Generate a rotattion into a frame whose Z zxis points along the direction
+    indicated by ``vec``. The rest of the directions are determined by
+    requiring the new X to lie on the XY plane of the original frame, and by
+    the right-hand rule.
+    
+    In the singular case that the required direction is the Z axis, the
+    original frame is retained.
+    
+    Arguments:
+    vec - a 3-component 1D array representing a direction in 3D space.
+    
+    Returns:
+    A 3x3 array representing the global-to-local rotation to get the desired
+        frame.
+    """
+    perp = N.r_[vec[1],  -vec[0],  0]
+    if N.all(perp == 0):
+        perp = N.r_[1.,  0.,  0.]
+    perp = perp/N.linalg.norm(perp)
+    perp_rot = N.array((perp, N.cross(vec, perp), vec)).T
+    return perp_rot
+
 def generate_transform(axis, angle, translation):
     """Generates a transformation matrix                                                      
     Arguments: axis - a 3-component 1D array giving the unit vector to rotate about          
