@@ -14,8 +14,9 @@ import numpy as N
 from scipy.constants import degree
 
 from tracer.ray_bundle import RayBundle
+from tracer.sources import pillbox_sunshape_directions
 from tracer.assembly import Assembly
-from tracer.spatial_geometry import roty
+from tracer.spatial_geometry import roty, rotation_to_z
 from tracer.tracer_engine import TracerEngine
 
 from tracer.models.one_sided_mirror import one_sided_receiver
@@ -90,15 +91,18 @@ class TowerScene(TracerScene):
         # Generate a large ray bundle using a radial stagger much denser
         # than the field.
         sun_vec = solar_vector(self.sun_az*degree, self.sun_elev*degree)
-        xy_spread = N.s_[-1:1.01:0.1]
-        x, y = N.mgrid[xy_spread, xy_spread]
-        base_pos = N.tile(self.pos, (len(N.r_[xy_spread])**2, 1))
-        base_pos[:,0] += x.flatten().repeat(self.pos.shape[0])
-        base_pos[:,1] += y.flatten().repeat(self.pos.shape[0])
         
-        rpos = (base_pos + sun_vec).T
-        direct = N.tile(-sun_vec, (rpos.shape[1], 1)).T
-        rays = RayBundle(rpos, direct, energy=N.ones(rpos.shape[1]))
+        hstat_rays = 1000
+        num_rays = hstat_rays*len(self.field.get_heliostats())
+        rot_sun = rotation_to_z(-sun_vec)
+        direct = N.dot(rot_sun, pillbox_sunshape_directions(num_rays, 0.00465))
+        
+        xy = N.random.uniform(low=-0.25, high=0.25, size=(2, num_rays))
+        base_pos = N.tile(self.pos, (hstat_rays, 1)).T
+        base_pos += N.dot(rot_sun[:,:2], xy)
+        
+        base_pos -= direct
+        rays = RayBundle(base_pos, direct, energy=N.ones(num_rays))
         
         # Perform the trace:
         self.rec.get_optics_manager().reset()
