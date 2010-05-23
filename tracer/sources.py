@@ -80,6 +80,19 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
     return rayb
 
 def square_bundle(num_rays, center, direction, width):
+    """
+    Generate a ray bundles whose rays are equally spaced along a square grid,
+    and all pointing in the same direction.
+    
+    Arguments:
+    num_rays - number of rays to generate.
+    center - a column 3-array with the 3D coordinate of the disk's center
+    direction - a 1D 3-array with the unit direction vector for the bundle.
+    width - of the square of starting points.
+    
+    Returns: 
+    A RayBundle object with the above charachteristics set.
+    """
     rot = rotation_to_z(direction)
     directions = N.tile(direction[:,None], (1, num_rays))
     range = N.s_[-width:width:float(2*width)/N.sqrt(num_rays)]
