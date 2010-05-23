@@ -12,7 +12,7 @@ from enthought.mayavi.core.ui.mayavi_scene import MayaviScene
 from tracer.mayavi_ui.scene_view import TracerScene
 
 import numpy as N
-from tracer.ray_bundle import solar_disk_bundle
+from tracer.sources import solar_disk_bundle
 from tracer.models.tau_minidish import standard_minidish
 from tracer import spatial_geometry as G
 

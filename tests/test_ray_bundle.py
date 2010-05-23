@@ -2,9 +2,12 @@
 
 import math
 import unittest
+
 import numpy as N
 from scipy import stats
+
 import tracer.ray_bundle as RB
+from tracer.sources import solar_disk_bundle
 
 class TestInheritance(unittest.TestCase):
     def test_inherit_empty_from_empty(self):
@@ -86,11 +89,11 @@ class TestDistributions(unittest.TestCase):
         center = N.array([0,  0, 0]).reshape(-1, 1) 
         R = 2
         
-        rays = RB.solar_disk_bundle(1000,  center,  dir,  R,  N.pi/100.)
+        rays = solar_disk_bundle(1000,  center,  dir,  R,  N.pi/100.)
         self.assert_radius(rays.get_vertices(),  center,  R)
         
         center = N.array([7,  7,  7]).reshape(-1, 1) 
-        rays = RB.solar_disk_bundle(1000,  center,  dir,  R,  N.pi/100.)
+        rays = solar_disk_bundle(1000,  center,  dir,  R,  N.pi/100.)
         self.assert_radius(rays.get_vertices(),  center,  R)
         
     def test_rotation(self):
@@ -98,11 +101,11 @@ class TestDistributions(unittest.TestCase):
         center = N.array([0,  0, 0]).reshape(-1, 1) 
         R = 2
         
-        rays = RB.solar_disk_bundle(1000,  center,  dir,  R,  N.pi/100.)
+        rays = solar_disk_bundle(1000,  center,  dir,  R,  N.pi/100.)
         self.assert_radius(rays.get_vertices(),  center,  R)
         
         dir = 1/math.sqrt(3)*N.ones(3)
-        rays = RB.solar_disk_bundle(1000,  center,  dir,  R,  N.pi/100.)
+        rays = solar_disk_bundle(1000,  center,  dir,  R,  N.pi/100.)
         self.assert_radius(rays.get_vertices(),  center,  R)
     
     def test_ray_directions(self):
@@ -114,7 +117,7 @@ class TestDistributions(unittest.TestCase):
         center = N.array([0,  0, 0]).reshape(-1, 1) 
         R = 2; theta_max = N.pi/100.
         
-        rays = RB.solar_disk_bundle(5000, center, dir, R, theta_max)
+        rays = solar_disk_bundle(5000, center, dir, R, theta_max)
         directs = rays.get_directions()
         dir_dots = N.dot(dir, directs)
         self.failUnless((dir_dots >= N.cos(theta_max)).all())
@@ -129,7 +132,7 @@ class TestDistributions(unittest.TestCase):
         center = N.c_[[0,  0, 0]]
         R = 2; theta_max = N.pi/100.
         
-        rays = RB.solar_disk_bundle(5000, center, dir, R, theta_max)
+        rays = solar_disk_bundle(5000, center, dir, R, theta_max)
         directs = rays.get_directions()
         dir_dots = N.dot(dir, directs)
         self.failUnless((dir_dots >= N.cos(theta_max)).all())

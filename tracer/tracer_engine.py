@@ -2,7 +2,6 @@
 
 import numpy as N
 from ray_bundle import RayBundle
-from ray_bundle import solar_disk_bundle
 
 class TracerEngine():
     """
