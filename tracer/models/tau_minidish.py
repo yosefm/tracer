@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
-# An assembly modeling the parabolic dish for building-integrated installations,
-# as developped in Tel Aviv University's Faculty of Engineering.
-#
-# References:
-# [1] Kribus A., et al, A miniature concentrating photovoltaic and thermal 
-#     system, Energy Conversion and Management, Volume 47, Issue 20, December
-#     2006, Pages 3582-3590, DOI: 10.1016/j.enconman.2006.01.013.
-# [2] Harald Ries et al., High-flux photovoltaic solar concentrators with 
-#     kaleidoscope-based optical designs, 1997, Solar Energy, 
-#     DOI: 10.1016/S0038-092X(96)00159-4
+"""
+An assembly modeling the parabolic dish for building-integrated installations,
+as developped in Tel Aviv University's Faculty of Engineering.
+
+References:
+.. [1] Kribus A., et al, A miniature concentrating photovoltaic and thermal 
+   system, Energy Conversion and Management, Volume 47, Issue 20, December
+   2006, Pages 3582-3590, DOI: 10.1016/j.enconman.2006.01.013.
+.. [2] Harald Ries et al., High-flux photovoltaic solar concentrators with 
+   kaleidoscope-based optical designs, 1997, Solar Energy, 
+   DOI: 10.1016/S0038-092X(96)00159-4
+"""
 
 from .. import optics_callables as opt
 from ..surface import Surface
@@ -54,6 +56,26 @@ class MiniDish(HomogenizedLocalReceiver):
         return self._ext_dims
 
 # Utility functions:
+def standard_minidish_measures(diameter, concentration, reflections):
+    """
+    Calculate tthe dimensions in a dish with 45 deg. rim angle, using
+    dimensioning rules from [2].
+    
+    Arguments:
+    diameter - of the dish aperture.
+    concentrations - ratio of dish aperture to receiver aperture.
+    reflections - number of times an edge ray gets reflected in the homogenizer
+    
+    Returns:
+    f, W, H - the focal length, homogenizer width and receiver distance from
+        focal point that were used for the dish.
+    """
+    f = diameter/4./(sqrt(2) - 1)
+    W = diameter/2. * sqrt(pi/concentration)
+    n = reflections + 1
+    H = n*W*f/(diameter - n*W)
+    return f, W, H
+    
 def standard_minidish(diameter, concentration, reflections, 
     dish_opt_eff=0.9, homog_opt_eff=0.9):
     """
@@ -71,9 +93,6 @@ def standard_minidish(diameter, concentration, reflections,
     f, W, H - the focal length, homogenizer width and receiver distance from
         focal point that were used for the dish.
     """
-    f = diameter/4./(sqrt(2) - 1)
-    W = diameter/2. * sqrt(pi/concentration)
-    n = reflections + 1
-    H = n*W*f/(diameter - n*W)
+    f, W, H = standard_minidish_measures(diameter, concentration, reflections)
     minidish = MiniDish(diameter, f, dish_opt_eff, f + H, W, H, homog_opt_eff)
     return minidish, f, W, H
