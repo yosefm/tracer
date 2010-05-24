@@ -37,7 +37,7 @@ def pillbox_sunshape_directions(num_rays, ang_range):
     a = N.vstack((N.cos(xi1)*sin_th, N.sin(xi1)*sin_th , N.cos(theta)))
     return a
 
-def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
+def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range, flux=None):
     """
     Generates a ray bundle emanating from a disk, with each surface element of 
     the disk having the same ray density. The rays all point at directions uniformly 
@@ -51,6 +51,8 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
         bundle.
     radius - of the disk.
     ang_range - in radians, the maximum deviation from <direction>.
+    flux - if not None, the ray bundle's energy is set such that each ray has
+        an equal amount of energy, and the total energy is flux*pi*radius**2
     
     Returns: 
     A RayBundle object with the above charachteristics set.
@@ -74,9 +76,10 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range):
     vertices_local = N.vstack((xs,  ys,  N.zeros(num_rays)))
     vertices_global = N.dot(perp_rot,  vertices_local)
 
-    rayb = RayBundle()
-    rayb.set_vertices(vertices_global + center)
-    rayb.set_directions(directions)
+    rayb = RayBundle(vertices=vertices_global + center, directions=directions)
+    if flux is not None:
+        rayb.set_energy(N.pi*radius**2/num_rays*flux*N.ones(num_rays))
+    
     return rayb
 
 def square_bundle(num_rays, center, direction, width):

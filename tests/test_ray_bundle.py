@@ -136,6 +136,15 @@ class TestDistributions(unittest.TestCase):
         directs = rays.get_directions()
         dir_dots = N.dot(dir, directs)
         self.failUnless((dir_dots >= N.cos(theta_max)).all())
+    
+    def test_energy(self):
+        """When flux is given, the solar disk bundle has proper energy"""
+        dir = N.array([0., 0, 1])
+        center = N.array([0,  0, 0]).reshape(-1, 1)
+        R = 2; theta_max = N.pi/100.
+
+        rays = solar_disk_bundle(5000, center, dir, R, theta_max, flux=1000.)
+        N.testing.assert_array_equal(rays.get_energy(), N.pi*4/5.)
         
 if __name__ == '__main__':
     unittest.main()
