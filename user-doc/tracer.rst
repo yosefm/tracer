@@ -7,6 +7,7 @@ Tracer Package
 
 .. toctree::
    
+   ray_bundle
    has_frame
    assembly
    object
