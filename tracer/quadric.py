@@ -158,7 +158,8 @@ class QuadricGM(GeometryManager):
         Discard internal data structures. This should be called after all
         information on the latest bundle's results have been extracted already.
         """
-        del self._vertices
+        if hasattr(self, '_vertices'):
+            del self._vertices
         if hasattr(self, '_idxs'):
             del self._norm
             del self._idxs
