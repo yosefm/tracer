@@ -101,7 +101,8 @@ class TracerEngine():
         """
         self.tree = []
         bund = bundle
-        self.store_branch(bund)
+        if tree is True:
+            self.store_branch(bund)
         
         # A list of surfaces and their matching objects:
         surfaces = self._asm.get_surfaces()

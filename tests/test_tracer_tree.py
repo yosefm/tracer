@@ -116,7 +116,7 @@ class TestTree2(unittest.TestCase):
         """Running with tree=False only saves last bundle."""
         self.engine.ray_tracer(self._bund, 3, .05, tree=False)
         parents = self.engine.get_parents_from_tree()
-        self.failUnlessEqual(len(parents), 1)
+        self.failUnlessEqual(len(parents), 0)
 
 class TestRayCulling(unittest.TestCase):
     def setUp(self):
