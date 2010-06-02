@@ -1,7 +1,7 @@
 # Implements a tracer engine class
 
 import numpy as N
-from ray_bundle import RayBundle
+from ray_bundle import RayBundle, concatenate_rays
 
 class TracerEngine():
     """
@@ -117,8 +117,8 @@ class TracerEngine():
         for i in xrange(reps):
             front_surf, owned_rays = self.intersect_ray(bund, surfaces, objects, \
                 surf_ownership, ray_ownership, surfs_relevancy)
-            outg = bundle.empty_bund()
-            record = bundle.empty_bund()
+            outg = []
+            record = []
             out_ray_own = []
             new_surfs_relevancy = []
             
@@ -143,9 +143,10 @@ class TracerEngine():
                 
                 # add the outgoing bundle from each object into a new bundle
                 # that stores all the outgoing bundles from all the objects
-                outg = outg + new_outg
+                outg.append(new_outg)
                 # Move absorbed rays (low energy) to the end:
-                record = record + new_outg + new_record.inherit(delete)
+                new_record = new_outg + new_record.inherit(delete)
+                record.append(new_record)
                 
                 # Add new ray-ownership information to the total list:
                 obj_idx = surf_ownership[surf_idx]
@@ -161,10 +162,11 @@ class TracerEngine():
                     objects[obj_idx].surfaces_for_next_iteration(new_outg, surf_rel_idx)
                 new_surfs_relevancy.append(surf_relev)
             
+            record = concatenate_rays(record)
             if tree and record.get_num_rays() != 0:
                 self.store_branch(record)  # stores parent branch for purposes of ray tracking
             
-            bund = outg
+            bund = concatenate_rays(outg)
             if bund.get_num_rays() == 0:
                 # All rays escaping
                 break

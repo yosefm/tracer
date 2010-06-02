@@ -194,3 +194,32 @@ class RayBundle:
          
         return outg 
 
+def concatenate_rays(bundles):
+    """
+    Take a list of bundles and merge them into one bundle.
+    
+    Arguments:
+    bundles - a list of RayBundle objects, all with the same set of attributes
+        set.
+    
+    Returns:
+    A RayBundle object with all attributes that are set in the first bundle.
+    """
+    if len(bundles) == 0:
+        return RayBundle.empty_bund()
+    
+    newbund = RayBundle()
+
+    if hasattr(bundles[0], '_direct'):
+        newbund.set_directions(N.hstack([b.get_directions() for b in bundles]))
+    if hasattr(bundles[0], '_vertices'):
+        newbund.set_vertices(N.hstack([b.get_vertices() for b in bundles]))
+    if hasattr(bundles[0], '_energy'):
+        newbund.set_energy(N.hstack([b.get_energy() for b in bundles]))
+    if hasattr(bundles[0], '_parent'):
+        newbund.set_parent(N.hstack([b.get_parent() for b in bundles]))
+    if hasattr(bundles[0], '_ref_index'):
+        newbund.set_ref_index(N.hstack([b.get_ref_index() for b in bundles]))
+
+    return newbund
+

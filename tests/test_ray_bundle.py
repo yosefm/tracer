@@ -59,6 +59,15 @@ class TestInheritance(unittest.TestCase):
         
         N.testing.assert_array_equal(child.get_vertices(), pos[:,[0,1]])
         N.testing.assert_array_equal(child.get_directions(), N.ones((3,2)))
+
+class TestConcatenate(unittest.TestCase):
+    def test_concat(self):
+        r1 = RB.RayBundle(N.ones((3,4)), N.ones((3,4)))
+        r2 = RB.RayBundle(N.zeros((3,4)), N.zeros((3,4)))
+        con = RB.concatenate_rays((r1, r2))
+        correct = N.hstack((N.ones((3,4)), N.zeros((3,4)) ))
+        N.testing.assert_array_equal(con.get_vertices(), correct)
+        N.testing.assert_array_equal(con.get_directions(), correct)
         
 class TestDistributions(unittest.TestCase):
     def assert_radius(self,  vertices,  center,  R):
