@@ -58,32 +58,34 @@ class QuadricGM(GeometryManager):
         delta = B**2 - 4*A*C
         
         any_inters = delta >= 0
-        delta[any_inters] = N.sqrt(delta[any_inters])
+        num_inters = any_inters.sum()
+        A = A[any_inters]
+        B = B[any_inters]
+        C = C[any_inters]
+        delta = N.sqrt(delta[any_inters])
         
         pm = N.c_[[-1, 1]]
-        hits = N.empty((2, n))
+        hits = N.empty((2, num_inters))
         almost_planar = A <= 1e-10
-        access_planar = any_inters & almost_planar
-        access_quadric = any_inters & ~almost_planar
-        hits[:,access_planar] = N.tile(-C[access_planar]/B[access_planar], (2,1))
-        hits[:,access_quadric] = \
-            (-B[access_quadric] + pm*delta[access_quadric])/(2*A[access_quadric])
-        inters_coords = N.empty((2, 3, n))
-        inters_coords[...,any_inters] = v[:,any_inters] + d[:,any_inters]*hits[:,any_inters].reshape(2,1,-1)
+        really_quadric = ~almost_planar
+        hits[:,almost_planar] = N.tile(-C[almost_planar]/B[almost_planar], (2,1))
+        hits[:,really_quadric] = \
+            (-B[really_quadric] + pm*delta[really_quadric])/(2*A[really_quadric])
+        inters_coords = v[:,any_inters] + d[:,any_inters]*hits.reshape(2,1,-1)
         
         # Quadrics can have two intersections. Here we allow child classes
         # to choose based on own method:
         select = self._select_coords(inters_coords, hits)
-        missed_anyway = N.isnan(select)
-        any_inters[missed_anyway] = False
-        select = N.int_(select[any_inters])
-        params[any_inters] = N.choose(select, hits[:,any_inters])
-        vertices[:,any_inters] = N.choose(select, inters_coords[...,any_inters])
+        not_missed = ~N.isnan(select)
+        any_inters[any_inters] = not_missed
+        select = N.array(select[not_missed], dtype=N.int_)
+        params[any_inters] = N.choose(select, hits[:,not_missed])
+        vertices[:,any_inters] = N.choose(select, inters_coords[...,not_missed])
         
         # Storage for later reference:
         self._vertices = vertices
         
-        return N.array(params)
+        return params
     
     def _select_coords(self, coords, prm):
         """
