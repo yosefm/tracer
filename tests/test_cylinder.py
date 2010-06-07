@@ -14,10 +14,7 @@ class TestInfiniteCylinder(unittest.TestCase):
         dir = N.c_[[0., 1., 0.], [0., 1., 1.], [0.,-1., 0.], [0.,-1., 1.]]
         dir /= N.sqrt(N.sum(dir**2, axis=0))
         
-        self.bund = RayBundle()
-        self.bund.set_vertices(pos)
-        self.bund.set_directions(dir)
-        
+        self.bund = RayBundle(pos, dir)
         self.gm = InfiniteCylinder(diameter=1.)
     
     def test_vertical(self):
@@ -71,10 +68,7 @@ class TestFiniteCylinder(unittest.TestCase):
         dir = N.c_[[0., 1., 0.], [0., 1., 1.], [0.,-1., 0.], [0.,-1., 1.]]
         dir /= N.sqrt(N.sum(dir**2, axis=0))
         
-        self.bund = RayBundle()
-        self.bund.set_vertices(pos)
-        self.bund.set_directions(dir)
-        
+        self.bund = RayBundle(pos, dir)
         self.gm = FiniteCylinder(diameter=1., height=0.1)
     
     def test_vertical(self):

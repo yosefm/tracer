@@ -15,12 +15,7 @@ class TestTraceProtocol(unittest.TestCase):
         
         dir = N.array([[1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]]).T / math.sqrt(3)
         position = c_[[0,0,1], [1,-1,1], [1,1,1], [-1,1,1]]
-        
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_energy(N.ones(4)*100)
-        self._bund.set_ref_index(N.r_[1, 1, 1, 1])
+        self._bund = RayBundle(position, dir, energy=N.ones(4)*100)
     
     def test_register_incoming(self):
         """Flat mirror: a simple bundle is registered correctly"""

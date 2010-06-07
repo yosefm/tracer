@@ -9,7 +9,6 @@ import unittest
 import numpy as N
 
 from tracer import optics
-from tracer.ray_bundle import RayBundle
 
 class TestSingleReflection(unittest.TestCase):
     def runTest(self):

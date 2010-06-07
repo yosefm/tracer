@@ -11,10 +11,7 @@ class TestFlatGeomManagerInterface(unittest.TestCase):
     def setUp(self):
         dir = N.c_[[1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]] / math.sqrt(3)
         position = N.c_[[0,0,1], [1,-1,1], [1,1,1], [-1,1,1]]
-        
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
+        self._bund = RayBundle(position, dir)
 
         self.gm = FlatGeometryManager()
         self.prm = self.gm.find_intersections(N.eye(4), self._bund)
@@ -61,10 +58,7 @@ class TestFlatGeomTilted(unittest.TestCase):
         s2 = math.sqrt(2)
         dir = N.c_[[1, 0, -s2], [-1, 0, -s2], [-1, -s2, 0], [1, -s2, 0]] / math.sqrt(3)
         position = N.c_[[0,1/s2,1/s2], [1,0,s2], [1,s2,0], [-1,s2,0]]
-        
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
+        self._bund = RayBundle(position, dir)
 
         self.gm = FlatGeometryManager()
         frame = SP.generate_transform(N.r_[1., 0, 0], -N.pi/4., N.zeros((3,1)))
@@ -114,11 +108,8 @@ class TestFlatGeomTranslated(unittest.TestCase):
     def setUp(self):
         dir = N.c_[[1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]] / math.sqrt(3)
         position = N.c_[[0,0,1], [1,-1,1], [1,1,1], [-1,1,1]]
-
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-
+        self._bund = RayBundle(position, dir)
+        
         self.gm = FlatGeometryManager()
         frame = SP.translate(1., 0., 0.)
         self.prm = self.gm.find_intersections(frame, self._bund)
@@ -149,10 +140,7 @@ class TestBacksideNormals(unittest.TestCase):
     def setUp(self):
         dir = N.c_[[1, 1, 1], [-1, 1, 1], [-1, -1, 1], [1, -1, 1]] / math.sqrt(3)
         position = N.c_[[0,0,-1], [1,-1,-1], [1,1,-1], [-1,1,-1]]
-        
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
+        self._bund = RayBundle(position, dir)
 
         self.gm = FlatGeometryManager()
         self.prm = self.gm.find_intersections(N.eye(4), self._bund)

@@ -12,11 +12,8 @@ class TestInterface(unittest.TestCase):
         dir = N.tile(N.c_[[0, 0, -1]], (1, self.num_rays))
         theta = N.linspace(0, 2*N.pi, self.num_rays, endpoint=False)
         position = N.vstack((N.cos(theta), N.sin(theta), N.ones(self.num_rays)))
+        self._bund = RayBundle(position, dir)
         
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-
         self.gm = HemisphereGM(radius=2.)
         self.prm = self.gm.find_intersections(N.eye(4), self._bund)
     

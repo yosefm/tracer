@@ -14,9 +14,7 @@ class TestInterface(unittest.TestCase):
         theta = N.linspace(0, 2*N.pi, self.num_rays, endpoint=False)
         position = N.vstack((N.cos(theta), N.sin(theta), N.ones(self.num_rays)))
         
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
+        self._bund = RayBundle(position, dir)
         
         # The boundary is positioned to create a bottom hemisphere.
         boundary = BoundarySphere(radius=4., location=N.r_[0., 0., -4*N.sqrt(3)/2.])

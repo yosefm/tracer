@@ -35,11 +35,7 @@ class TestObjectBuilding1(unittest.TestCase):
         dir = N.c_[[0,0,1.],[0,0,1.]]
         position = N.c_[[0,0,-3.],[0,0,-1.]]
     
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_energy(N.r_[[1,1]])
-        self._bund.set_ref_index(N.r_[[1,1]])
+        self._bund = RayBundle(position, dir, energy=N.ones(2))
     
     def test_object(self):
         """Tests that the assembly heirarchy works at a basic level"""
@@ -98,12 +94,7 @@ class TestObjectBuilding2(unittest.TestCase):
         x = 1/(math.sqrt(2))
         dir = N.c_[[0,-x,x]]
         position = N.c_[[0,1,-2.]]
-        
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_energy(N.r_[[1.]])
-        self._bund.set_ref_index(N.r_[[1.]])
+        self._bund = RayBundle(position, dir, energy=N.r_[1.], ref_index=N.r_[1.])
 
     def test_refraction1(self):
         """Tests the refractive functions after a single intersection"""
@@ -149,12 +140,7 @@ class TestAssemblyBuilding3(unittest.TestCase):
         x = 1./(math.sqrt(2))
         dir = N.c_[[0,1.,0.],[0,x,x],[0,0,1.]]
         position = N.c_[[0,0,2.],[0,0,2.],[0,0.,2.]]
-        
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_energy(N.r_[[1.,1.,1.]])
-        self._bund.set_ref_index(N.r_[[1.,1.,1.]])
+        self._bund = RayBundle(position, dir, energy=N.ones(3), ref_index=N.ones(3))
         
     def test_assembly1(self):
         """Tests the assembly after one iteration"""
@@ -192,12 +178,7 @@ class TestAssemblyBuilding4(unittest.TestCase):
         x = 1./(math.sqrt(2))  
         dir = N.c_[[0,0,-1.],[0,x,-x]]
         position = N.c_[[0,0,1.],[0,0,1.]]
-
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_energy(N.r_[[1.,1]])
-        self._bund.set_ref_index(N.r_[[1.,1]])
+        self._bund = RayBundle(position, dir, energy=N.ones(2), ref_index=N.ones(2))
 
     def test_paraboloid1(self):  
         """Tests a paraboloid"""

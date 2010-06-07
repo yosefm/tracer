@@ -11,13 +11,9 @@ class TestReflective(unittest.TestCase):
         """Set up the ray bundle and geometry"""
         dir = N.c_[[1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]] / N.sqrt(3)
         position = N.c_[[0,0,1], [1,-1,1], [1,1,1], [-1,1,1]]
-
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_energy(N.r_[100, 200, 300, 400])
-        self._bund.set_ref_index(N.r_[1, 1, 1, 1])
-
+        en = N.r_[100, 200, 300, 400]
+        self._bund = RayBundle(position, dir, energy=en)
+        
         self.gm = FlatGeometryManager()
         self.prm = self.gm.find_intersections(N.eye(4), self._bund)
     
@@ -68,13 +64,9 @@ class TestRefractiveHomogenous(unittest.TestCase):
     def test_all_refracted(self):
         dir = N.c_[[1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]] / N.sqrt(3)
         position = N.c_[[0,0,1], [1,-1,1], [1,1,1], [-1,1,1]]
-
-        bund = RayBundle()
-        bund.set_vertices(position)
-        bund.set_directions(dir)
-        bund.set_energy(N.r_[100, 200, 300, 400])
-        bund.set_ref_index(N.r_[1, 1, 1, 1])
-
+        en = N.r_[100, 200, 300, 400]
+        bund = RayBundle(position, dir, energy=en, ref_index=N.ones(4))
+        
         gm = FlatGeometryManager()
         prm = gm.find_intersections(N.eye(4), bund)
         refractive = optics_callables.RefractiveHomogenous(1,1.5)
@@ -100,12 +92,8 @@ class TestRefractiveHomogenous(unittest.TestCase):
     def test_TIR(self):
         dir = N.c_[[0, N.cos(N.pi/180), -N.sin(N.pi/180)]]
         position = N.c_[[0,0,1]]
-        
-        bund = RayBundle()
-        bund.set_vertices(position)
-        bund.set_directions(dir)
-        bund.set_energy(N.r_[100])
-        bund.set_ref_index(N.r_[1.5])
+        en = N.r_[100]
+        bund = RayBundle(position, dir, energy=en, ref_index=N.r_[1.5])
         
         gm = FlatGeometryManager()
         prm = gm.find_intersections(N.eye(4), bund)
