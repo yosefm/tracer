@@ -40,12 +40,7 @@ class TestTree(unittest.TestCase):
         x = 1./(math.sqrt(2))
         dir = N.c_[[0,x,x],[0,-x,x],[0,0,1.]]
         position = N.c_[[0,0,2.],[0,0,2.],[0,0.,2.]]
-
-        bund = RayBundle()
-        bund.set_vertices(position)
-        bund.set_directions(dir)
-        bund.set_energy(N.r_[[1.,1.,1.]])
-        bund.set_ref_index(N.r_[[1.,1.,1.]])
+        bund = RayBundle(position, dir, energy=N.ones(3))
 
         self.engine = TracerEngine(self.assembly)
 
@@ -59,16 +54,11 @@ class TestTree(unittest.TestCase):
         x = 1./(math.sqrt(2))
         position = N.c_[[0,0.,-5.],[0,0.,2.],[0,2.,-5.],[0,0.,0],[0,0,2.]]
         dir = N.c_[[0,0,1.],[0,x,-x],[0,0,-1.],[0,0,1.],[0,-x,x]]
-        
-        bund = RayBundle()
-        bund.set_vertices(position)
-        bund.set_directions(dir)
-        bund.set_energy(N.r_[[1.,1.,1.,1,1.]])
-        bund.set_ref_index(N.r_[[1.,1.,1.,1,1.]])
+        bund = RayBundle(position, dir, energy=N.ones(5))
 
         self.engine = TracerEngine(self.assembly)
-
         self.engine.ray_tracer(bund,3,.05)[0]
+        
         params = self.engine.get_parents_from_tree()
         correct_params = [N.r_[0,1,3,4],N.r_[2,3,1],N.r_[2,1]]
         N.testing.assert_equal(params, correct_params)
@@ -96,12 +86,7 @@ class TestTree2(unittest.TestCase):
         x = 1./(math.sqrt(2))
         dir = N.c_[[0,1.,0.],[0,x,x],[0,0,1.]]
         position = N.c_[[0,0,2.],[0,0,2.],[0,0.,2.]]
-
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_energy(N.r_[[1.,1.,1.]])
-        self._bund.set_ref_index(N.r_[[1.,1.,1.]])
+        self._bund = RayBundle(position, dir, ref_index=N.ones(3), energy=N.ones(3))
 
         self.engine = TracerEngine(self.assembly)
 
@@ -122,20 +107,14 @@ class TestRayCulling(unittest.TestCase):
     def setUp(self):
         asm = homogenizer.rect_homogenizer(1., 1., 1.2, 1.)
         
-        self.bund = RayBundle()
         # 4 rays starting somewhat above (+z) the homogenizer
         pos = N.zeros((3,4))
         pos[2] = 1.6
-        self.bund.set_vertices(pos)
 
         # One ray going to each wall, bearing down (-z):
         dir = N.c_[[1, 0, -1], [-1, 0, -1], [0, 1, -1], [0, -1, -1]]/N.sqrt(2)
-        self.bund.set_directions(dir)
 
-        # Laborious setup details:
-        self.bund.set_energy(N.ones(4)*4.)
-        self.bund.set_ref_index(N.ones(4))
-        
+        self.bund = RayBundle(pos, dir, ref_index=N.ones(4), energy=N.ones(4)*4.)
         self.engine = TracerEngine(asm)
     
     def test_final_order(self):

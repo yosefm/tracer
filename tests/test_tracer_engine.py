@@ -30,12 +30,7 @@ class TestTraceProtocol1(unittest.TestCase):
     def setUp(self):
         dir = N.array([[1,1,-1],[-1,1,-1],[-1,-1,-1],[1,-1,-1]]).T/math.sqrt(3)
         position = N.c_[[0,0,1],[1,-1,1],[1,1,1],[-1,1,1]]
-       
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_energy(N.r_[[1,1,1,1]])
-        self._bund.set_ref_index(N.r_[[1,1,1,1]])
+        self._bund = RayBundle(position, dir, energy=N.ones(4))
         
         self.assembly = Assembly()
         object = AssembledObject()
@@ -71,12 +66,7 @@ class TestTraceProtocol2(unittest.TestCase):
         ns = -1/N.sqrt(2)
         dir = N.c_[[0,0,1],[0,0,-1],[0,ns,ns]]
         position = N.c_[[0,0,1],[0,1,2],[0,0,1]]
-
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_ref_index(N.r_[[1,1,1]])
-        self._bund.set_energy(N.r_[[1,1,1,]])
+        self._bund = RayBundle(position, dir, energy=N.ones(3))
         
     def test_intersect_ray2(self):
         rot = general_axis_rotation([1,0,0],N.pi/4)
@@ -108,13 +98,7 @@ class TestTraceProtocol3(unittest.TestCase):
         self.x = 1/(math.sqrt(2))
         dir = N.c_[[0,self.x,-self.x],[0,1,0]]
         position = N.c_[[0,0,1],[0,0,1]]
-
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_ref_index(N.r_[[1,1,1]])
-        energy = N.array([1,1])
-        self._bund.set_energy(energy)
+        self._bund = RayBundle(position, dir, energy=N.ones(2))
 
         rot1 = general_axis_rotation([1,0,0],N.pi/4)
         rot2 = general_axis_rotation([1,0,0],N.pi/(-4))
@@ -158,16 +142,9 @@ class TestTraceProtocol4(unittest.TestCase):
         self.x = 1/(math.sqrt(2))
         dir = N.c_[[0,-self.x,self.x],[0,0,-1]]
         position = N.c_ [[0,2,1],[0,2,1]]
-
-        self._bund = RayBundle()
-        self._bund.set_vertices(position)
-        self._bund.set_directions(dir)
-        self._bund.set_ref_index(N.r_[[1,1,1]]) 
-
+        self._bund = RayBundle(position, dir, energy=N.ones(2))
+        
         rot1 = general_axis_rotation([1,0,0],N.pi/4)
-        energy = N.array([1,1])
-        self._bund.set_energy(energy)
-
         surf1 = Surface(FlatGeometryManager(), opt.perfect_mirror, rotation=rot1)
         surf2 = Surface(FlatGeometryManager(), opt.perfect_mirror)
         assembly = Assembly()
@@ -204,11 +181,9 @@ class TestTraceProtocol5(unittest.TestCase):
     def setUp(self):
         surface = Surface(HemisphereGM(1.), opt.perfect_mirror,
             rotation=general_axis_rotation(N.r_[1,0,0], N.pi))
-        self._bund = RayBundle()
+        self._bund = RayBundle(energy=N.ones(3))
         self._bund.set_directions(N.c_[[0,1,0],[0,1,0],[0,-1,0]])
         self._bund.set_vertices(N.c_[[0,-2.,0.001],[0,0,0.001],[0,2,0.001]])
-        self._bund.set_energy(N.r_[[1,1,1]])
-        self._bund.set_ref_index(N.r_[[1,1,1]])
 
         assembly = Assembly()
         object = AssembledObject()

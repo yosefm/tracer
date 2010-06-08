@@ -19,10 +19,7 @@ class TestRectPlateGM(unittest.TestCase):
         pos[0] = N.r_[0, 0.5, 2, -2]
         pos[2] = 1.
         dir = N.tile(N.c_[[0,0,-1]], (1,4))
-        
-        bund = RayBundle()
-        bund.set_vertices(pos)
-        bund.set_directions(dir)
+        bund = RayBundle(pos, dir)
         
         surf = Surface(RoundPlateGM(1), opt.perfect_mirror)
         misses = N.isinf(surf.register_incoming(bund))
