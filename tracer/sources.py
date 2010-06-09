@@ -66,9 +66,8 @@ def solar_disk_bundle(num_rays,  center,  direction,  radius,  ang_range, flux=N
     # Locations:
     # See [1]
     xi1 = random.uniform(size=num_rays)
-    xi2 = random.uniform(size=num_rays)
+    thetas = random.uniform(high=2*N.pi, size=num_rays)
     rs = radius*N.sqrt(xi1)
-    thetas = 2*N.pi*xi2
     xs = rs * N.cos(thetas)
     ys = rs * N.sin(thetas)
 
