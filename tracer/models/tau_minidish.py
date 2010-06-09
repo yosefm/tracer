@@ -58,7 +58,7 @@ class MiniDish(HomogenizedLocalReceiver):
 # Utility functions:
 def standard_minidish_measures(diameter, concentration, reflections):
     """
-    Calculate tthe dimensions in a dish with 45 deg. rim angle, using
+    Calculate the dimensions in a dish with 45 deg. rim angle, using
     dimensioning rules from [2].
     
     Arguments:
