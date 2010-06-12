@@ -10,6 +10,7 @@ from ..surface import Surface
 from ..flat_surface import RoundPlateGM
 from ..sphere_surface import CutSphereGM
 from ..boundary_shape import BoundaryPlane
+from ..cylinder import FiniteCylinder
 from ..optics_callables import RefractiveHomogenous as Refractive
 from ..spatial_geometry import rotx
 
@@ -47,14 +48,13 @@ class SphericalLens(AssembledObject):
         else:
             z = N.sqrt(R1**2 - diameter**2/4.) # location of cut plane
             if R1 > 0:
-                sect = BoundaryPlane(location=N.r_[0, 0, z])
+                sect1 = BoundaryPlane(location=N.r_[0, 0, z])
             else:
-                sect = BoundaryPlane(location=N.r_[0, 0, -z], rotation=flip_side)
-            sphere = CutSphereGM(radius=abs(R1), bounding_volume=sect)
+                sect1 = BoundaryPlane(location=N.r_[0, 0, -z], rotation=flip_side)
+            sphere = CutSphereGM(radius=abs(R1), bounding_volume=sect1)
             
             refr=Refractive(1., refr_idx)
-            self._front = Surface(geometry=sphere, optics=refr, 
-                location=N.r_[0, 0, -z])
+            self._front = Surface(geometry=sphere, optics=refr)
         
         # Back surface:
         if R2 in [0, None, N.inf, -N.inf]:
@@ -66,14 +66,18 @@ class SphericalLens(AssembledObject):
         else:
             z = N.sqrt(R2**2 - diameter**2/4.) # location of cut plane
             if R2 > 0:
-                sect = BoundaryPlane(location=N.r_[0, 0, z])
+                sect2 = BoundaryPlane(location=N.r_[0, 0, z])
             else:
-                sect = BoundaryPlane(location=N.r_[0, 0, -z], rotation=flip_side)
-            sphere = CutSphereGM(radius=abs(R2), bounding_volume=sect)
+                sect2 = BoundaryPlane(location=N.r_[0, 0, -z], rotation=flip_side)
+            sphere = CutSphereGM(radius=abs(R2), bounding_volume=sect2)
 
             refr=Refractive(1., refr_idx)
-            self._back = Surface(geometry=sphere, optics=refr,
-                location=N.r_[0, 0, -z])
+            self._back = Surface(geometry=sphere, optics=refr)
+        
+        # While locating the surfaces, we'll calculate bounding cylinder
+        # dimensions, and create it after the fact.
+        cyl_height = 0
+        cyl_loc = 0
         
         # Locate the planes such that the second focal point is at Z = -f,
         # where f is the focal length found from the lensmaker equation.
@@ -86,15 +90,30 @@ class SphericalLens(AssembledObject):
         if R2 != N.inf:
             locb = pd - R2
             self._back.set_location(N.r_[0., 0., locb])
+            
+            cyl_loc += (locb + sect2.get_location()[2])/2.
+            cyl_height -= locb + sect2.get_location()[2]
         
         # Front primary point's distance from front surface:
         if R1 != N.inf:
             locf = pd + depth - R1
             self._front.set_location(N.r_[0., 0., locf])
+            
+            cyl_loc += (locf + sect1.get_location()[2])/2.
+            cyl_height += locf + sect1.get_location()[2]
+        
+        # Create the bounding cylinder:
+        print cyl_height, cyl_loc
+        if cyl_height > 0:
+            self._cyl = Surface(
+                FiniteCylinder(diameter, cyl_height),
+                Refractive(refr_idx, 1.), location=N.r_[0., 0., cyl_loc])
+            surfs = [self._front, self._back, self._cyl]
+        else:
+            surfs=[self._front, self._back]
         
         # Finalize the object:
-        AssembledObject.__init__(self, surfs=[self._front, self._back],
-            transform=transform)
+        AssembledObject.__init__(self, surfs=surfs, transform=transform)
         self._f = f
     
     def focal_length(self):

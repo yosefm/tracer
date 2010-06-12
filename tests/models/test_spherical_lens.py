@@ -12,7 +12,7 @@ from tracer.spatial_geometry import translate
 
 class Biconvex(unittest.TestCase):
     def setUp(self):
-        self.lens = SphericalLens(diameter=5., depth=0.1, R1=10., R2=-10., 
+        self.lens = SphericalLens(diameter=1., depth=0.1, R1=10., R2=-10., 
             refr_idx=1.5)
     
     def test_focal_length(self):
@@ -31,10 +31,22 @@ class Biconvex(unittest.TestCase):
         vert, _ = e.ray_tracer(rb, 3, 1e-6)
         
         self.failUnlessAlmostEqual(vert[1,2], 0, 4)
+    
+    def test_cylinder(self):
+        """The bounding cylinder exists for biconvex lens"""
+        f = self.lens.focal_length()
+        rb = RayBundle(N.c_[[0., 0., 0.08]], N.c_[[1., 0., 0.]],
+            energy=N.r_[1.], ref_index=N.r_[1.5])
+        
+        e = TracerEngine(Assembly([self.lens]))
+        verts, dirs = e.ray_tracer(rb, 1, 1e-6)
+
+        N.testing.assert_array_equal(verts, N.tile(N.c_[[0.5, 0., 0.08]], (1,2)))
+        N.testing.assert_array_equal(dirs, N.c_[[-1., 0., 0.], [1., 0., 0.]])
 
 class Biconcave(unittest.TestCase):
     def setUp(self):
-        self.lens = SphericalLens(diameter=5., depth=0.1, R1=-10., R2=10.,
+        self.lens = SphericalLens(diameter=1., depth=0.1, R1=-10., R2=10.,
             refr_idx=1.5)
     
     def test_focal_length(self):
@@ -60,10 +72,22 @@ class Biconcave(unittest.TestCase):
         vert, _ = e.ray_tracer(rb, 3, 1e-6)
         
         self.failUnlessAlmostEqual(vert[1,2], -m*origin[1], 4)
+    
+    def test_cylinder(self):
+        """The bounding cylinder exists for biconcave lens"""
+        f = self.lens.focal_length()
+        rb = RayBundle(N.c_[[0., 0., 0.08]], N.c_[[1., 0., 0.]],
+            energy=N.r_[1.], ref_index=N.r_[1.5])
+        
+        e = TracerEngine(Assembly([self.lens]))
+        verts, dirs = e.ray_tracer(rb, 1, 1e-6)
+
+        N.testing.assert_array_equal(verts, N.tile(N.c_[[0.5, 0., 0.08]], (1,2)))
+        N.testing.assert_array_equal(dirs, N.c_[[-1., 0., 0.], [1., 0., 0.]])
 
 class PlanoConvex(unittest.TestCase):
     def setUp(self):
-        self.lens = SphericalLens(diameter=5., depth=0.05, R1=10., R2=N.inf,
+        self.lens = SphericalLens(diameter=1., depth=0.05, R1=10., R2=N.inf,
             refr_idx=1.5)
     
     def test_focal_length(self):
@@ -82,4 +106,27 @@ class PlanoConvex(unittest.TestCase):
         vert, _ = e.ray_tracer(rb, 3, 1e-6)
         
         self.failUnlessAlmostEqual(vert[1,2], 0, 4)
+    
+    def test_cylinder(self):
+        """The bounding cylinder exists for planoconvex lens"""
+        f = self.lens.focal_length()
+        rb = RayBundle(N.c_[[0., 0., 0.001]], N.c_[[1., 0., 0.]],
+            energy=N.r_[1.], ref_index=N.r_[1.5])
+
+        e = TracerEngine(Assembly([self.lens]))
+        verts, dirs = e.ray_tracer(rb, 1, 1e-6)
+
+        N.testing.assert_array_equal(verts, N.tile(N.c_[[0.5, 0., 0.001]], (1,2)))
+        N.testing.assert_array_equal(dirs, N.c_[[-1., 0., 0.], [1., 0., 0.]])
+    
+    def test_cylinder_height(self):
+        """The bounding cylinder exists for planoconvex lens"""
+        f = self.lens.focal_length()
+        rb = RayBundle(N.c_[[0., 0., -0.01]], N.c_[[1., 0., 0.]],
+            energy=N.r_[1.], ref_index=N.r_[1.5])
+
+        e = TracerEngine(Assembly([self.lens]))
+        verts, dirs = e.ray_tracer(rb, 1, 1e-6)
+
+        N.testing.assert_array_equal(verts, N.array([]).reshape(3,0))
 
