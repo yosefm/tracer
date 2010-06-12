@@ -103,7 +103,6 @@ class SphericalLens(AssembledObject):
             cyl_height += locf + sect1.get_location()[2]
         
         # Create the bounding cylinder:
-        print cyl_height, cyl_loc
         if cyl_height > 0:
             self._cyl = Surface(
                 FiniteCylinder(diameter, cyl_height),
