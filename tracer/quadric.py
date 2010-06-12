@@ -59,6 +59,10 @@ class QuadricGM(GeometryManager):
         
         any_inters = delta >= 0
         num_inters = any_inters.sum()
+        if num_inters == 0:
+            self._vertices = vertices
+            return params
+        
         A = A[any_inters]
         B = B[any_inters]
         C = C[any_inters]
