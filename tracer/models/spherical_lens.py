@@ -28,7 +28,7 @@ class SphericalLens(AssembledObject):
         
         Arguments:
         diameter - of the lens aperture.
-        depth - distance between back and fron surfaces along the lens's
+        depth - distance between back and front surfaces along the lens's
             optical axis.
         R1, R2 - the radii of the front and back surfaces, respectively (the 
             front is the surface facing rays coming down the Z axis). Positive
