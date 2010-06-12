@@ -84,7 +84,8 @@ class FiniteCylinder(InfiniteCylinder):
         """
         select = InfiniteCylinder._select_coords(self, coords, prm) # defaults
         
-        height = N.sum(self._working_frame[None,:3,2,None] * coords, axis=1)
+        height = N.sum(N.linalg.inv(self._working_frame)[None,2,:,None] * \
+            N.concatenate((coords, N.ones((2,1,coords.shape[-1]))), axis=1), axis=1)
         inside = abs(height) <= self._half_h
         
         select[~N.logical_or(*inside)] = N.nan
