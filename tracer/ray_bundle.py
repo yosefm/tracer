@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as N
+import types
 
 class RayBundle:
     """
@@ -45,77 +46,61 @@ class RayBundle:
         parents - (not for source rays, for use in optics managers etc.) the 
             index of the parent ray within the ray bundle used to create this
             bundle.
+        ref_index - each cell has the refractive index of the medium in which
+            the corresponding ray travels.
         """
-        if vertices is not None:
-            self.set_vertices(vertices)
-        if directions is not None:
-            self.set_directions(directions)
-        if energy is not None:
-            self.set_energy(energy)
-        if parents is not None:
-            self.set_parents(parents)
-        if ref_index is not None:
-            self.set_ref_index(ref_index)
+        base_vals = {
+            'vertices': vertices,
+            'directions': directions,
+            'energy': energy,
+            'parents': parents,
+            'ref_index': ref_index}
+        
+        for n, v in base_vals.iteritems():
+            self._create_property(n, v)
     
-    def set_vertices(self,  vert):
-        """Sets the starting point of each ray. See __init__()"""
-        self._vertices = vert
-    
-    def get_vertices(self):
-        """Returns the starting points of each ray, as a (3,n) array."""
-        return self._vertices
-    
-    def set_directions(self,  directions):
-        """Sets the directions of rays in the bundle. See __init__() for the format."""
-        self._direct = directions
-    
-    def get_directions(self):
-        """Returns the directions of rays in the bundle."""
-        return self._direct
-    
-    def set_energy(self,  energy):
-        """energy - an array with the energy carried by each ray."""
-        self._energy = energy
-    
-    def get_energy(self):
-        """Returns an array with the energy carried by each ray in the bundle."""
-        return self._energy
+    def _create_property(self, propname, init_val):
+        """
+        Add a property of a ray, expected to be an array whose shape[-1] ==
+        self.get_num_rays(). The property will be considered for all 
+        ray-munging activities (add, inherit, etc.).
+        
+        Creates the method get_<propname>(self, selector=None). If selector is
+        given, it will return only the rays whose index is selected. Also
+        creates set_<propname>(self, value, selector=None) which sets either
+        the value for all rays or just for the selected rays.
+        
+        Arguments:
+        propname - a string, should be a valid Python identifier.
+        init_val - the initial value for the property.
+        """
+        attr = '_' + propname
+        def getter(self, selector=None):
+            if selector is None:
+                return self.__dict__[attr]
+            else:
+                return self.__dict__[attr][...,selector]
+        
+        def setter(self, new_val, selector=None):
+            if selector is None:
+                self.__dict__[attr] = new_val
+            else:
+                self.__dict__[attr][...,selector] = new_val
+        
+        self.__dict__['get_' + propname] = \
+            types.MethodType(getter, self, self.__class__)
+        self.__dict__['set_' + propname] = \
+            types.MethodType(setter, self, self.__class__)
+        
+        if init_val is not None:
+            apply(self.__dict__['set_' + propname], [init_val])
     
     def get_num_rays(self):
         """
         Returns the number of rays in the bundle. Assumes that the mandatory
         attributes were set (vertices, directions).
         """
-        return self._direct.shape[1]
-
-    def set_parents(self, index):
-        """
-        Sets the array of indices into a parent bundle. If you're setting
-        this and you're not writing an optics manager, you're probably doing
-        something wrong.
-        """
-        self._parent = index
-
-    def get_parents(self):
-        """
-        Returns the list of parents of each ray in the bundle. It's up to you
-        to know which bundle it is referring to.
-        """
-        return self._parent
-
-    def set_ref_index(self, ref_index):
-        """
-        Sets the array holding the refractive index of the volume each ray is
-        traveling in.
-        """
-        self._ref_index = ref_index
-        
-    def get_ref_index(self):
-        """
-        Returns the array holding the refractive index of the volume each ray is
-        traveling in.
-        """
-        return self._ref_index
+        return self._vertices.shape[1]
     
     def inherit(self, selector=N.s_[:], vertices=None, direction=None, energy=None,
         parents=None, ref_index=None):
@@ -131,11 +116,11 @@ class RayBundle:
         """
         if vertices is None and hasattr(self, '_vertices'):
             vertices = self.get_vertices()[:,selector]
-        if direction is None and hasattr(self, '_direct'):
+        if direction is None and hasattr(self, '_directions'):
             direction = self.get_directions()[:,selector]
         if energy is None and hasattr(self, '_energy'):
             energy = self.get_energy()[selector]
-        if parents is None and hasattr(self, '_parent'):
+        if parents is None and hasattr(self, '_parents'):
             parents = self.get_parents()[selector]
         if ref_index is None and hasattr(self, '_ref_index'):
             ref_index = self.get_ref_index()[selector]
@@ -152,13 +137,13 @@ class RayBundle:
         """
         newbund = RayBundle()
         
-        if hasattr(self, '_direct') and hasattr(added, '_direct'):
+        if hasattr(self, '_directions') and hasattr(added, '_directions'):
             newbund.set_directions(N.hstack((self.get_directions(),  added.get_directions())))
         if hasattr(self, '_vertices') and hasattr(added, '_vertices'):
             newbund.set_vertices(N.hstack((self.get_vertices(),  added.get_vertices())))
         if hasattr(self, '_energy') and hasattr(added, '_energy'):
             newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
-        if hasattr(self, '_parent') and hasattr(added, '_parent'):
+        if hasattr(self, '_parents') and hasattr(added, '_parents'):
             new_parent = N.append(self.get_parents(), added.get_parents())
             newbund.set_parents(new_parent)
         if hasattr(self, '_ref_index') and hasattr(added, '_ref_index'):
@@ -208,13 +193,13 @@ def concatenate_rays(bundles):
     
     newbund = RayBundle()
 
-    if hasattr(bundles[0], '_direct'):
+    if hasattr(bundles[0], '_directions'):
         newbund.set_directions(N.hstack([b.get_directions() for b in bundles]))
     if hasattr(bundles[0], '_vertices'):
         newbund.set_vertices(N.hstack([b.get_vertices() for b in bundles]))
     if hasattr(bundles[0], '_energy'):
         newbund.set_energy(N.hstack([b.get_energy() for b in bundles]))
-    if hasattr(bundles[0], '_parent'):
+    if hasattr(bundles[0], '_parents'):
         newbund.set_parents(N.hstack([b.get_parents() for b in bundles]))
     if hasattr(bundles[0], '_ref_index'):
         newbund.set_ref_index(N.hstack([b.get_ref_index() for b in bundles]))
