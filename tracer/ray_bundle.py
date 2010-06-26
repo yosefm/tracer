@@ -96,7 +96,7 @@ class RayBundle:
             types.MethodType(setter, self, self.__class__)
         
         if init_val is not None:
-            apply(self.__dict__['set_' + propname], [init_val])
+            self.__dict__['set_' + propname](init_val)
     
     def get_num_rays(self):
         """
@@ -126,7 +126,7 @@ class RayBundle:
         
         for p, v in base_vals.iteritems():
             if base_vals[p] is None and hasattr(self, '_' + p):
-                base_vals[p] = apply(self.__dict__['get_' + p], [selector])
+                base_vals[p] = self.__dict__['get_' + p](selector)
         
         return RayBundle(**base_vals)
 
@@ -142,9 +142,9 @@ class RayBundle:
         
         for attr in self._check_attr:
             if hasattr(self, attr) and hasattr(added, attr):
-                apply(newbund.__dict__['set' + attr], [N.hstack((
-                    apply(self.__dict__['get' + attr]), 
-                    apply(added.__dict__['get' + attr]) ))] )
+                newbund.__dict__['set' + attr](N.hstack((
+                    self.__dict__['get' + attr](),
+                    added.__dict__['get' + attr]() )) )
         
         return newbund
 
@@ -193,8 +193,8 @@ def concatenate_rays(bundles):
     for attr in bundles[0]._check_attr:
         if hasattr(bundles[0], attr):
             getter = 'get' + attr
-            apply(newbund.__dict__['set' + attr], [N.hstack(
-                [apply(b.__dict__[getter]) for b in bundles])])
+            newbund.__dict__['set' + attr](N.hstack(
+                [b.__dict__[getter]() for b in bundles]))
     
     return newbund
 
