@@ -56,6 +56,7 @@ class RayBundle:
             'parents': parents,
             'ref_index': ref_index}
         
+        self._check_attr = [] # Attrs to look for when concatenating bundles
         for n, v in base_vals.iteritems():
             self._create_property(n, v)
     
@@ -75,6 +76,8 @@ class RayBundle:
         init_val - the initial value for the property.
         """
         attr = '_' + propname
+        self._check_attr.append(attr)
+        
         def getter(self, selector=None):
             if selector is None:
                 return self.__dict__[attr]
@@ -114,18 +117,18 @@ class RayBundle:
         vertices, direction, energy, parents, ref_index - set the corresponding
             properties instead of using this bundle.
         """
-        if vertices is None and hasattr(self, '_vertices'):
-            vertices = self.get_vertices()[:,selector]
-        if direction is None and hasattr(self, '_directions'):
-            direction = self.get_directions()[:,selector]
-        if energy is None and hasattr(self, '_energy'):
-            energy = self.get_energy()[selector]
-        if parents is None and hasattr(self, '_parents'):
-            parents = self.get_parents()[selector]
-        if ref_index is None and hasattr(self, '_ref_index'):
-            ref_index = self.get_ref_index()[selector]
+        base_vals = {
+            'vertices': vertices,
+            'directions': direction,
+            'energy': energy,
+            'parents': parents,
+            'ref_index': ref_index}
         
-        return RayBundle(vertices, direction, energy, parents, ref_index)
+        for p, v in base_vals.iteritems():
+            if base_vals[p] is None and hasattr(self, '_' + p):
+                base_vals[p] = apply(self.__dict__['get_' + p], [selector])
+        
+        return RayBundle(**base_vals)
 
     def __add__(self,  added):
         """
@@ -137,17 +140,11 @@ class RayBundle:
         """
         newbund = RayBundle()
         
-        if hasattr(self, '_directions') and hasattr(added, '_directions'):
-            newbund.set_directions(N.hstack((self.get_directions(),  added.get_directions())))
-        if hasattr(self, '_vertices') and hasattr(added, '_vertices'):
-            newbund.set_vertices(N.hstack((self.get_vertices(),  added.get_vertices())))
-        if hasattr(self, '_energy') and hasattr(added, '_energy'):
-            newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
-        if hasattr(self, '_parents') and hasattr(added, '_parents'):
-            new_parent = N.append(self.get_parents(), added.get_parents())
-            newbund.set_parents(new_parent)
-        if hasattr(self, '_ref_index') and hasattr(added, '_ref_index'):
-            newbund.set_ref_index(N.hstack((self._ref_index, added.get_ref_index()))) 
+        for attr in self._check_attr:
+            if hasattr(self, attr) and hasattr(added, attr):
+                apply(newbund.__dict__['set' + attr], [N.hstack((
+                    apply(self.__dict__['get' + attr]), 
+                    apply(added.__dict__['get' + attr]) ))] )
         
         return newbund
 
@@ -192,17 +189,12 @@ def concatenate_rays(bundles):
         return RayBundle.empty_bund()
     
     newbund = RayBundle()
-
-    if hasattr(bundles[0], '_directions'):
-        newbund.set_directions(N.hstack([b.get_directions() for b in bundles]))
-    if hasattr(bundles[0], '_vertices'):
-        newbund.set_vertices(N.hstack([b.get_vertices() for b in bundles]))
-    if hasattr(bundles[0], '_energy'):
-        newbund.set_energy(N.hstack([b.get_energy() for b in bundles]))
-    if hasattr(bundles[0], '_parents'):
-        newbund.set_parents(N.hstack([b.get_parents() for b in bundles]))
-    if hasattr(bundles[0], '_ref_index'):
-        newbund.set_ref_index(N.hstack([b.get_ref_index() for b in bundles]))
-
+    
+    for attr in bundles[0]._check_attr:
+        if hasattr(bundles[0], attr):
+            getter = 'get' + attr
+            apply(newbund.__dict__['set' + attr], [N.hstack(
+                [apply(b.__dict__[getter]) for b in bundles])])
+    
     return newbund
 
