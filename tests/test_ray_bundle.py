@@ -59,6 +59,19 @@ class TestInheritance(unittest.TestCase):
         
         N.testing.assert_array_equal(child.get_vertices(), pos[:,[0,1]])
         N.testing.assert_array_equal(child.get_directions(), N.ones((3,2)))
+    
+    def test_delete_rays(self):
+        """delete_rays() does its job"""
+        pos = N.ones((3,4))
+        direct = N.zeros((3,4))
+        prn = N.arange(4)
+        
+        father = RB.RayBundle(pos, direct, parents=prn)
+        child = father.delete_rays(N.r_[0])
+        
+        N.testing.assert_array_equal(child.get_vertices(), N.ones((3,3)))
+        N.testing.assert_array_equal(child.get_directions(), N.zeros((3,3)))
+        N.testing.assert_array_equal(child.get_parents(), N.arange(1,4))
 
 class TestConcatenate(unittest.TestCase):
     def test_concat(self):

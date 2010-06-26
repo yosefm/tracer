@@ -189,8 +189,6 @@ class RayBundle:
         """
         inherit_select = N.delete(N.arange(self.get_num_rays()), selector)
         outg = self.inherit(inherit_select)
-        if hasattr(self, '_parent'):
-            outg.set_parents(N.delete(self.get_parents(), selector))
          
         return outg 
 
