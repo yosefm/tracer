@@ -30,7 +30,7 @@ class TestInheritance(unittest.TestCase):
         N.testing.assert_array_equal(child.get_directions(), dir)
         N.testing.assert_array_equal(child.get_energy(), energy)
         N.testing.assert_array_equal(child.get_ref_index(), ref_ind)
-        N.testing.assert_array_equal(child.get_parent(), prn)
+        N.testing.assert_array_equal(child.get_parents(), prn)
     
     def test_inherit_full_from_full(self):
         """Inherit a populated bundle from otherwise-populated bundle"""
@@ -47,7 +47,7 @@ class TestInheritance(unittest.TestCase):
         N.testing.assert_array_equal(child.get_directions(), pos)
         N.testing.assert_array_equal(child.get_energy(), prn)
         N.testing.assert_array_equal(child.get_ref_index(), N.ones(4)*5)
-        N.testing.assert_array_equal(child.get_parent(), energy)
+        N.testing.assert_array_equal(child.get_parents(), energy)
     
     def test_inherit_part_from_full(self):
         """Inherit part of a populated bundle"""

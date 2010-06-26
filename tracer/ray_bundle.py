@@ -53,7 +53,7 @@ class RayBundle:
         if energy is not None:
             self.set_energy(energy)
         if parents is not None:
-            self.set_parent(parents)
+            self.set_parents(parents)
         if ref_index is not None:
             self.set_ref_index(ref_index)
     
@@ -88,7 +88,7 @@ class RayBundle:
         """
         return self._direct.shape[1]
 
-    def set_parent(self, index):
+    def set_parents(self, index):
         """
         Sets the array of indices into a parent bundle. If you're setting
         this and you're not writing an optics manager, you're probably doing
@@ -96,7 +96,7 @@ class RayBundle:
         """
         self._parent = index
 
-    def get_parent(self):
+    def get_parents(self):
         """
         Returns the list of parents of each ray in the bundle. It's up to you
         to know which bundle it is referring to.
@@ -136,7 +136,7 @@ class RayBundle:
         if energy is None and hasattr(self, '_energy'):
             energy = self.get_energy()[selector]
         if parents is None and hasattr(self, '_parent'):
-            parents = self.get_parent()[selector]
+            parents = self.get_parents()[selector]
         if ref_index is None and hasattr(self, '_ref_index'):
             ref_index = self.get_ref_index()[selector]
         
@@ -159,8 +159,8 @@ class RayBundle:
         if hasattr(self, '_energy') and hasattr(added, '_energy'):
             newbund.set_energy(N.hstack((self.get_energy(),  added.get_energy())))
         if hasattr(self, '_parent') and hasattr(added, '_parent'):
-            new_parent = N.append(self.get_parent(), added.get_parent())
-            newbund.set_parent(new_parent)
+            new_parent = N.append(self.get_parents(), added.get_parents())
+            newbund.set_parents(new_parent)
         if hasattr(self, '_ref_index') and hasattr(added, '_ref_index'):
             newbund.set_ref_index(N.hstack((self._ref_index, added.get_ref_index()))) 
         
@@ -177,7 +177,7 @@ class RayBundle:
         empty.set_directions(empty_array)
         empty.set_vertices(empty_array)
         empty.set_energy(N.array([]))
-        empty.set_parent(N.array([]))
+        empty.set_parents(N.array([]))
         empty.set_ref_index(N.array([]))
         return empty
 
@@ -190,7 +190,7 @@ class RayBundle:
         inherit_select = N.delete(N.arange(self.get_num_rays()), selector)
         outg = self.inherit(inherit_select)
         if hasattr(self, '_parent'):
-            outg.set_parent(N.delete(self.get_parent(), selector))
+            outg.set_parents(N.delete(self.get_parents(), selector))
          
         return outg 
 
@@ -217,7 +217,7 @@ def concatenate_rays(bundles):
     if hasattr(bundles[0], '_energy'):
         newbund.set_energy(N.hstack([b.get_energy() for b in bundles]))
     if hasattr(bundles[0], '_parent'):
-        newbund.set_parent(N.hstack([b.get_parent() for b in bundles]))
+        newbund.set_parents(N.hstack([b.get_parents() for b in bundles]))
     if hasattr(bundles[0], '_ref_index'):
         newbund.set_ref_index(N.hstack([b.get_ref_index() for b in bundles]))
 

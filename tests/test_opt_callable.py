@@ -31,7 +31,7 @@ class TestReflective(unittest.TestCase):
         N.testing.assert_array_equal(outg.get_directions(), correct_dirs)
         
         N.testing.assert_array_equal(outg.get_energy(), N.r_[90, 180, 270, 360])
-        N.testing.assert_array_equal(outg.get_parent(), N.arange(4))
+        N.testing.assert_array_equal(outg.get_parents(), N.arange(4))
     
     def test_without_absorptivity(self):
         """Perfect mirroring works"""
@@ -87,7 +87,7 @@ class TestRefractiveHomogenous(unittest.TestCase):
         
         N.testing.assert_array_equal(outg.get_energy().reshape(2,-1).sum(axis=0), \
             N.r_[100, 200, 400]) # reflection and refraction sum to 100%
-        N.testing.assert_array_equal(outg.get_parent(), N.tile(selector, 2))
+        N.testing.assert_array_equal(outg.get_parents(), N.tile(selector, 2))
     
     def test_TIR(self):
         dir = N.c_[[0, N.cos(N.pi/180), -N.sin(N.pi/180)]]
@@ -106,7 +106,7 @@ class TestRefractiveHomogenous(unittest.TestCase):
         N.testing.assert_array_equal(outg.get_directions(), 
             N.c_[[0, N.cos(N.pi/180), N.sin(N.pi/180)]])
         N.testing.assert_array_equal(outg.get_energy(), N.r_[100])
-        N.testing.assert_array_equal(outg.get_parent(), N.r_[0])
+        N.testing.assert_array_equal(outg.get_parents(), N.r_[0])
 
 class TestAbsorberReflector(unittest.TestCase):
     def test_up_down(self):

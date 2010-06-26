@@ -133,8 +133,8 @@ class TracerEngine():
                 new_record = new_outg
                 
                 # Fix parent indexing to refer to the full original bundle:
-                parents = N.nonzero(owned_rays[surf_idx])[0][new_outg.get_parent()]
-                new_outg.set_parent(parents)
+                parents = N.nonzero(owned_rays[surf_idx])[0][new_outg.get_parents()]
+                new_outg.set_parents(parents)
         
                 # Delete rays with negligible energies
                 delete = N.where(new_outg.get_energy() <= min_energy)[0] 
@@ -195,7 +195,7 @@ class TracerEngine():
         """  
         tree = []
         for bundle in self.tree[1:]:
-            tree.append(bundle.get_parent())
+            tree.append(bundle.get_parents())
         return tree
 
     def track_parent(self, bundle, index):
