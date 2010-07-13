@@ -72,6 +72,16 @@ class TestInheritance(unittest.TestCase):
         N.testing.assert_array_equal(child.get_vertices(), N.ones((3,3)))
         N.testing.assert_array_equal(child.get_directions(), N.zeros((3,3)))
         N.testing.assert_array_equal(child.get_parents(), N.arange(1,4))
+    
+    def test_extra_property(self):
+        pos = N.ones((3,4))
+        direct = N.zeros((3,4))
+        wavelength = N.arange(4)
+        
+        father = RB.RayBundle(pos, direct, wavelength=wavelength)
+        child = father.inherit()
+        
+        N.testing.assert_array_equal(child.get_wavelength(), wavelength)
 
 class TestConcatenate(unittest.TestCase):
     def test_concat(self):
@@ -81,6 +91,13 @@ class TestConcatenate(unittest.TestCase):
         correct = N.hstack((N.ones((3,4)), N.zeros((3,4)) ))
         N.testing.assert_array_equal(con.get_vertices(), correct)
         N.testing.assert_array_equal(con.get_directions(), correct)
+    
+    def test_extra_prop(self):
+        r1 = RB.RayBundle(N.ones((3,4)), N.ones((3,4)), wavelen=N.ones((3,4)))
+        r2 = RB.RayBundle(N.zeros((3,4)), N.zeros((3,4)), wavelen=N.zeros((3,4)))
+        con = RB.concatenate_rays((r1, r2))
+        correct = N.hstack((N.ones((3,4)), N.zeros((3,4)) ))
+        N.testing.assert_array_equal(con.get_wavelen(), correct)
         
 class TestDistributions(unittest.TestCase):
     def assert_radius(self,  vertices,  center,  R):

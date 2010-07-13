@@ -33,7 +33,7 @@ class RayBundle:
     # _ref_index - a 1D array with the refraction index of the material a ray is traveling through
     
     def __init__(self, vertices=None, directions=None, energy=None,
-        parents=None, ref_index=None):
+        parents=None, ref_index=None, **kwds):
         """
         Initialize the ray bundle as empty or using the given arrays. Let n be
         the number of rays, then for each of the arguments, .shape[-1] == n.
@@ -48,6 +48,8 @@ class RayBundle:
             bundle.
         ref_index - each cell has the refractive index of the medium in which
             the corresponding ray travels.
+        kwds - more ray properties, each property named by the keyword, with a
+            value whose shape[-1] == n.
         """
         base_vals = {
             'vertices': vertices,
@@ -55,6 +57,7 @@ class RayBundle:
             'energy': energy,
             'parents': parents,
             'ref_index': ref_index}
+        base_vals.update(kwds)
         
         self._check_attr = [] # Attrs to look for when concatenating bundles
         for n, v in base_vals.iteritems():
@@ -98,6 +101,13 @@ class RayBundle:
         if init_val is not None:
             self.__dict__['set_' + propname](init_val)
     
+    def has_property(self, propname):
+        """
+        Checks whether the looked-after property ``propname`` exists for this
+        bundle.
+        """
+        return ('_' + propname in self._check_attr)
+    
     def get_num_rays(self):
         """
         Returns the number of rays in the bundle. Assumes that the mandatory
@@ -106,7 +116,7 @@ class RayBundle:
         return self._vertices.shape[1]
     
     def inherit(self, selector=N.s_[:], vertices=None, direction=None, energy=None,
-        parents=None, ref_index=None):
+        parents=None, ref_index=None, **kwds):
         """
         Create a bundle with some ray properties given, and  unspecified
         properties copied from this bundle, at the places noted by `selector`.
@@ -116,13 +126,17 @@ class RayBundle:
             the same length as the number of rays in the given properties
         vertices, direction, energy, parents, ref_index - set the corresponding
             properties instead of using this bundle.
+        kwds - the same for properties that were created during ray bundle
+            construction in addition to the basic set of properties.
         """
-        base_vals = {
+        base_vals = dict((attr[1:], None) for attr in self._check_attr)
+        base_vals.update({
             'vertices': vertices,
             'directions': direction,
             'energy': energy,
             'parents': parents,
-            'ref_index': ref_index}
+            'ref_index': ref_index})
+        base_vals.update(kwds)
         
         for p, v in base_vals.iteritems():
             if base_vals[p] is None and hasattr(self, '_' + p):
@@ -142,6 +156,11 @@ class RayBundle:
         
         for attr in self._check_attr:
             if hasattr(self, attr) and hasattr(added, attr):
+                # Create the property if its not in the base set:
+                if not newbund.has_property(attr):
+                    newbund._create_property(attr[1:], None)
+                
+                # Do addition.
                 newbund.__dict__['set' + attr](N.hstack((
                     self.__dict__['get' + attr](),
                     added.__dict__['get' + attr]() )) )
@@ -192,6 +211,11 @@ def concatenate_rays(bundles):
     
     for attr in bundles[0]._check_attr:
         if hasattr(bundles[0], attr):
+            # The new bundle only starts with the basic set, here we equalize:
+            if not newbund.has_property(attr):
+                newbund._create_property(attr[1:], None)
+            
+            # This is the actual concatenation:
             getter = 'get' + attr
             newbund.__dict__['set' + attr](N.hstack(
                 [b.__dict__[getter]() for b in bundles]))
