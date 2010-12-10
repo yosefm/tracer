@@ -3,6 +3,7 @@
 # References:
 # [1] http://en.wikipedia.org/wiki/Fresnel_equations
 # [2] http://en.wikipedia.org/wiki/Snell%27s_law
+# [3] Warren J. Smith, Modern Optical Engineering, 4th Ed., 2008; p. 208.
 
 import numpy as N
 from ray_bundle import RayBundle 
@@ -85,3 +86,13 @@ def refractions(n1, n2, ray_dirs, normals):
     
     return refracted, refr_dirs
 
+def refr_idx_hartmann(wavelength, a, b, c, d, e):
+    """
+    Calculate a material's refractive index corresponding to each given
+    wavelength, using the Hartmann dispersion equation [3]:
+    
+    n(L) = a + b/(c - L) + d/(e - L)
+    
+    where L is the wavelength.
+    """
+    return a + b/(c - wavelength) 
