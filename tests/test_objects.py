@@ -257,6 +257,12 @@ class TestNestedAssemblies(unittest.TestCase):
         # Subassembly transform:
         N.testing.assert_array_almost_equal(self.sub_assembly.get_transform(),
             N.eye(4))
+    
+    def test_interface(self):
+        """Can call getters on an assembly etc."""
+        subs = self.assembly.get_assemblies()
+        self.assertEqual(len(subs), 1)
+        self.assertTrue(subs[0] is self.sub_assembly)
 
 if __name__ == '__main__':
     unittest.main()

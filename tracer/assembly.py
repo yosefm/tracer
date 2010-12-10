@@ -36,10 +36,10 @@ class Assembly(HasFrame):
         self.transform_children()
 
     def get_objects(self):
-        return self.objects
+        return self._objects
 
     def get_assemblies(self):
-        return self.assemblies
+        return self._assemblies
     
     def get_objects(self):
         """
