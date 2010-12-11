@@ -35,7 +35,11 @@ class Assembly(HasFrame):
         
         self.transform_children()
 
-    def get_objects(self):
+    def get_local_objects(self):
+        """
+        Get the list of objects belonging directly to this assembly, without
+        querying the child assemblies.
+        """
         return self._objects
 
     def get_assemblies(self):
