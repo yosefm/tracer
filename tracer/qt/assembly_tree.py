@@ -2,6 +2,18 @@
 from PyQt4 import QtCore, QtGui
 
 class AssemblyTree(QtGui.QTreeWidget):
+    """
+    Provides a tree-widget for Qt which shows an assembly as a tree of sub-
+    assemblies and objects. 
+    
+    Special tags may be attached to the virgin assembly to make the tree
+    provide more information to the user or extend its behaviour. The
+    properties are stored in a dictionary in the _tree_tags attribute of a
+    Surface, AssembledObject or Assembly instance.
+    
+    Supported tags:
+    caption - string to show instead of default numbering.
+    """
     def set_assembly(self, asm):
         self._asm = asm
         self.clear()
@@ -33,7 +45,11 @@ class AssemblyTree(QtGui.QTreeWidget):
             self._add_objects(asm, objects)
         
         for six in xrange(len(subs)):
-            asm_item = QtGui.QTreeWidgetItem(["Assembly %d" % six])
+            caption = self._get_tag(subs[six], 'caption')
+            if caption is None:
+                caption = "Assembly %d" % six
+            
+            asm_item = QtGui.QTreeWidgetItem([caption])
             subasms.addChild(asm_item)
             self._add_subassembly(subs[six], asm_item)
     
@@ -44,15 +60,31 @@ class AssemblyTree(QtGui.QTreeWidget):
         """
         objs = asm.get_local_objects()
         for oix in xrange(len(objs)):
-            tree_obj = QtGui.QTreeWidgetItem(["Object %d" % oix])
+            caption = self._get_tag(objs[oix], 'caption')
+            if caption is None:
+                caption = "Object %d" % oix
+            
+            tree_obj = QtGui.QTreeWidgetItem([caption])
             under.addChild(tree_obj)
             
             # Add surfaces:
             surfs = objs[oix].get_surfaces()
             for six in xrange(len(surfs)):
-                surf_item = QtGui.QTreeWidgetItem(["Surface %d" % six])
+                caption = self._get_tag(surfs[six], 'caption')
+                if caption is None:
+                    caption = "Surface %d" % six
+                
+                surf_item = QtGui.QTreeWidgetItem([caption])
                 tree_obj.addChild(surf_item)
-
+    
+    def _get_tag(self, obj, tagname):
+        """
+        Check if the given object has tags and has the requested tag. If not,
+        return None, else return the tag value.
+        """
+        if not hasattr(obj, '_tree_tags'):
+            return None
+        return obj._tree_tags.get(tagname, None)
 
 if __name__ == "__main__":
     import sys
@@ -62,6 +94,12 @@ if __name__ == "__main__":
     ui = AssemblyTree()
     
     asm = standard_minidish(1., 500, 1.)[0]
+    # Tags test:
+    objs = asm.get_local_objects()
+    objs[0]._tree_tags = {'caption': 'Receiver'}
+    objs[1]._tree_tags = {'caption': 'Dish'}
+    asm.get_assemblies()[0]._tree_tags = {'caption': 'Homogenizer'}
+    
     ui.set_assembly(asm)
     ui.show()
     
