@@ -1,6 +1,34 @@
 
 from PyQt4 import QtCore, QtGui
 
+class AssemblyTreeItem(QtGui.QTreeWidgetItem):
+    """
+    A QTreeWidgetItem that keeps track of the corresponding assembly item and
+    Updates it as necessary. The assembly item ,ay be instance of Assembly,
+    AssembledObject or Surface.
+    """
+    def __init__(self, captions, asm_item):
+        QtGui.QTreeWidgetItem.__init__(self, captions)
+        self._asm_item = asm_item
+        
+        # Since the item is graphically managed, it gets the data structure
+        # that the tree expects, holding the data specific to this widget.
+        if not hasattr(asm_item, '_tree_tags'):
+            asm_item._tree_tags = {}
+    
+    def update_caption(self, updated):
+        """
+        Copy the caption from the graphical item to the model.
+        
+        Arguments:
+        updated - the updated item object. If it isn't self, nothing will be
+            done.
+        """
+        if updated is not self:
+            return
+        
+        self._asm_item._tree_tags['caption'] = self.text(0)
+        
 class AssemblyTree(QtGui.QTreeWidget):
     """
     Provides a tree-widget for Qt which shows an assembly as a tree of sub-
@@ -19,7 +47,10 @@ class AssemblyTree(QtGui.QTreeWidget):
         self.clear()
         
         # Repopulate:
-        asm_item = QtGui.QTreeWidgetItem(["Top assembly"])
+        asm_item = AssemblyTreeItem(["Top assembly"], asm)
+        asm_item.setFlags(asm_item.flags()|QtCore.Qt.ItemIsEditable)
+        self.itemChanged.connect(asm_item.update_caption)
+        
         self.addTopLevelItem(asm_item)
         self.expandItem(asm_item)
         self._add_subassembly(asm, asm_item)
@@ -49,7 +80,10 @@ class AssemblyTree(QtGui.QTreeWidget):
             if caption is None:
                 caption = "Assembly %d" % six
             
-            asm_item = QtGui.QTreeWidgetItem([caption])
+            asm_item = AssemblyTreeItem([caption], subs[six])
+            asm_item.setFlags(asm_item.flags()|QtCore.Qt.ItemIsEditable)
+            self.itemChanged.connect(asm_item.update_caption)
+            
             subasms.addChild(asm_item)
             self._add_subassembly(subs[six], asm_item)
     
@@ -64,7 +98,10 @@ class AssemblyTree(QtGui.QTreeWidget):
             if caption is None:
                 caption = "Object %d" % oix
             
-            tree_obj = QtGui.QTreeWidgetItem([caption])
+            tree_obj = AssemblyTreeItem([caption], objs[oix])
+            tree_obj.setFlags(tree_obj.flags()|QtCore.Qt.ItemIsEditable)
+            self.itemChanged.connect(tree_obj.update_caption)
+
             under.addChild(tree_obj)
             
             # Add surfaces:
@@ -74,7 +111,10 @@ class AssemblyTree(QtGui.QTreeWidget):
                 if caption is None:
                     caption = "Surface %d" % six
                 
-                surf_item = QtGui.QTreeWidgetItem([caption])
+                surf_item = AssemblyTreeItem([caption], surfs[six])
+                surf_item.setFlags(surf_item.flags()|QtCore.Qt.ItemIsEditable)
+                self.itemChanged.connect(surf_item.update_caption)
+                
                 tree_obj.addChild(surf_item)
     
     def _get_tag(self, obj, tagname):
