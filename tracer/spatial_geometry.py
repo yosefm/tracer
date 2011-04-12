@@ -23,7 +23,7 @@ def general_axis_rotation(axis,  angle):
 
 def rotation_to_z(vec):
     """
-    Generate a rotattion into a frame whose Z zxis points along the direction
+    Generate a rotation into a frame whose Z zxis points along the direction
     indicated by ``vec``. The rest of the directions are determined by
     requiring the new X to lie on the XY plane of the original frame, and by
     the right-hand rule.
