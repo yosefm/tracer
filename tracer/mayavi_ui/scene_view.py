@@ -159,7 +159,7 @@ def show_rays(scene, tree, escaping_len):
         else:
             end_rays = tree[level + 1]
             ev = end_rays.get_vertices()
-            parents = end_rays.get_parent()
+            parents = end_rays.get_parents()
 
         for ray in xrange(start_rays.get_num_rays()):
             if se[ray] == 0:
