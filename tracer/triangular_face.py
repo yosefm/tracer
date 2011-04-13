@@ -67,3 +67,28 @@ class TriangularFace(FiniteFlatGM):
         
         return ray_prms
         
+    def mesh(self, resolution=2):
+        """
+        Represent the surface as a mesh in local coordinates. For the
+        triangular face this means twice the head vertex, and each of the other
+        two vertices are returned in mesh form.
+        
+        Arguments:
+        resolution - in points per edge (so the number of points 
+            returned is O(resolution**2) for area A)
+        
+        Returns:
+        x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+            coordinate (respectively) of point (i,j) in the mesh.
+        """
+        if resolution < 2:
+            raise ValueError('Resolution must be >= 2')
+        
+        alpha, beta = np.meshgrid(
+            np.linspace(0, 1, resolution), # parameter along two edges
+            np.linspace(0, 1, resolution)) # parameter between points on edges
+        
+        x, y, z = alpha*self._verts[:,1,None,None]*(1 - beta) + \
+            alpha*self._verts[:,0,None,None]*beta
+        
+        return x, y, z

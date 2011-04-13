@@ -35,3 +35,17 @@ class TestExclusion(unittest.TestCase):
         
         np.testing.assert_array_equal(np.isfinite(prm),
             np.r_[False, False, True, False, False, True])
+
+class TEstMesh(unittest.TestCase):
+    def test_points(self):
+        verts = np.zeros((3,2))
+        verts[1] = 2.
+        verts[0] = np.r_[4., -4.]
+        tri = TriangularFace(verts)
+        
+        x, y, z = tri.mesh(3)
+        cx = np.array([[0., -2., -4.], [0., 0., 0.], [0., 2., 4.]])
+        cy = np.array([[0., 1., 2.], [0., 1., 2.], [0., 1., 2.]])
+        np.testing.assert_array_equal(x, cx)
+        np.testing.assert_array_equal(y, cy)
+        np.testing.assert_array_equal(z, np.zeros_like(x))
