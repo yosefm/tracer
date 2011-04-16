@@ -21,10 +21,10 @@ def general_axis_rotation(axis,  angle):
                             [-axis[1], axis[0],  0        ] ])
     return N.multiply.outer(axis,  axis)*v + N.eye(3)*c + add*s
 
-def rotation_to_z(vec):
+def rotation_to_z(vecs):
     """
     Generate a rotation into a frame whose Z zxis points along the direction
-    indicated by ``vec``. The rest of the directions are determined by
+    indicated by ``vecs``. The rest of the directions are determined by
     requiring the new X to lie on the XY plane of the original frame, and by
     the right-hand rule.
     
@@ -32,18 +32,20 @@ def rotation_to_z(vec):
     original frame is retained.
     
     Arguments:
-    vec - a 3-component 1D array representing a direction in 3D space.
+    vec - a 3-component 1D array representing a unit direction in 3D space.
     
     Returns:
     A 3x3 array representing the global-to-local rotation to get the desired
         frame.
     """
-    perp = N.r_[vec[1],  -vec[0],  0]
-    if N.all(perp == 0):
-        perp = N.r_[1.,  0.,  0.]
-    perp = perp/N.linalg.norm(perp)
-    perp_rot = N.array((perp, N.cross(vec, perp), vec)).T
-    return perp_rot
+    vecs = N.atleast_2d(vecs)
+    perp = N.hstack((vecs[:,1][:,None],  -vecs[:,0][:,None],
+        N.zeros((vecs.shape[0], 1)) ))
+    perp[N.all(perp == 0, axis=1)] = N.r_[1.,  0.,  0.]
+    perp /= N.sqrt(N.sum(perp**2, axis=1))[:,None]
+    perp_rot = N.concatenate((perp[...,None], N.cross(vecs, perp)[...,None],
+        vecs[...,None]), axis=2)
+    return N.squeeze(perp_rot)
 
 def generate_transform(axis, angle, translation):
     """Generates a transformation matrix                                                      
