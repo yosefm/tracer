@@ -24,7 +24,7 @@ class TriangulatedSurface(AssembledObject):
             matrix of this object relative to the coordinate system of its 
             container
         """
-        face_list = [None]*vertices.shape[0]
+        face_list = [None]*faces.shape[0]
         for face_ix, face_vert_idxs in enumerate(faces):
             face_verts = vertices[face_vert_idxs]
             pos = face_verts[0]
