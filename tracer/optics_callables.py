@@ -2,8 +2,8 @@
 # A collection of callables and tools for creating them, that may be used for
 # the optics-callable part of a Surface object.
 
-import optics
-import ray_bundle
+from . import optics, ray_bundle, sources
+from .spatial_geometry import rotation_to_z
 import numpy as N
 
 class Reflective(object):
@@ -31,15 +31,21 @@ class Reflective(object):
 
 perfect_mirror = Reflective(0)
 
-class ReflectiveReceiver(Reflective):
+class AbsorptionAccountant(object):
     """
     This optics manager remembers all of the locations where rays hit it
-    in all iterations, and the energy absorbed from each ray. The surface is 
-    reflective, but by default its absorptivity is 1. The energy remembered
-    is the incoming energy, not that remaining after reflection.
+    in all iterations, and the energy absorbed from each ray.
     """
-    def __init__(self, absorptivity=1.):
-        Reflective.__init__(self, absorptivity)
+    def __init__(self, real_optics, absorptivity=1.):
+        """
+        Arguments:
+        real_optics - the optics manager class to actually use. Expected to
+            have the _abs protected attribute, and accept absorptivity as its
+            only constructor argument (as in Reflective and
+            LambertianReflector below).
+        absorptivity - to be passed to a new real_optics object.
+        """
+        self._opt = real_optics(absorptivity)
         self.reset()
     
     def reset(self):
@@ -48,9 +54,9 @@ class ReflectiveReceiver(Reflective):
         self._hits = []
     
     def __call__(self, geometry, rays, selector):
-        self._absorbed.append(rays.get_energy()[selector]*self._abs)
+        self._absorbed.append(rays.get_energy()[selector]*self._opt._abs)
         self._hits.append(geometry.get_intersection_points_global())
-        return Reflective.__call__(self, geometry, rays, selector)
+        return self._opt(geometry, rays, selector)
     
     def get_all_hits(self):
         """
@@ -66,6 +72,11 @@ class ReflectiveReceiver(Reflective):
         return N.hstack([a for a in self._absorbed if len(a)]), \
             N.hstack([h for h in self._hits if h.shape[1]])
 
+class ReflectiveReceiver(AbsorptionAccountant):
+    """A wrapper around AbsorptionAccountant with a Reflective optics"""
+    def __init__(self, absorptivity=1.):
+        AbsorptionAccountant.__init__(self, Reflective, absorptivity)
+        
 class AbsorberReflector(Reflective):
     """
     This optics manager behaves similarly to the ReflectiveReceiver class,
@@ -148,3 +159,37 @@ class RefractiveHomogenous(object):
             ref_index=n2[refr])
         
         return reflected_rays + refracted_rays
+
+class LambertianReflector(object):
+    """
+    Represents the optics of an ideal diffuse (lambertian) surface, i.e. one
+    that reflects rays in a random direction (uniform distribution of
+    directions in 3D, see tracer.sources.pillbox_sunshape_directions)
+    """
+    def __init__(self, absorptivity):
+        self._abs = absorptivity
+    
+    def __call__(self, geometry, rays, selector):
+        """
+        Arguments:
+        geometry - a GeometryManager which knows about surface normals, hit
+            points etc.
+        rays - the incoming ray bundle (all of it, not just rays hitting this
+            surface)
+        selector - indices into ``rays`` of the hitting rays.
+        """
+        directs = sources.pillbox_sunshape_directions(len(selector), N.pi/2.)
+        directs = N.sum(rotation_to_z(geometry.get_normals().T) * \
+            directs.T[:,None,:], axis=2).T
+        
+        outg = rays.inherit(selector,
+            vertices=geometry.get_intersection_points_global(),
+            energy=rays.get_energy()[selector]*(1 - self._abs),
+            direction=directs, parents=selector)
+        return outg
+
+class LambertianReceiver(AbsorptionAccountant):
+    """A wrapper around AbsorptionAccountant with LambertianReflector optics"""
+    def __init__(self, absorptivity=1.):
+        AbsorptionAccountant.__init__(self, LambertianReflector, absorptivity)
+

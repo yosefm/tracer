@@ -136,3 +136,54 @@ class TestAbsorberReflector(unittest.TestCase):
         N.testing.assert_array_equal(e[:4], 100)
         N.testing.assert_array_equal(e[4:], 0)
 
+class TestLambertian(unittest.TestCase):
+    def setUp(self):
+        """Set up the ray bundle and geometry"""
+        direct = N.c_[[1, 1, -1], [-1, 1, -1], [-1, -1, -1], [1, -1, -1]] / N.sqrt(3)
+        position = N.c_[[0,0,1], [1,-1,1], [1,1,1], [-1,1,1]]
+        en = N.r_[100, 200, 300, 400]
+        self._bund = RayBundle(position, direct, energy=en)
+        
+        self.gm = FlatGeometryManager()
+        self.prm = self.gm.find_intersections(N.eye(4), self._bund)
+    
+    def test_with_absorptivity(self):
+        """A correct bundle from Lambertian, with energy reduced correctly"""
+        lamb = optics_callables.LambertianReflector(0.1)
+        self.gm.select_rays(N.arange(4))
+        outg = lamb(self.gm, self._bund, N.arange(4))
+        
+        correct_pts = N.zeros((3,4))
+        correct_pts[:2,0] = 1
+        N.testing.assert_array_equal(outg.get_vertices(), correct_pts)
+        
+        N.testing.assert_array_equal(outg.get_energy(), N.r_[90, 180, 270, 360])
+        N.testing.assert_array_equal(outg.get_parents(), N.arange(4))
+        self.assertTrue(N.all(outg.get_directions()[2] >= 0.))
+    
+    def test_without_absorptivity(self):
+        """Perfect mirroring works"""
+        reflective = optics_callables.Reflective(0)
+        self.gm.select_rays(N.arange(4))
+        outg = reflective(self.gm, self._bund, N.arange(4))
+        N.testing.assert_array_equal(outg.get_energy(), N.r_[100, 200, 300, 400])
+    
+    def test_receiver(self):
+        """A receiver memorizes all lifetime hits"""
+        receiver = optics_callables.LambertianReceiver() # Perfect absorber
+        self.gm.select_rays(N.arange(4))
+        
+        # Round one:
+        outg = receiver(self.gm, self._bund, N.arange(4))
+        N.testing.assert_array_equal(outg.get_energy(), 0)
+        absorbed, hits = receiver.get_all_hits()
+        N.testing.assert_array_equal(absorbed, N.r_[100, 200, 300, 400])
+        correct_pts = N.zeros((3,4))
+        correct_pts[:2,0] = 1
+        N.testing.assert_array_equal(hits, correct_pts)
+        
+        # Round two:
+        outg = receiver(self.gm, self._bund, N.arange(4))
+        absorbed, hits = receiver.get_all_hits()
+        N.testing.assert_array_equal(absorbed, N.tile(N.r_[100, 200, 300, 400], 2))
+        N.testing.assert_array_equal(hits, N.tile(correct_pts, (1,2)))
