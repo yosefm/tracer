@@ -89,6 +89,10 @@ class TracerScene(t_api.HasTraits):
         from the scene's source, retraces its rays, and plots them on the
         scene.
         """
+        # Allow a scene with no source:
+        if self._source is None:
+            return
+        
         # Remove previous rays:
         for line in self._lines:
             line.remove()
