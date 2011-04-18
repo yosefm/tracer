@@ -24,23 +24,20 @@ class TriangulatedSurface(AssembledObject):
             matrix of this object relative to the coordinate system of its 
             container
         """
-        face_list = [None]*faces.shape[0]
-        for face_ix, face_vert_idxs in enumerate(faces):
-            face_verts = vertices[face_vert_idxs]
-            pos = face_verts[0]
-            
-            # Frame directions: X along first edge, Z along the normal, Y
-            # completes a right-handed frame XYZ.
-            edges = face_verts[1:] - pos
-            x = edges[0]/np.linalg.norm(edges[0])
-            z = np.cross(edges[0], edges[1])
-            z /= np.linalg.norm(z)
-            y = np.cross(z, x)
-            rot = np.c_[x, y, z]
-            
-            edges_local = np.dot(rot.T, edges.T)
-            geom = TriangularFace(edges_local)
-            face_list[face_ix] = Surface(geom, optics, location=pos, rotation=rot)
+        pos = vertices[faces[:,0]]
+        edges = vertices[faces[:,1:],:] - pos[:,None,:]
+        edge_norms = np.sqrt(np.sum(edges**2, axis=2))
+        
+        xs = edges[:,0] / edge_norms[:,0,None]
+        zs = np.cross(edges[:,0], edges[:,1]) / edge_norms[:,1,None]
+        ys = np.cross(zs, xs)
+        
+        rots = np.concatenate((xs[...,None], ys[...,None], zs[...,None]), axis=2)
+        edges_local = np.sum(rots.transpose(0,2,1)[:,None,...]*edges[:,:,None,:], axis=3)
+        
+        face_list = [Surface(TriangularFace(edges_local[face_ix].T), optics,
+            location=pos[face_ix], rotation=rots[face_ix]) \
+            for face_ix in xrange(faces.shape[0])]
         
         AssembledObject.__init__(self, face_list, None, transform)
 

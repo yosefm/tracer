@@ -32,9 +32,9 @@ class TestFaceSet(unittest.TestCase):
         zrays = (p >= 4)
         np.testing.assert_array_equal(verts[:,zrays],
             np.tile(np.c_[[0.5, 0.5, 0.]], (1,4)) )
-        yrays = (p == 2) | (p ==3)
+        yrays = (p == 2) | (p ==3) # Only 2 rays here. Edge degeneracy? maybe.
         np.testing.assert_array_equal(verts[:,yrays],
             np.tile(np.c_[[0.5, 0., 0.5]], (1,4)) )
-        xrays = (p < 2) # Only 3 rays here. Edge degeneracy? maybe.
+        xrays = (p < 2)
         np.testing.assert_array_equal(verts[:,xrays],
-            np.tile(np.c_[[0., 0.5, 0.5]], (1,3)) )
+            np.tile(np.c_[[0., 0.5, 0.5]], (1,4)) )
