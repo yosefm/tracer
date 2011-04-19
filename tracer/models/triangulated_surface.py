@@ -27,17 +27,25 @@ class TriangulatedSurface(AssembledObject):
         pos = vertices[faces[:,0]]
         edges = vertices[faces[:,1:],:] - pos[:,None,:]
         edge_norms = np.sqrt(np.sum(edges**2, axis=2))
+        non_degenerate = np.all(abs(edge_norms) > 1e-8, axis=1)
+        edges = edges[non_degenerate]
+        edge_norms = edge_norms[non_degenerate]
         
         xs = edges[:,0] / edge_norms[:,0,None]
-        zs = np.cross(edges[:,0], edges[:,1]) / edge_norms[:,1,None]
+        zs = np.cross(xs, edges[:,1]) / edge_norms[:,1,None]
+        non_collinear = np.any(abs(zs) > 1e-6, axis=1)
+        xs = xs[non_collinear]
+        zs = zs[non_collinear]
         ys = np.cross(zs, xs)
+        edges = edges[non_collinear]
         
         rots = np.concatenate((xs[...,None], ys[...,None], zs[...,None]), axis=2)
-        edges_local = np.sum(rots.transpose(0,2,1)[:,None,...]*edges[:,:,None,:], axis=3)
+        edges_local = np.sum(rots.transpose(0,2,1)[:,None,...]*\
+            edges[:,:,None,:], axis=3)
         
         face_list = [Surface(TriangularFace(edges_local[face_ix].T), optics,
             location=pos[face_ix], rotation=rots[face_ix]) \
-            for face_ix in xrange(faces.shape[0])]
+            for face_ix in xrange(xs.shape[0])]
         
         AssembledObject.__init__(self, face_list, None, transform)
 
