@@ -25,8 +25,8 @@ def pillbox_sunshape_directions(num_rays, ang_range):
     ang_range - in radians, the maximum deviation from +Z.
     
     Returns:
-    A (s, num_rays) array whose each column is a unit direction vector for one
-        ray, distributed to much a pillbox sunshape.
+    A (3, num_rays) array whose each column is a unit direction vector for one
+        ray, distributed to match a pillbox sunshape.
     """
     # Diffuse divergence from +Z:
     # development bassed on eq. 2.12  from [1]
