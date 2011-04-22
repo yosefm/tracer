@@ -114,7 +114,7 @@ class QuadricGM(GeometryManager):
 
         # If both are negative, it is a miss
         # This line also catches the cases of the last xor.
-        select[N.logical_or(*is_positive)] = N.nan
+        select[~N.logical_or(*is_positive)] = N.nan
         
         # If both are positive, use the smaller one
         select[N.logical_and(*is_positive)] = 0
