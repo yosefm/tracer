@@ -121,7 +121,7 @@ class QuadricGM(GeometryManager):
         
         # If either one is negative, use the positive one
         one_pos = N.logical_xor(*is_positive)
-        select[one_pos] = N.nonzero(is_positive[:,one_pos])[0]
+        select[one_pos] = N.nonzero(is_positive.T[one_pos,:])[1]
         
         return select
         
