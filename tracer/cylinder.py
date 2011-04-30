@@ -82,27 +82,19 @@ class FiniteCylinder(InfiniteCylinder):
         Returns:
         The index of the selected intersection, or None if neither will do.
         """
-        select = InfiniteCylinder._select_coords(self, coords, prm) # defaults
+        select = N.empty(prm.shape[1])
+        select.fill(N.nan)
         
         height = N.sum(N.linalg.inv(self._working_frame)[None,2,:,None] * \
             N.concatenate((coords, N.ones((2,1,coords.shape[-1]))), axis=1), axis=1)
         inside = (abs(height) <= self._half_h)
         positive = prm > 0
         
-        select[~N.logical_or(*inside)] = N.nan
-        both_positive = N.logical_and(*positive)
-        on = both_positive & N.logical_xor(*inside)
-        select[both_positive & N.logical_and(*inside)] = 0
-        select[on] = N.nonzero(inside[:,on])[0]
-        
-        one_positive = N.logical_xor(*positive)
-        positive_inside = N.logical_or(*(positive & inside))
+        hitting = inside & positive
+        select[N.logical_and(*hitting)] = 0
+        one_hitting = N.logical_xor(*hitting)
+        select[one_hitting] = N.nonzero(hitting.T[one_hitting,:])[1]
 
-        on = one_positive & positive_inside
-        select[on] = N.nonzero(positive[:,on])[0]
-        off = one_positive & ~positive_inside
-        select[off] = N.nan
-        
         return select
     
     def mesh(self, resolution):

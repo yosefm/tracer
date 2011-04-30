@@ -64,8 +64,10 @@ class TestFiniteCylinder(unittest.TestCase):
     """Just see that it throws out the right rays"""
     def setUp(self):
         # Two rays inside, two outside; two horizontal, two slanted.
-        pos = N.c_[[0., 0., 0.], [0., 0., 0.], [0., 1., 0.], [0., 1., 0.]]
-        dir = N.c_[[0., 1., 0.], [0., 1., 1.], [0.,-1., 0.], [0.,-1., 1.]]
+        pos = N.c_[[0., 0., 0.], [0., 0., 0.], [0., 1., 0.], [0., 1., 0.],
+            [0., 1., 0.], [0., 1., 0.1], [0., 0.2, -0.06], [0., 0., 0.03]]
+        dir = N.c_[[0., 1., 0.], [0., 1., 1.], [0.,-1., 0.], [0.,-1., 1.],
+            [0., -1., 0.05], [0., -1., -0.05], [0., 1., 0.2], [0., 1., 0.1]]
         dir /= N.sqrt(N.sum(dir**2, axis=0))
         
         self.bund = RayBundle(pos, dir)
@@ -73,9 +75,11 @@ class TestFiniteCylinder(unittest.TestCase):
     
     def test_vertical(self):
         """Finite cylinder parallel to the Z axis"""
-        correct_prm = N.r_[0.5, N.inf, 0.5, N.inf]
+        correct_prm = N.r_[0.5, 0, 0.5, 0, 0.50062461, 1.50187383, 0.30594117, 0.]
         prm = self.gm.find_intersections(N.eye(4), self.bund)
-        N.testing.assert_array_equal(prm, correct_prm)
+        N.testing.assert_array_equal(prm[[1,3, 7]], N.inf)
+        prm[[1,3, 7]] = 0.
+        N.testing.assert_array_almost_equal(prm, correct_prm)
         
         self.gm.select_rays(N.r_[0, 2])
         
@@ -91,7 +95,7 @@ class TestFiniteCylinder(unittest.TestCase):
         """Rotate finite cylinder by 30 degrees"""
         frame = rotx(N.pi/6)
         
-        correct_prm = N.empty(4)
+        correct_prm = N.empty(8)
         correct_prm.fill(N.inf)
         prm = self.gm.find_intersections(frame, self.bund)
         N.testing.assert_array_equal(prm, correct_prm)
