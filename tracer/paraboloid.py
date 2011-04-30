@@ -105,7 +105,7 @@ class ParabolicDishGM(Paraboloid):
 
         select[~N.logical_or(*under_cut)] = N.nan
         one_hit = N.logical_xor(*under_cut)
-        select[one_hit] = N.nonzero(under_cut[:,one_hit])[0]
+        select[one_hit] = N.nonzero(under_cut.T[one_hit,:])[1]
 
         return select
     
@@ -183,7 +183,7 @@ class HexagonalParabolicDishGM(Paraboloid):
         
         select[~N.logical_or(*inside)] = N.nan
         one_hit = N.logical_xor(*inside)
-        select[one_hit] = N.nonzero(inside[:,one_hit])[0]
+        select[one_hit] = N.nonzero(inside.T[one_hit,:])[1]
 
         return select
 
