@@ -3,8 +3,8 @@
 import operator
 import numpy as N
 
-from spatial_geometry import general_axis_rotation
-from has_frame import HasFrame
+from .spatial_geometry import general_axis_rotation
+from .has_frame import HasFrame
 
 class Assembly(HasFrame):
     """

@@ -6,7 +6,6 @@
 # [3] Warren J. Smith, Modern Optical Engineering, 4th Ed., 2008; p. 208.
 
 import numpy as N
-from ray_bundle import RayBundle 
 
 def fresnel(ray_dirs, normals, n1, n2):
     """Determines what ratio of the ray bundle is reflected and what is refracted, 

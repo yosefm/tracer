@@ -10,8 +10,8 @@ References:
 from numpy import random, linalg as LA
 import numpy as N
 
-from ray_bundle import RayBundle
-from spatial_geometry import rotation_to_z
+from .ray_bundle import RayBundle
+from .spatial_geometry import rotation_to_z
 
 def pillbox_sunshape_directions(num_rays, ang_range):
     """
