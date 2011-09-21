@@ -54,6 +54,9 @@ class AssemblyTree(QtGui.QTreeWidget):
         self.addTopLevelItem(asm_item)
         self.expandItem(asm_item)
         self._add_subassembly(asm, asm_item)
+    
+    def get_assembly(self):
+        return self._asm
         
     def _add_subassembly(self, asm, under):
         """
@@ -76,9 +79,10 @@ class AssemblyTree(QtGui.QTreeWidget):
             self._add_objects(asm, objects)
         
         for six in xrange(len(subs)):
-            caption = self._get_tag(subs[six], 'caption')
+            caption = self.get_tag(subs[six], 'caption')
             if caption is None:
                 caption = "Assembly %d" % six
+                self.set_tag(subs[six], 'caption', caption)
             
             asm_item = AssemblyTreeItem([caption], subs[six])
             asm_item.setFlags(asm_item.flags()|QtCore.Qt.ItemIsEditable)
@@ -94,9 +98,10 @@ class AssemblyTree(QtGui.QTreeWidget):
         """
         objs = asm.get_local_objects()
         for oix in xrange(len(objs)):
-            caption = self._get_tag(objs[oix], 'caption')
+            caption = self.get_tag(objs[oix], 'caption')
             if caption is None:
                 caption = "Object %d" % oix
+                self.set_tag(objs[oix], 'caption', caption)
             
             tree_obj = AssemblyTreeItem([caption], objs[oix])
             tree_obj.setFlags(tree_obj.flags()|QtCore.Qt.ItemIsEditable)
@@ -107,9 +112,10 @@ class AssemblyTree(QtGui.QTreeWidget):
             # Add surfaces:
             surfs = objs[oix].get_surfaces()
             for six in xrange(len(surfs)):
-                caption = self._get_tag(surfs[six], 'caption')
+                caption = self.get_tag(surfs[six], 'caption')
                 if caption is None:
                     caption = "Surface %d" % six
+                    self.set_tag(surfs[six], 'caption', caption)
                 
                 surf_item = AssemblyTreeItem([caption], surfs[six])
                 surf_item.setFlags(surf_item.flags()|QtCore.Qt.ItemIsEditable)
@@ -117,14 +123,32 @@ class AssemblyTree(QtGui.QTreeWidget):
                 
                 tree_obj.addChild(surf_item)
     
-    def _get_tag(self, obj, tagname):
+    def get_tag(self, obj, tagname):
         """
         Check if the given object has tags and has the requested tag. If not,
         return None, else return the tag value.
+        
+        Arguments:
+        obj - an assembly object (Assembly, AssembledObject or Surface)
+        tagname - name of tag to to fetch.
         """
         if not hasattr(obj, '_tree_tags'):
             return None
         return obj._tree_tags.get(tagname, None)
+    
+    def set_tag(self, obj, tagname, value):
+        """
+        Create or change a tag on an assembly member.
+        
+        Arguments:
+        obj - an assembly object (Assembly, AssembledObject or Surface)
+        tagname - name of tag to set or create
+        value - the value to set tagname to. A string.
+        """
+        if not hasattr(obj, '_tree_tags'):
+            obj._tree_tags = {}
+        
+        obj._tree_tags[tagname] = value
 
 if __name__ == "__main__":
     import sys
