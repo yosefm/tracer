@@ -1,14 +1,14 @@
 
-tracer - a Pythonic statistical ray-tracing software with solar energy focus.
+tracer - a Pythonic ray-tracing package with solar energy focus.
 
 About
 -----
-Tracer (temporary name) is (to be) a statistical ray-tracing engine and
-suite of tools focused on solar energy applications.
+Tracer is a ray-tracing engine and suite of tools focused on solar energy 
+applications.
 
 The motivation for writing tracer:
 * Current solutions lack programmability and extensibility
-* Unless you pay megabucks
+* Even if you pay megabucks
 * De-facto standard tools of the trade are non-free, so bugfixing
   etc. depends on someone else,
 * Usability in the solution closest to our budget is poor, and no Linux
@@ -19,13 +19,16 @@ Tracer is written in Python, using NumPy and SciPy for the math side of things.
 Status
 ------
 The code is advanced enough to produce research. It is currently a programming
-library only, without a GUI. 
+library, with a very rudimentary GUI library under construction.
 
 It is possible to build nested models using flat, paraboloid and spherical
 surfaces, using various optical properties, or to derive new ones. A pillbox
 sunshape model is provided, and any ray bundle can be programmatically created.
 
-There are no provisions for spectral response or polarization yet.
+There are no provisions for spectral response or polarization yet, but the 
+package is designed to make it easy to add them, and also to remove unnecessary
+features and plug in speed-improving optical and geometrical models that
+utilize problem-specific features.
 
 Installation
 ------------
@@ -51,6 +54,9 @@ require MayaVi to run.
 
 Getting Help, Getting Involved
 ------------------------------
-Documentation and reference matereial can be found on http://tracer.berlios.de/
-Updated information on how to contribute can also be found on the same place.
+Slightly outdated documentation and reference matereial can be found on 
+http://yosefm.github.com/tracer/ - updates are forthcoming as soon as my thesis
+is submitted :)
+
+To get involved, contact me at <mellerf@netvision.net.il>
 
