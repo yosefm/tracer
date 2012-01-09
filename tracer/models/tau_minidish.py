@@ -56,7 +56,7 @@ class MiniDish(HomogenizedLocalReceiver):
         return self._ext_dims
 
 # Utility functions:
-def standard_minidish_measures(diameter, concentration, reflections):
+def standard_minidish_measures(diameter, concentration, virt_sources):
     """
     Calculate the dimensions in a dish with 45 deg. rim angle, using
     dimensioning rules from [2].
@@ -64,7 +64,9 @@ def standard_minidish_measures(diameter, concentration, reflections):
     Arguments:
     diameter - of the dish aperture.
     concentrations - ratio of dish aperture to receiver aperture.
-    reflections - number of times an edge ray gets reflected in the homogenizer
+    virt_sources - Virtual sources seen by the homogenizer on top of the one
+        real source. Note this can't exceed (diameter/W - 1.) for homogenizer
+        aperture width W.
     
     Returns:
     f, W, H - the focal length, homogenizer width and receiver distance from
@@ -72,11 +74,11 @@ def standard_minidish_measures(diameter, concentration, reflections):
     """
     f = diameter/4./(sqrt(2) - 1)
     W = diameter/2. * sqrt(pi/concentration)
-    n = reflections + 1
+    n = virt_sources + 1
     H = n*W*f/(diameter - n*W)
     return f, W, H
     
-def standard_minidish(diameter, concentration, reflections, 
+def standard_minidish(diameter, concentration, virt_sources, 
     dish_opt_eff=0.9, homog_opt_eff=0.9):
     """
     Create a minidish assembly with dimensions based on a dish with 45 deg.
@@ -84,8 +86,10 @@ def standard_minidish(diameter, concentration, reflections,
     
     Arguments:
     diameter - of the dish aperture.
-    concentrations - ratio of dish aperture to receiver aperture.
-    reflections - number of times an edge ray gets reflected in the homogenizer
+    concentration - ratio of dish aperture to receiver aperture.
+    virt_sources - Virtual sources seen by the homogenizer on top of the one
+        real source. Note this can't exceed (diameter/W - 1.) for homogenizer
+        aperture width W.
     dish_opt_eff, homog_opt_eff - passed directly to the minidish constructor.
     
     Returns:
@@ -93,6 +97,7 @@ def standard_minidish(diameter, concentration, reflections,
     f, W, H - the focal length, homogenizer width and receiver distance from
         focal point that were used for the dish.
     """
-    f, W, H = standard_minidish_measures(diameter, concentration, reflections)
+    f, W, H = standard_minidish_measures(diameter, concentration, virt_sources)
     minidish = MiniDish(diameter, f, dish_opt_eff, f + H, W, H, homog_opt_eff)
     return minidish, f, W, H
+
