@@ -1,6 +1,6 @@
 # Test that the AssemblyTree object changes properties as it should
 
-import unittest
+import unittest, sys
 from PyQt4.QtGui import QApplication
 from PyQt4.QtTest import QTest
 from PyQt4.QtCore import Qt, QPoint, QRect
@@ -10,7 +10,7 @@ from tracer.models.tau_minidish import standard_minidish
 
 class TestAssemblyTreeWidget(unittest.TestCase):
     def setUp(self):
-        self.app = QApplication([])
+        self.app = QApplication(sys.argv)
         self.form = AssemblyTree()
         
         asm = standard_minidish(1., 500, 1.)[0]
@@ -28,11 +28,12 @@ class TestAssemblyTreeWidget(unittest.TestCase):
     
     def test_renaming(self):
         """Renaming tree items graphically"""
+        objs = self.form.get_assembly().get_local_objects()
         obj_items = self.form.topLevelItem(0).child(1)
-        homog = self.form.topLevelItem(0).child(0)
         
         dish_pos = self.form.visualItemRect(obj_items.child(0))
-        x = int(dish_pos.left() + dish_pos.right()) / 2.
-        y = int(dish_pos.bottom() + dish_pos.top()) / 2.
-        QTest.mouseClick(self.form, Qt.LeftButton, pos=QPoint(x, y))
-
+        obj_items.child(0).setText(0, "edited")
+        self.assertEqual(self.form.get_tag(objs[0], 'caption'), 'edited')
+    
+    def tearDown(self):
+        del self.app
