@@ -4,10 +4,10 @@ concentration, and number of reflections in the homogenizer. You can play with
 both values, and each change will cause the scene to redraw.
 """
 
-import enthought.traits.api as t_api
-import enthought.traits.ui.api as tui
-from enthought.tvtk.pyface.scene_editor import SceneEditor
-from enthought.mayavi.core.ui.mayavi_scene import MayaviScene
+import traits.api as t_api
+import traitsui.api as tui
+from tvtk.pyface.scene_editor import SceneEditor
+from mayavi.core.ui.mayavi_scene import MayaviScene
 
 from tracer.mayavi_ui.scene_view import TracerScene
 

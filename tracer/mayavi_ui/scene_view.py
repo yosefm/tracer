@@ -5,11 +5,11 @@ assembly and ray bundle (source), and show_assembly() and show_rays() help
 with the drawing.
 """
 
-import enthought.traits.api as t_api
-import enthought.traits.ui.api as tui
-from enthought.mayavi.tools.mlab_scene_model import MlabSceneModel
-from enthought.tvtk.pyface.scene_editor import SceneEditor
-from enthought.mayavi.core.ui.mayavi_scene import MayaviScene
+import traits.api as t_api
+import traitsui.api as tui
+from mayavi.tools.mlab_scene_model import MlabSceneModel
+from tvtk.pyface.scene_editor import SceneEditor
+from mayavi.core.ui.mayavi_scene import MayaviScene
 
 import numpy as N
 from ..tracer_engine import TracerEngine
