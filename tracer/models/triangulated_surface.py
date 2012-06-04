@@ -32,7 +32,8 @@ class TriangulatedSurface(AssembledObject):
         edge_norms = edge_norms[non_degenerate]
         
         xs = edges[:,0] / edge_norms[:,0,None]
-        zs = np.cross(xs, edges[:,1]) / edge_norms[:,1,None]
+        zs = np.cross(xs, edges[:,1])
+        zs /= np.sqrt((zs**2).sum(-1))[:,None]
         non_collinear = np.any(abs(zs) > 1e-6, axis=1)
         xs = xs[non_collinear]
         zs = zs[non_collinear]
