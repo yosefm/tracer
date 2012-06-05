@@ -77,7 +77,7 @@ class TestFiniteCylinder(unittest.TestCase):
         """Finite cylinder parallel to the Z axis"""
         correct_prm = N.r_[0.5, 0, 0.5, 0, 0.50062461, 1.50187383, 0.30594117, 0.]
         prm = self.gm.find_intersections(N.eye(4), self.bund)
-        N.testing.assert_array_equal(prm[[1,3, 7]], N.inf)
+        N.testing.assert_array_equal(prm[[1,3, 7]], N.ones(3)*N.inf)
         prm[[1,3, 7]] = 0.
         N.testing.assert_array_almost_equal(prm, correct_prm)
         
