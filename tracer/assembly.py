@@ -23,8 +23,6 @@ class Assembly(HasFrame):
             transformed together with this assembly.
         location, rotation - passed on to HasFrame.
         """
-        HasFrame.__init__(self, location, rotation)
-        
         if objects is None:
             objects = []
         self._objects = objects
@@ -33,7 +31,7 @@ class Assembly(HasFrame):
             subassemblies = []
         self._assemblies = subassemblies
         
-        self.transform_children()
+        HasFrame.__init__(self, location, rotation)
 
     def get_local_objects(self):
         """
@@ -94,6 +92,30 @@ class Assembly(HasFrame):
         assembly.set_transform(transform)
         self.transform_children()
 
+    def set_rotation(self, rotation):
+        """
+        A recursive version of the parent's set_rotation. Changes the rotation
+        part of the assembly's transform, and updates the assembly's children's
+        transform accordingly.
+        
+        Arguments:
+        rotation - a 3x3 rotation matrix.
+        """
+        HasFrame.set_rotation(self, rotation)
+        self.transform_children()
+    
+    def set_location(self, location):
+        """
+        A recursive version of the parent's set_rotation. Changes the location
+        part of the assembly's transform, and updates the assembly's children's
+        transform accordingly.
+        
+        Arguments:
+        location - a 3-component location vector.
+        """
+        HasFrame.set_location(self, location)
+        self.transform_children()
+    
     def set_transform(self, transform):
         HasFrame.set_transform(self, transform)
         self.transform_children()
