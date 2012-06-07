@@ -33,11 +33,8 @@ class TracerScene(t_api.HasTraits):
         t_api.HasTraits.__init__(self)
         self._esc = 1.
         
-        self._asm = assembly
+        self.set_assembly(assembly)
         self._source = source
-        
-        # Initialize drawn surfaces:
-        self._meshes = show_assembly(self._scene, self._asm)
         
         # First plot:
         self._lines = []
@@ -53,7 +50,10 @@ class TracerScene(t_api.HasTraits):
         """
         self._scene.mlab.clf()
         self._lines = []
-        self._meshes = []
+        for surf_id, mapping in self._meshes.iteritems():
+            if mapping[1] is not None:
+                mapping[1].remove()
+            meshes[surf_id] = (mapping[0], None)
         
     def set_assembly(self, asm):
         """
@@ -63,9 +63,8 @@ class TracerScene(t_api.HasTraits):
         asm - an Assembly instance, whose all surfacesd have a mesh() method.
         """
         self._asm = asm
-        for mesh in self._meshes:
-            mesh.remove()
-        self._meshes = show_assembly(self._scene, self._asm)
+        self._meshes = dict((id(s), (s, None)) for s in asm.get_surfaces())
+        self.show_assembly()
     
     def set_source(self, source):
         """
@@ -117,34 +116,43 @@ class TracerScene(t_api.HasTraits):
         return tui.Item('_scene', editor=SceneEditor(scene_class=MayaviScene),
             height=height, width=width, show_label=False)
 
-def show_assembly(scene, assembly, colour=(0.5, 0.5, 0.5), resolution=10):
-    """
-    Add to a scene meshes for the surfaces composing an assembly
-    The colour used is that given as an argument, unless a surface is
-    annotated with a .color attribute, in which case this colour is used.
-    The same applies to the 'resolution' argument and .resolution attribute.
-    
-    Arguments:
-    assembly - an Assembly instance.
-    colour - an R,G,B tuple; the colour it represents is applied to all
-        the assembly's surfaces.
-    resolution - of the meshes, in points per unit length.
-    """
-    meshes = []
-    for surf in assembly.get_surfaces():
-        if hasattr(surf, 'resolution'):
-            sres = surf.resolution
-        else:
-            sres = resolution
-        if hasattr(surf, 'colour'):
-            scol = surf.colour
-        else:
-            scol = colour
+    def show_assembly(self, colour=(0.5, 0.5, 0.5), resolution=10,
+        update=None):
+        """
+        Add to a scene meshes for the surfaces composing an assembly
+        The colour used is that given as an argument, unless a surface is
+        annotated with a .color attribute, in which case this colour is used.
+        The same applies to the 'resolution' argument and .resolution attribute.
         
-        mesh = scene.mlab.mesh(*surf.mesh(sres), color=scol)
-        meshes.append(mesh)
-    
-    return meshes
+        Arguments:
+        colour - an R,G,B tuple; the colour it represents is applied to all
+            the assembly's surfaces.
+        resolution - of the meshes, in points per unit length.
+        update - a list of surface ids (Python function id()) to update.
+            If None, all surfaces are updated.
+        """
+        for surf_id, mapping in self._meshes.iteritems():
+            if update is not None and surf_id not in update:
+                continue
+            surf, mesh = mapping
+            
+            # Set visual properties:
+            if hasattr(surf, 'resolution'):
+                sres = surf.resolution
+            else:
+                sres = resolution
+            if hasattr(surf, 'colour'):
+                scol = surf.colour
+            else:
+                scol = colour
+            
+            # Delete existing mesh:
+            if mesh is not None:
+                mesh.remove()
+            
+            # Replace:
+            mesh = self._scene.mlab.mesh(*surf.mesh(sres), color=scol)
+            self._meshes[surf_id] = (surf, mesh)
 
 def show_rays(scene, tree, escaping_len):
     """
