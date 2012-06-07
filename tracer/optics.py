@@ -42,7 +42,7 @@ def reflections(ray_dirs, normals):
     
     Arguments:
     ray_dirs - a 3 by n array where each column is the i-th of n ray directions
-    normals - for each ray, the corresponding norman on the point where the ray
+    normals - for each ray, the corresponding normal on the point where the ray
         intersects a surface, also 3 by n array.
     
     Returns: new ray directions as the result of reflection, 3 by n array.
