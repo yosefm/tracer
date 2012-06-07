@@ -3,10 +3,10 @@ Yet another MayaVi example: a heliostat field. In this example we also use an
 embedded Matplotlib figure to show the flux map on request.
 """
 
-import enthought.traits.api as t_api
-import enthought.traits.ui.api as tui
-from enthought.tvtk.pyface.scene_editor import SceneEditor
-from enthought.mayavi.core.ui.mayavi_scene import MayaviScene
+import traits.api as t_api
+import traitsui.api as tui
+from tvtk.pyface.scene_editor import SceneEditor
+from mayavi.core.ui.mayavi_scene import MayaviScene
 
 from tracer.mayavi_ui.scene_view import TracerScene
 
