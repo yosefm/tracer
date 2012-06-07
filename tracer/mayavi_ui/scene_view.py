@@ -42,6 +42,9 @@ class TracerScene(t_api.HasTraits):
         # First plot:
         self._lines = []
         self.plot_ray_trace()
+        
+        # Default view:
+        self.view = tui.View(self.scene_view_item())
     
     def clear_scene(self):
         """
@@ -102,9 +105,17 @@ class TracerScene(t_api.HasTraits):
         params = engine.ray_tracer(self._source, 20000000, .05)[0]
         self._lines = show_rays(self._scene, engine.tree, self._esc)
     
-    view = tui.View(
-        tui.Item('_scene', editor=SceneEditor(scene_class=MayaviScene),
-            height=400, width=300, show_label=False))
+    @staticmethod
+    def scene_view_item(height=400, width=300):
+        """
+        Generates an item placable on TraitsUI views, including all necessary
+        imports, so that not every non-trivial usage requires tons of imports.
+        
+        Arguments:
+        height, width - of the tui.Item, passed directly to the constructor.
+        """
+        return tui.Item('_scene', editor=SceneEditor(scene_class=MayaviScene),
+            height=height, width=width, show_label=False)
 
 def show_assembly(scene, assembly, colour=(0.5, 0.5, 0.5), resolution=10):
     """

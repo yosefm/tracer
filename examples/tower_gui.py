@@ -5,8 +5,6 @@ embedded Matplotlib figure to show the flux map on request.
 
 import traits.api as t_api
 import traitsui.api as tui
-from tvtk.pyface.scene_editor import SceneEditor
-from mayavi.core.ui.mayavi_scene import MayaviScene
 
 from tracer.mayavi_ui.scene_view import TracerScene
 
@@ -130,8 +128,7 @@ class TowerScene(TracerScene):
     
     # Parameters of the form that is shown to the user:
     view = tui.View(tui.HGroup(tui.VGroup(
-        tui.Item('_scene', editor=SceneEditor(scene_class=MayaviScene),
-            height=500, width=500, show_label=False),
+        TracerScene.scene_view_item(500, 500),
         tui.HGroup('-', 'sun_az', 'sun_elev'),
         tui.HGroup('radial_res', 'ang_res'),
         tui.Item('fmap_btn', show_label=False)),
