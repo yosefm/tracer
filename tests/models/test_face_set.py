@@ -73,3 +73,42 @@ class TestFaceSet(unittest.TestCase):
         self.assertAlmostEqual(sizes[0], sizes[1])
         self.assertAlmostEqual(sizes[2], sizes[1])
 
+    def test_move_vertices(self):
+        """Moving a vertex on a face set replaces the touching surfaces."""
+        # Let's create a hexahedron, then move one vertex to make a
+        # tetrahedron.
+        
+        # Face set:
+        verts = np.vstack((np.zeros(3), np.eye(3), np.ones(3))) 
+        # origin + unit along each axis
+        faces = np.array([
+            [0, 1, 2], [0, 1, 3], [0, 2, 3], # bottom tetrahedron
+            [4, 1, 2], [4, 1, 3], [4, 2, 3]])
+        trisurf = TriangulatedSurface(verts, faces, perfect_mirror)
+        assembly = Assembly(objects=[trisurf])
+        
+        # Transformation:
+        trisurf.move_vertices(np.r_[4], np.ones((1,3))*np.sqrt(2))
+        
+        # Ray bundle:
+        pos = np.c_[[1.5, 0.5, 0.5], [-0.5, 0.5, 0.5],
+            [0.5, 1.5, 0.5], [0.5, -0.5, 0.5],
+            [0.5, 0.5, -0.5], [0.5, 0.5, 1.5]]
+        direct = np.c_[[-1., 0., 0.], [1., 0., 0.],
+            [0., -1., 0.], [0., 1., 0.],
+            [0., 0., 1.], [0., 0., -1.]]
+        rayb = RayBundle(pos, direct, energy=np.ones(6))
+        
+        engine = TracerEngine(assembly)
+        verts = engine.ray_tracer(rayb, 1, .05)[0]
+        
+        p = engine.tree[-1].get_parents()
+        zrays = (p >= 4)
+        np.testing.assert_array_equal(verts[:,zrays],
+            np.tile(np.c_[[0.5, 0.5, 0.]], (1,4)) )
+        yrays = (p == 2) | (p ==3) # Only 2 rays here. Edge degeneracy? maybe.
+        np.testing.assert_array_equal(verts[:,yrays],
+            np.tile(np.c_[[0.5, 0., 0.5]], (1,4)) )
+        xrays = (p < 2)
+        np.testing.assert_array_equal(verts[:,xrays],
+            np.tile(np.c_[[0., 0.5, 0.5]], (1,4)) )
