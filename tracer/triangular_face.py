@@ -23,8 +23,14 @@ class TriangularFace(FiniteFlatGM):
         verts - a 3x2 array, each column a triangle vertex, in CCW order from
             the origin, on the XY plane. The 3rd vertex is the origin.
         """
-        self._verts = verts
         FiniteFlatGM.__init__(self)
+        self.set_vertices(verts)
+    
+    def set_vertices(self, verts):
+        """
+        replace the defined vertices with new ones.
+        """
+        self._verts = verts
     
     def find_intersections(self, frame, ray_bundle):
         """
