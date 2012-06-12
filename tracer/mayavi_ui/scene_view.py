@@ -129,7 +129,8 @@ class TracerScene(t_api.HasTraits):
             the assembly's surfaces.
         resolution - of the meshes, in points per unit length.
         update - a list of surface ids (Python function id()) to update.
-            If None, all surfaces are updated.
+            If None, all surfaces are updated. For adding or removing surfaces,
+            use set_assembly().
         """
         for surf_id, mapping in self._meshes.iteritems():
             if update is not None and surf_id not in update:
