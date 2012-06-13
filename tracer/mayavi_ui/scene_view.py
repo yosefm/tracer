@@ -66,6 +66,30 @@ class TracerScene(t_api.HasTraits):
         self._meshes = dict((id(s), (s, None)) for s in asm.get_surfaces())
         self.show_assembly()
     
+    def update_surfaces(self):
+        """
+        Recheck the list of surfaces belonging to the assembly, removing from
+        view surfaces that were deleted from the assembly, and adding to it
+        surfaces that weren't present before. Does not change existing
+        surfaces - use show_assembly(update=...) for that.
+        """
+        current_surfs = self._asm.get_surfaces()
+        surf_ids = [id(s) for s in current_surfs]
+        
+        # Remove:
+        for sid in self._meshes.keys():
+            if sid not in surf_ids:
+                self._meshes[sid][1].remove()
+                del self._meshes[sid]
+        
+        # Add:
+        new_surfs = []
+        for six, sid in enumerate(surf_ids):
+            if sid not in self._meshes:
+                self._meshes[sid] = (current_surfs[six], None)
+                new_surfs.append(sid)
+        self.show_assembly(update=new_surfs)
+    
     def set_source(self, source):
         """
         Replace the source, and replot the full trace from the new source.
