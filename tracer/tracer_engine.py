@@ -2,6 +2,7 @@
 
 import numpy as N
 from ray_bundle import RayBundle, concatenate_rays
+from trace_tree import RayTree
 
 class TracerEngine():
     """
@@ -99,10 +100,10 @@ class TracerEngine():
         NB: the order of the rays within the arrays may change, but they are tracked
         by the ray tree
         """
-        self.tree = []
+        self.tree = RayTree()
         bund = bundle
         if tree is True:
-            self.store_branch(bund)
+            self.tree.append(bund)
         
         # A list of surfaces and their matching objects:
         surfaces = self._asm.get_surfaces()
@@ -122,6 +123,7 @@ class TracerEngine():
             record = []
             out_ray_own = []
             new_surfs_relevancy = []
+            weak_ray_pos = []
             
             for surf_idx in xrange(num_surfs):
                 inters = front_surf[surf_idx, owned_rays[surf_idx]]
@@ -137,16 +139,14 @@ class TracerEngine():
                 new_outg.set_parents(parents)
         
                 # Delete rays with negligible energies
-                delete = N.where(new_outg.get_energy() <= min_energy)[0] 
-                if len(delete) != 0:
-                    new_outg = new_outg.delete_rays(delete)
+                delete = new_outg.get_energy() <= min_energy
+                weak_ray_pos.append(delete)
+                if delete.any():
+                    new_outg = new_outg.delete_rays(N.nonzero(delete)[0])
                 surfaces[surf_idx].done()
                 
-                # add the outgoing bundle from each object into a new bundle
-                # that stores all the outgoing bundles from all the objects
+                # Aggregate outgoing bundles from all the objects
                 outg.append(new_outg)
-                # Move absorbed rays (low energy) to the end:
-                new_record = new_outg + new_record.inherit(delete)
                 record.append(new_record)
                 
                 # Add new ray-ownership information to the total list:
@@ -163,11 +163,16 @@ class TracerEngine():
                     objects[obj_idx].surfaces_for_next_iteration(new_outg, surf_rel_idx)
                 new_surfs_relevancy.append(surf_relev)
             
-            record = concatenate_rays(record)
-            if tree and record.get_num_rays() != 0:
-                self.store_branch(record)  # stores parent branch for purposes of ray tracking
-            
             bund = concatenate_rays(outg)
+            if tree:
+                # stores parent branch for purposes of ray tracking
+                record = concatenate_rays(record)
+                
+                if record.get_num_rays() != 0:
+                    weak_ray_pos = N.hstack(weak_ray_pos)
+                    record = bund + record.inherit(N.nonzero(weak_ray_pos)[0])
+                    self.tree.append(record)
+                
             if bund.get_num_rays() == 0:
                 # All rays escaping
                 break
@@ -176,83 +181,9 @@ class TracerEngine():
             surfs_relevancy = N.hstack(new_surfs_relevancy)
             
         if not tree:
-            self.store_branch(record) # Only the last one
-        
+            # Save only the last bundle. Don't bother moving weak rays to end.
+            record = concatenate_rays(record)
+            self.tree.append(record)
+             
         return bund.get_vertices(), bund.get_directions()
-    
-    def store_branch(self, bundle):
-        """
-        Stores a tree of ray bundles in the form of a list of ray bundles. From each bundle
-        the list of parent indices can be fetched.
-        """
-        self.tree.append(bundle)
 
-    def get_parents_from_tree(self):
-        """
-        Returns a list of arrays of the list of parents for each iteration. Each parent
-        array contains indices (matching up to the ray), and these indices point back to the
-        previous parent array indicating which parent the current ray originated from.
-        """  
-        tree = []
-        for bundle in self.tree[1:]:
-            tree.append(bundle.get_parents())
-        return tree
-
-    def track_parent(self, bundle, index):
-        """
-        Tracks a particular ray from a bundle, given the bundle 
-        it is in and its index within that bundle, and returns the original parent
-        Arguments:
-        bundle - the bundle from where to track the ray from
-        index - the index into that bundle of which ray to track (an int)
-        Returns: the original parent of that ray, from the very first bundle
-        """
-        i = len(self.tree) - 1
-        return self.track_parent_helper(bundle, index, i)
-
-    def track_parent_helper(self, bundle, index, i):
-        """
-        A helper function to track_parent().
-        Arguments:
-        bundle
-        index
-        i - the length of the tree - 1
-        Returns: the original parent of that ray, from the very first bundle
-        """
-        parent_list = bundle.get_parent() # Gets a list of indexes representing the index of the parent ray within the previous bundle
-        parent = parent_list[index]  # Gets the index of the parent of the specific ray of interest
-        bundle = self.tree[i]  # Gets the parent bundle
-        while i > 0:  # Recurse until the function has walked through the whole tree
-            i = i-1   
-            self.track_parent_helper(bundle, parent, i)
-        return parent
-
-    def track_ray(self, bundle, index):
-        """
-        Tracks a particular ray from a bundle and returns a list of the coordinates
-        of all the intersections. Note that the index of the ray to be tracked is 
-        its index in the most recent bundle, not the index of the original bundle.
-        Arguments:
-        bundle - the RayBundle object from which to track the ray from
-        index - the index into that bundle of which ray to track specifically
-        Returns: A list of the coordinates of all the intersections that particular ray made
-        """
-        self.i = len(self.tree) - 1
-        self.coords = []
-        return self.track_ray_helper(bundle, index)
-       
-    def track_ray_helper(self, bundle, index):
-        """
-        A helper function to track_ray
-        Arguments:
-        bundle
-        index
-        """
-        parent_list = bundle.get_parent()
-        parent = parent_list[index]
-        bundle = self.tree[self.i]
-        while self.i >= 0:
-            self.i = self.i-1
-            self.track_ray_helper(bundle, parent)
-            self.coords.append(bundle.get_vertices()[:,parent])
-        return self.coords

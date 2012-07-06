@@ -7,7 +7,7 @@ from tracer.ray_bundle import RayBundle
 from tracer.spatial_geometry import translate, generate_transform
 from tracer.sphere_surface import CutSphereGM
 from tracer.boundary_shape import BoundarySphere
-from tracer.flat_surface import FlatGeometryManager
+from tracer.flat_surface import FlatGeometryManager, RectPlateGM
 from tracer.object import AssembledObject
 from tracer.assembly import Assembly
 
@@ -45,7 +45,7 @@ class TestTree(unittest.TestCase):
         self.engine = TracerEngine(self.assembly)
 
         self.engine.ray_tracer(bund,3,.05)[0]
-        params = self.engine.get_parents_from_tree()
+        params = self.engine.tree.ordered_parents()
         correct_params = [N.r_[0,1,2],N.r_[1,2],N.r_[0]]
         N.testing.assert_equal(params, correct_params)
 
@@ -59,7 +59,7 @@ class TestTree(unittest.TestCase):
         self.engine = TracerEngine(self.assembly)
         self.engine.ray_tracer(bund,3,.05)[0]
         
-        params = self.engine.get_parents_from_tree()
+        params = self.engine.tree.ordered_parents()
         correct_params = [N.r_[0,1,3,4],N.r_[2,3,1],N.r_[2,1]]
         N.testing.assert_equal(params, correct_params)
 
@@ -93,14 +93,14 @@ class TestTree2(unittest.TestCase):
     def test_assembly3(self):
         """Tests the assembly after three iterations"""
         self.engine.ray_tracer(self._bund,3,.05)[0]
-        params = self.engine.get_parents_from_tree()
+        params = self.engine.tree.ordered_parents()
         correct_params = [N.r_[1,2],N.r_[0,0,1,1],N.r_[1,2,1,2]]
         N.testing.assert_equal(params, correct_params)
     
     def test_no_tree(self):
         """Running with tree=False only saves last bundle."""
         self.engine.ray_tracer(self._bund, 3, .05, tree=False)
-        parents = self.engine.get_parents_from_tree()
+        parents = self.engine.tree.ordered_parents()
         self.failUnlessEqual(len(parents), 0)
 
 class TestRayCulling(unittest.TestCase):
@@ -120,9 +120,37 @@ class TestRayCulling(unittest.TestCase):
     def test_final_order(self):
         """Rays come out of a homogenizer with the right parents order"""
         self.engine.ray_tracer(self.bund, 300, .05)
-        parents = self.engine.get_parents_from_tree()
+        parents = self.engine.tree.ordered_parents()
         correct_parents = [N.r_[0, 1, 2, 3], N.r_[1, 0, 3, 2]]
         N.testing.assert_equal(parents, correct_parents)
+
+class TestLowEnergyParenting(unittest.TestCase):
+    """
+    A case where rays are absorbed by a first surface, and moved to back of 
+    bundle.
+    """
+    def setUp(self):
+        absorptive = Surface(RectPlateGM(1., 1.), opt.Reflective(1.),
+            location=N.r_[ 0.5, 0., 1.])
+        reflective = Surface(RectPlateGM(1., 1.), opt.Reflective(0.),
+            location=N.r_[-0.5, 0., 1.])
+        self.assembly = Assembly(
+            objects=[AssembledObject(surfs=[absorptive, reflective])])
+        
+        # 4 rays: two toward absorptive, two toward reflective.
+        pos = N.zeros((3,4))
+        pos[0] = N.r_[0.5, 0.25, -0.25, -0.5]
+        direct = N.zeros((3,4))
+        direct[2] = 1.
+        self.bund = RayBundle(pos, direct, energy=N.ones(4))
+    
+    def test_absorbed_to_back(self):
+        """Absorbed rays moved to back of recorded bundle"""
+        engine = TracerEngine(self.assembly)
+        engine.ray_tracer(self.bund, 300, .05)
+        
+        parents = engine.tree.ordered_parents()
+        N.testing.assert_equal(parents, [N.r_[2,3, 0, 1]])
 
 if __name__ == '__main__':
     unittest.main()
