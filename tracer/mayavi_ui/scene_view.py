@@ -196,13 +196,13 @@ def show_rays(scene, tree, escaping_len):
     """
     lines = []
     
-    for level in xrange(len(tree)):
+    for level in xrange(tree.num_bunds()):
         start_rays = tree[level]
         sv = start_rays.get_vertices()
         sd = start_rays.get_directions()
         se = start_rays.get_energy()
         
-        if level == len(tree) - 1:
+        if level == tree.num_bunds() - 1:
             parents = []
         else:
             end_rays = tree[level + 1]
@@ -222,6 +222,5 @@ def show_rays(scene, tree, escaping_len):
                 endpoints = N.c_[sv[:,ray], sv[:,ray] + sd[:,ray]*escaping_len]
             
             lines.append(scene.mlab.plot3d(*endpoints, tube_radius=None))
-    tree.pop()
     return lines
 
