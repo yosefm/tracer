@@ -6,8 +6,6 @@
 # References:
 # [1] John J. Craig, Introduction to Robotics, 3rd ed., 2005. 
 
-# All surfaces are grey.
-
 import numpy as N
 from has_frame import HasFrame
 
