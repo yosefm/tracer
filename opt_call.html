@@ -1,0 +1,222 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The optics_callables module &mdash; Tracer 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tracer 0.2 documentation" href="index.html" />
+    <link rel="up" title="Tracer Package" href="tracer.html" />
+    <link rel="next" title="Surface geometry managers" href="geometry.html" />
+    <link rel="prev" title="The surface module" href="surface.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="geometry.html" title="Surface geometry managers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="surface.html" title="The surface module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" accesskey="U">Tracer Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-tracer.optics_callables">
+<span id="the-optics-callables-module"></span><h1>The <tt class="docutils literal"><span class="pre">optics_callables</span></tt> module<a class="headerlink" href="#module-tracer.optics_callables" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tracer.optics_callables.AbsorberReflector">
+<em class="property">class </em><tt class="descclassname">tracer.optics_callables.</tt><tt class="descname">AbsorberReflector</tt><big>(</big><em>absorptivity</em><big>)</big><a class="headerlink" href="#tracer.optics_callables.AbsorberReflector" title="Permalink to this definition">¶</a></dt>
+<dd><p>This optics manager behaves similarly to the ReflectiveReceiver class,
+but adds directionality. In this way a simple one-side receiver doesn&#8217;t
+necessitate an extra surface in the back.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tracer.optics_callables.AbsorptionAccountant">
+<em class="property">class </em><tt class="descclassname">tracer.optics_callables.</tt><tt class="descname">AbsorptionAccountant</tt><big>(</big><em>real_optics</em>, <em>absorptivity=1.0</em><big>)</big><a class="headerlink" href="#tracer.optics_callables.AbsorptionAccountant" title="Permalink to this definition">¶</a></dt>
+<dd><p>This optics manager remembers all of the locations where rays hit it
+in all iterations, and the energy absorbed from each ray.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>real_optics: the optics manager class to actually use. Expected to
+have the _abs protected attribute, and accept absorptivity as its
+only constructor argument (as in Reflective and
+LambertianReflector below).</li>
+<li>absorptivity: to be passed to a new real_optics object.</li>
+</ul>
+<dl class="method">
+<dt id="tracer.optics_callables.AbsorptionAccountant.get_all_hits">
+<tt class="descname">get_all_hits</tt><big>(</big><big>)</big><a class="headerlink" href="#tracer.optics_callables.AbsorptionAccountant.get_all_hits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate all hits from all stages of tracing into joined arrays.</p>
+<p><em>Returns</em></p>
+<ul class="simple">
+<li>absorbed: the energy absorbed by each hit-point</li>
+<li>hits: the corresponding global coordinates for each hit-point.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracer.optics_callables.AbsorptionAccountant.reset">
+<tt class="descname">reset</tt><big>(</big><big>)</big><a class="headerlink" href="#tracer.optics_callables.AbsorptionAccountant.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the memory of hits (best done before a new trace).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tracer.optics_callables.LambertianReceiver">
+<em class="property">class </em><tt class="descclassname">tracer.optics_callables.</tt><tt class="descname">LambertianReceiver</tt><big>(</big><em>absorptivity=1.0</em><big>)</big><a class="headerlink" href="#tracer.optics_callables.LambertianReceiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper around AbsorptionAccountant with LambertianReflector optics</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tracer.optics_callables.LambertianReflector">
+<em class="property">class </em><tt class="descclassname">tracer.optics_callables.</tt><tt class="descname">LambertianReflector</tt><big>(</big><em>absorptivity</em><big>)</big><a class="headerlink" href="#tracer.optics_callables.LambertianReflector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the optics of an ideal diffuse (lambertian) surface, i.e. one
+that reflects rays in a random direction (uniform distribution of
+directions in 3D, see tracer.sources.pillbox_sunshape_directions)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tracer.optics_callables.Reflective">
+<em class="property">class </em><tt class="descclassname">tracer.optics_callables.</tt><tt class="descname">Reflective</tt><big>(</big><em>absorptivity</em><big>)</big><a class="headerlink" href="#tracer.optics_callables.Reflective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a function that represents the optics of an opaque, absorptive
+surface with specular reflections.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>absorptivity: the amount of energy absorbed before reflection.</li>
+</ul>
+<p><em>Returns</em></p>
+<ul class="simple">
+<li>refractive: a function with the signature required by Surface.</li>
+</ul>
+</dd></dl>
+
+<dl class="class">
+<dt id="tracer.optics_callables.ReflectiveReceiver">
+<em class="property">class </em><tt class="descclassname">tracer.optics_callables.</tt><tt class="descname">ReflectiveReceiver</tt><big>(</big><em>absorptivity=1.0</em><big>)</big><a class="headerlink" href="#tracer.optics_callables.ReflectiveReceiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper around AbsorptionAccountant with a Reflective optics</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tracer.optics_callables.RefractiveHomogenous">
+<em class="property">class </em><tt class="descclassname">tracer.optics_callables.</tt><tt class="descname">RefractiveHomogenous</tt><big>(</big><em>n1</em>, <em>n2</em><big>)</big><a class="headerlink" href="#tracer.optics_callables.RefractiveHomogenous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the optics of a surface bordering homogenous media with
+constant refractive index on each side. The specific index in which a
+refracted ray moves is determined by toggling between the two possible
+indices.</p>
+<p><em>Arguments</em></p>
+<p>n1, n2 - scalars representing the homogenous refractive index on each
+side of the surface (order doesn&#8217;t matter).</p>
+<dl class="method">
+<dt id="tracer.optics_callables.RefractiveHomogenous.toggle_ref_idx">
+<tt class="descname">toggle_ref_idx</tt><big>(</big><em>current</em><big>)</big><a class="headerlink" href="#tracer.optics_callables.RefractiveHomogenous.toggle_ref_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines which refractive index to use based on the refractive index
+rays are currently travelling through.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>current: an array of the refractive indices of the materials each of 
+the rays in a ray bundle is travelling through.</li>
+</ul>
+<p><em>Returns</em></p>
+<p>An array of length(n) with the index to use for each ray.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="surface.html"
+                        title="previous chapter">The <tt class="docutils literal docutils literal"><span class="pre">surface</span></tt> module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="geometry.html"
+                        title="next chapter">Surface geometry managers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/opt_call.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="geometry.html" title="Surface geometry managers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="surface.html" title="The surface module"
+             >previous</a> |</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" >Tracer Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2013, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

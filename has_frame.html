@@ -1,28 +1,34 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The has_frame module &mdash; Tracer v0.1 documentation</title>
+    <title>The has_frame module &mdash; Tracer 0.2 documentation</title>
+    
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1',
-        COLLAPSE_MODINDEX: false,
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Tracer v0.1 documentation" href="index.html" />
+    <link rel="top" title="Tracer 0.2 documentation" href="index.html" />
     <link rel="up" title="Tracer Package" href="tracer.html" />
     <link rel="next" title="The assembly module" href="assembly.html" />
-    <link rel="prev" title="Tracer Package" href="tracer.html" /> 
+    <link rel="prev" title="The ray_bundle module" href="ray_bundle.html" /> 
   </head>
   <body>
     <div class="related">
@@ -32,15 +38,15 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="modindex.html" title="Global Module Index"
-             accesskey="M">modules</a> |</li>
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="assembly.html" title="The assembly module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="tracer.html" title="Tracer Package"
+          <a href="ray_bundle.html" title="The ray_bundle module"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li>
           <li><a href="tracer.html" accesskey="U">Tracer Package</a> &raquo;</li> 
       </ul>
     </div>  
@@ -51,11 +57,10 @@
           <div class="body">
             
   <div class="section" id="module-tracer.has_frame">
-<h1>The <tt class="docutils literal"><span class="pre">has_frame</span></tt> module<a class="headerlink" href="#module-tracer.has_frame" title="Permalink to this headline">¶</a></h1>
+<span id="the-has-frame-module"></span><h1>The <tt class="docutils literal"><span class="pre">has_frame</span></tt> module<a class="headerlink" href="#module-tracer.has_frame" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="tracer.has_frame.HasFrame">
-<em class="property">
-class </em><tt class="descclassname">tracer.has_frame.</tt><tt class="descname">HasFrame</tt><big>(</big><em>location=None</em>, <em>rotation=None</em><big>)</big><a class="headerlink" href="#tracer.has_frame.HasFrame" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">tracer.has_frame.</tt><tt class="descname">HasFrame</tt><big>(</big><em>location=None</em>, <em>rotation=None</em><big>)</big><a class="headerlink" href="#tracer.has_frame.HasFrame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Each surface has a location vector and a rotation matrix. Together they
 define the frame of reference of the object. The rotation and location are
 accessible from the _rot and _loc attributes, respectively, or from the
@@ -76,12 +81,14 @@ relative transform while holding a global transform.</p>
 <dl class="method">
 <dt id="tracer.has_frame.HasFrame.set_location">
 <tt class="descname">set_location</tt><big>(</big><em>location</em><big>)</big><a class="headerlink" href="#tracer.has_frame.HasFrame.set_location" title="Permalink to this definition">¶</a></dt>
-<dd>Sets the location within the object</dd></dl>
+<dd><p>Sets the location within the object</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="tracer.has_frame.HasFrame.set_rotation">
 <tt class="descname">set_rotation</tt><big>(</big><em>rotation</em><big>)</big><a class="headerlink" href="#tracer.has_frame.HasFrame.set_rotation" title="Permalink to this definition">¶</a></dt>
-<dd>Sets the rotation within the object</dd></dl>
+<dd><p>Sets the rotation within the object</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="tracer.has_frame.HasFrame.set_transform">
@@ -97,10 +104,11 @@ object containing the surface (the parent object).</p>
 <dl class="method">
 <dt id="tracer.has_frame.HasFrame.transform_frame">
 <tt class="descname">transform_frame</tt><big>(</big><em>transform</em><big>)</big><a class="headerlink" href="#tracer.has_frame.HasFrame.transform_frame" title="Permalink to this definition">¶</a></dt>
-<dd>Updates the transformation matrix that puts the surface into the global
+<dd><p>Updates the transformation matrix that puts the surface into the global
 coordinates. I.e., if the object the surface is in is rotated, than the surface
 is also rotated.  It then defines a temporary rotated frame for use of
-calculations.</dd></dl>
+calculations.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -112,30 +120,30 @@ calculations.</dd></dl>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-            <h4>Previous topic</h4>
-            <p class="topless"><a href="tracer.html"
-                                  title="previous chapter">Tracer Package</a></p>
-            <h4>Next topic</h4>
-            <p class="topless"><a href="assembly.html"
-                                  title="next chapter">The <tt class="docutils literal docutils literal"><span class="pre">assembly</span></tt> module</a></p>
-            <h3>This Page</h3>
-            <ul class="this-page-menu">
-              <li><a href="_sources/has_frame.txt"
-                     rel="nofollow">Show Source</a></li>
-            </ul>
-          <div id="searchbox" style="display: none">
-            <h3>Quick search</h3>
-              <form class="search" action="search.html" method="get">
-                <input type="text" name="q" size="18" />
-                <input type="submit" value="Go" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
-              </form>
-              <p class="searchtip" style="font-size: 90%">
-              Enter search terms or a module, class or function name.
-              </p>
-          </div>
-          <script type="text/javascript">$('#searchbox').show(0);</script>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ray_bundle.html"
+                        title="previous chapter">The <tt class="docutils literal"><span class="pre">ray_bundle</span></tt> module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="assembly.html"
+                        title="next chapter">The <tt class="docutils literal docutils literal"><span class="pre">assembly</span></tt> module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/has_frame.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -147,21 +155,21 @@ calculations.</dd></dl>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="modindex.html" title="Global Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
           <a href="assembly.html" title="The assembly module"
              >next</a> |</li>
         <li class="right" >
-          <a href="tracer.html" title="Tracer Package"
+          <a href="ray_bundle.html" title="The ray_bundle module"
              >previous</a> |</li>
-        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li>
           <li><a href="tracer.html" >Tracer Package</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2010, Yosef Meller, Jasmine Florentine.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+        &copy; Copyright 2010-2013, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The ray_bundle module &mdash; Tracer 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tracer 0.2 documentation" href="index.html" />
+    <link rel="up" title="Tracer Package" href="tracer.html" />
+    <link rel="next" title="The has_frame module" href="has_frame.html" />
+    <link rel="prev" title="Tracer Package" href="tracer.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="has_frame.html" title="The has_frame module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tracer.html" title="Tracer Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" accesskey="U">Tracer Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-tracer.ray_bundle">
+<span id="the-ray-bundle-module"></span><h1>The <tt class="docutils literal"><span class="pre">ray_bundle</span></tt> module<a class="headerlink" href="#module-tracer.ray_bundle" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tracer.ray_bundle.RayBundle">
+<em class="property">class </em><tt class="descclassname">tracer.ray_bundle.</tt><tt class="descname">RayBundle</tt><big>(</big><em>vertices=None</em>, <em>directions=None</em>, <em>energy=None</em>, <em>parents=None</em>, <em>ref_index=None</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#tracer.ray_bundle.RayBundle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains information about a ray bundle, using equal-length arrays, the
+length of which correspond to the number of rays in a bundle. Each array
+represents one trait of the ray. Of those, at least the vertices and
+directions should be set; for most of the optics managers (see
+tracer.optics_callables) that come with Tracer, the energy should also be
+set, and for the refractive ones, the current refractive index of the
+volume in which the ray is traveling.</p>
+<p>The ray bundle also has a concept of its parent rays - an array where for
+each ray, an index into another bundle of rays is stored. This is used by
+optics managers and the tracer engine to keep track of progression of the
+source rays through reflections and refractions.</p>
+<p>For examples on how to create ray bundles, see examples/, tracer.sources,
+and most of the test-suite.</p>
+<p>Initialize the ray bundle as empty or using the given arrays. Let n be
+the number of rays, then for each of the arguments, .shape[-1] == n.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>vertices: each column is the (x,y,z) coordinets of a ray&#8217;s vertex.</li>
+<li>directions: each column is the unit vector composed of the direction
+cosines of each ray.</li>
+<li>energy: each cell has the energy carried by the corresponding ray.</li>
+<li>parents: (not for source rays, for use in optics managers etc.) the 
+index of the parent ray within the ray bundle used to create this
+bundle.</li>
+<li>ref_index: each cell has the refractive index of the medium in which
+the corresponding ray travels.</li>
+<li>kwds: more ray properties, each property named by the keyword, with a
+value whose shape[-1] == n.</li>
+</ul>
+<dl class="method">
+<dt id="tracer.ray_bundle.RayBundle.delete_rays">
+<tt class="descname">delete_rays</tt><big>(</big><em>selector</em><big>)</big><a class="headerlink" href="#tracer.ray_bundle.RayBundle.delete_rays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new ray bundle which copies this bundle, except in that rays
+denoted by <tt class="docutils literal"><span class="pre">selector</span></tt> are not copied. Basically equivalent to using
+<tt class="docutils literal"><span class="pre">inherit()</span></tt>, with an inverted selector and no other arguments.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="tracer.ray_bundle.RayBundle.empty_bund">
+<em class="property">static </em><tt class="descname">empty_bund</tt><big>(</big><big>)</big><a class="headerlink" href="#tracer.ray_bundle.RayBundle.empty_bund" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an empty ray bundle - that is, a ray whose attributes are fully
+set, but to empty arrays of correct size.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracer.ray_bundle.RayBundle.get_num_rays">
+<tt class="descname">get_num_rays</tt><big>(</big><big>)</big><a class="headerlink" href="#tracer.ray_bundle.RayBundle.get_num_rays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of rays in the bundle. Assumes that the mandatory
+attributes were set (vertices, directions).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracer.ray_bundle.RayBundle.has_property">
+<tt class="descname">has_property</tt><big>(</big><em>propname</em><big>)</big><a class="headerlink" href="#tracer.ray_bundle.RayBundle.has_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether the looked-after property <tt class="docutils literal"><span class="pre">propname</span></tt> exists for this
+bundle.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracer.ray_bundle.RayBundle.inherit">
+<tt class="descname">inherit</tt><big>(</big><em>selector=slice(None</em>, <em>None</em>, <em>None)</em>, <em>vertices=None</em>, <em>direction=None</em>, <em>energy=None</em>, <em>parents=None</em>, <em>ref_index=None</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#tracer.ray_bundle.RayBundle.inherit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a bundle with some ray properties given, and  unspecified
+properties copied from this bundle, at the places noted by <cite>selector</cite>.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>selector: array of ray indices in the current bundle to use, must be
+the same length as the number of rays in the given properties
+vertices, direction, energy, parents, ref_index - set the corresponding
+properties instead of using this bundle.</li>
+<li>kwds: the same for properties that were created during ray bundle
+construction in addition to the basic set of properties.</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="tracer.ray_bundle.concatenate_rays">
+<tt class="descclassname">tracer.ray_bundle.</tt><tt class="descname">concatenate_rays</tt><big>(</big><em>bundles</em><big>)</big><a class="headerlink" href="#tracer.ray_bundle.concatenate_rays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take a list of bundles and merge them into one bundle.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>bundles: a list of RayBundle objects, all with the same set of attributes
+set.</li>
+</ul>
+<p><em>Returns</em></p>
+<p>A RayBundle object with all attributes that are set in the first bundle.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tracer.html"
+                        title="previous chapter">Tracer Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="has_frame.html"
+                        title="next chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">has_frame</span></tt> module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ray_bundle.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="has_frame.html" title="The has_frame module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tracer.html" title="Tracer Package"
+             >previous</a> |</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" >Tracer Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2013, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

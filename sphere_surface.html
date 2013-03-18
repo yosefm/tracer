@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The sphere_surface module &mdash; Tracer 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tracer 0.2 documentation" href="index.html" />
+    <link rel="up" title="Surface geometry managers" href="geometry.html" />
+    <link rel="next" title="The paraboloid module" href="paraboloid.html" />
+    <link rel="prev" title="The flat_surface module" href="flat_surface.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="paraboloid.html" title="The paraboloid module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="flat_surface.html" title="The flat_surface module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" >Tracer Package</a> &raquo;</li>
+          <li><a href="geometry.html" accesskey="U">Surface geometry managers</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-tracer.sphere_surface">
+<span id="the-sphere-surface-module"></span><h1>The <tt class="docutils literal"><span class="pre">sphere_surface</span></tt> module<a class="headerlink" href="#module-tracer.sphere_surface" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tracer.sphere_surface.CutSphereGM">
+<em class="property">class </em><tt class="descclassname">tracer.sphere_surface.</tt><tt class="descname">CutSphereGM</tt><big>(</big><em>radius=1.0</em>, <em>bounding_volume=None</em><big>)</big><a class="headerlink" href="#tracer.sphere_surface.CutSphereGM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trims the SphericalGM by only selecting intersection points inside a
+bounding volume. This GM still can&#8217;t supply a mesh of itself.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>radius: of the sphere to cut.</li>
+<li>bunding_volume: an instance BoundaryShape subclass (see 
+<tt class="docutils literal"><span class="pre">boundary_shape.py</span></tt>)</li>
+</ul>
+</dd></dl>
+
+<dl class="class">
+<dt id="tracer.sphere_surface.HemisphereGM">
+<em class="property">class </em><tt class="descclassname">tracer.sphere_surface.</tt><tt class="descname">HemisphereGM</tt><big>(</big><em>radius=1.0</em><big>)</big><a class="headerlink" href="#tracer.sphere_surface.HemisphereGM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trims the SphericalGM by only selecting intersection points in the lower
+hemisphere (z &lt; 0).</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>radius: Set as the sphere&#8217;s radius.</li>
+</ul>
+<p>Private attributes:</p>
+<ul class="simple">
+<li>_rad: radius of the sphere, a float.</li>
+</ul>
+<dl class="method">
+<dt id="tracer.sphere_surface.HemisphereGM.mesh">
+<tt class="descname">mesh</tt><big>(</big><em>resolution</em><big>)</big><a class="headerlink" href="#tracer.sphere_surface.HemisphereGM.mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represent the surface as a mesh in local coordinates. Uses spherical-
+coordinates bins, i.e. the points are equally distributed by two angles,
+not by x,y.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>resolution: in points per unit length (so the number of points 
+returned is O(A*resolution**3) for area A)</li>
+</ul>
+<p><em>Returns</em></p>
+<p>x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+coordinate (respectively) of point (i,j) in the mesh.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tracer.sphere_surface.SphericalGM">
+<em class="property">class </em><tt class="descclassname">tracer.sphere_surface.</tt><tt class="descname">SphericalGM</tt><big>(</big><em>radius=1.0</em><big>)</big><a class="headerlink" href="#tracer.sphere_surface.SphericalGM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements the geometry of a spherical surface below the xy plane (so
+that rays going down the Z axis hit). To be used as a base class for
+spherical surfaces that select different hit-points. Otherwise, this is a
+closed sphere.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>radius: Set as the sphere&#8217;s radius.</li>
+</ul>
+<p>Private attributes:</p>
+<ul class="simple">
+<li>_rad: radius of the sphere, a float.</li>
+</ul>
+<dl class="method">
+<dt id="tracer.sphere_surface.SphericalGM.get_ABC">
+<tt class="descname">get_ABC</tt><big>(</big><em>ray_bundle</em><big>)</big><a class="headerlink" href="#tracer.sphere_surface.SphericalGM.get_ABC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the variables forming the relevant quadric equation. Used by the quadrics
+class, [1]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracer.sphere_surface.SphericalGM.mesh">
+<tt class="descname">mesh</tt><big>(</big><em>resolution</em><big>)</big><a class="headerlink" href="#tracer.sphere_surface.SphericalGM.mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represent the surface as a mesh in local coordinates. Uses spherical-
+coordinates bins, i.e. the points are equally distributed by two angles,
+not by x,y.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>resolution: in points per unit length (so the number of points 
+returned is O(A*resolution**3) for area A)</li>
+</ul>
+<p><em>Returns</em></p>
+<p>x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+coordinate (respectively) of point (i,j) in the mesh.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="flat_surface.html"
+                        title="previous chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">flat_surface</span></tt> module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="paraboloid.html"
+                        title="next chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">paraboloid</span></tt> module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/sphere_surface.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="paraboloid.html" title="The paraboloid module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="flat_surface.html" title="The flat_surface module"
+             >previous</a> |</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" >Tracer Package</a> &raquo;</li>
+          <li><a href="geometry.html" >Surface geometry managers</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2013, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

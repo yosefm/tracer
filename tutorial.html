@@ -1,27 +1,33 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The Tracer Tutorial &mdash; Tracer v0.1 documentation</title>
+    <title>The Tracer Tutorial &mdash; Tracer 0.2 documentation</title>
+    
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1',
-        COLLAPSE_MODINDEX: false,
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Tracer v0.1 documentation" href="index.html" />
+    <link rel="top" title="Tracer 0.2 documentation" href="index.html" />
     <link rel="next" title="Constructing an Optical System" href="opt_sys_construct.html" />
-    <link rel="prev" title="Welcome to Tracer’s documentation!" href="index.html" /> 
+    <link rel="prev" title="Welcome to Tracer’s documentation!" href="doc-main.html" /> 
   </head>
   <body>
     <div class="related">
@@ -31,15 +37,15 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="modindex.html" title="Global Module Index"
-             accesskey="M">modules</a> |</li>
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="opt_sys_construct.html" title="Constructing an Optical System"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to Tracer’s documentation!"
+          <a href="doc-main.html" title="Welcome to Tracer’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li> 
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -92,7 +98,7 @@ create the assembly:</p>
 <span class="n">side</span> <span class="o">=</span> <span class="mf">0.4</span>
 <span class="n">h_depth</span> <span class="o">=</span> <span class="mf">0.7</span>
 <span class="n">assembly</span> <span class="o">=</span> <span class="n">MiniDish</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">focus</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">focus</span> <span class="o">+</span> <span class="n">h_depth</span><span class="p">,</span> <span class="n">side</span><span class="p">,</span> <span class="n">h_depth</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)</span>
-<span class="n">assembly</span><span class="o">.</span><span class="n">set_transform</span><span class="p">(</span><span class="n">rotx</span><span class="p">(</span><span class="o">-</span><span class="n">N</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">4</span><span class="p">))</span>
+<span class="n">assembly</span><span class="o">.</span><span class="n">set_transform</span><span class="p">(</span><span class="n">rotx</span><span class="p">(</span><span class="o">-</span><span class="n">N</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>In the last line the entire dish assembly is rotated around the X axis. This
@@ -102,9 +108,9 @@ the focal plane, and the homogenizer is a square of mirrors (a kaleidoscope)
 that directs all rays to the receiver and is placed before the receiver.</p>
 <p>To make the sun shine, we set the center, direction, radius and angular range
 (half-angle of the light cone) of the bundle to be generated:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">center</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">c_</span><span class="p">[[</span><span class="mf">0</span><span class="p">,</span> <span class="mf">7.</span><span class="p">,</span> <span class="mf">7.</span><span class="p">]]</span>
-<span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1</span><span class="o">/</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2</span><span class="p">))</span>
-<span class="n">direction</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">])</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">center</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">c_</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">7.</span><span class="p">,</span> <span class="mf">7.</span><span class="p">]]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">direction</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">])</span>
 <span class="n">radius_sun</span> <span class="o">=</span> <span class="mf">2.5</span>
 <span class="n">ang_range</span> <span class="o">=</span> <span class="mf">0.0005</span> <span class="c"># 5 milirad, approx. the sun&#39;s range.</span>
 
@@ -126,7 +132,7 @@ rays through the dish:</p>
 receiver by reading the status of the tracer engine, we will not do so here.
 Instead, the MiniDish class has its own method for this, <tt class="docutils literal"><span class="pre">histogram_hits</span></tt>.
 We use this method:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">assembly</span><span class="o">.</span><span class="n">histogram_hits</span><span class="p">()[</span><span class="mf">0</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">assembly</span><span class="o">.</span><span class="n">histogram_hits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Which we then can pass to a function that uses Pylab to show the histogram:</p>
@@ -147,40 +153,40 @@ We use this method:</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-            <h3><a href="index.html">Table Of Contents</a></h3>
-            <ul>
-<li><a class="reference external" href="">The Tracer Tutorial</a><ul>
-<li><a class="reference external" href="#building-blocks">Building Blocks</a></li>
-<li><a class="reference external" href="#setup">Setup</a></li>
-<li><a class="reference external" href="#output">Output</a></li>
+  <h3><a href="doc-main.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">The Tracer Tutorial</a><ul>
+<li><a class="reference internal" href="#building-blocks">Building Blocks</a></li>
+<li><a class="reference internal" href="#setup">Setup</a></li>
+<li><a class="reference internal" href="#output">Output</a></li>
 </ul>
 </li>
 </ul>
 
-            <h4>Previous topic</h4>
-            <p class="topless"><a href="index.html"
-                                  title="previous chapter">Welcome to Tracer&#8217;s documentation!</a></p>
-            <h4>Next topic</h4>
-            <p class="topless"><a href="opt_sys_construct.html"
-                                  title="next chapter">Constructing an Optical System</a></p>
-            <h3>This Page</h3>
-            <ul class="this-page-menu">
-              <li><a href="_sources/tutorial.txt"
-                     rel="nofollow">Show Source</a></li>
-            </ul>
-          <div id="searchbox" style="display: none">
-            <h3>Quick search</h3>
-              <form class="search" action="search.html" method="get">
-                <input type="text" name="q" size="18" />
-                <input type="submit" value="Go" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
-              </form>
-              <p class="searchtip" style="font-size: 90%">
-              Enter search terms or a module, class or function name.
-              </p>
-          </div>
-          <script type="text/javascript">$('#searchbox').show(0);</script>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="doc-main.html"
+                        title="previous chapter">Welcome to Tracer&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opt_sys_construct.html"
+                        title="next chapter">Constructing an Optical System</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -192,20 +198,20 @@ We use this method:</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="modindex.html" title="Global Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
           <a href="opt_sys_construct.html" title="Constructing an Optical System"
              >next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to Tracer’s documentation!"
+          <a href="doc-main.html" title="Welcome to Tracer’s documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li> 
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2010, Yosef Meller, Jasmine Florentine.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+        &copy; Copyright 2010-2013, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

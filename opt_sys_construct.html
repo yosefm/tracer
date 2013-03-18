@@ -1,26 +1,32 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Constructing an Optical System &mdash; Tracer v0.1 documentation</title>
+    <title>Constructing an Optical System &mdash; Tracer 0.2 documentation</title>
+    
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1',
-        COLLAPSE_MODINDEX: false,
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Tracer v0.1 documentation" href="index.html" />
-    <link rel="next" title="Tracer Package" href="tracer.html" />
+    <link rel="top" title="Tracer 0.2 documentation" href="index.html" />
+    <link rel="next" title="Tracer-surface communication protocol" href="trace_protocol.html" />
     <link rel="prev" title="The Tracer Tutorial" href="tutorial.html" /> 
   </head>
   <body>
@@ -31,15 +37,15 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="modindex.html" title="Global Module Index"
-             accesskey="M">modules</a> |</li>
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
-          <a href="tracer.html" title="Tracer Package"
+          <a href="trace_protocol.html" title="Tracer-surface communication protocol"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="tutorial.html" title="The Tracer Tutorial"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li> 
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -70,7 +76,7 @@ Assembly, and hence of HasFrame.</p>
 <p>Each HasFrame object has its own frame and a temporary frame. The temporary
 frame is updated whenever the object&#8217;s frame or one of its parents&#8217; frames
 changes, and it reflects the object&#8217;s frame relative to the world coordinates.</p>
-<p>See also <a class="reference external" href="has_frame.html"><em>The has_frame module</em></a></p>
+<p>See also <a class="reference internal" href="has_frame.html"><em>The has_frame module</em></a></p>
 </div>
 <div class="section" id="assemblies">
 <h2>Assemblies<a class="headerlink" href="#assemblies" title="Permalink to this headline">¶</a></h2>
@@ -84,7 +90,7 @@ concentrator, then add to it the assembly receiver from
 point toward your concentrator by using its <tt class="docutils literal"><span class="pre">set_transform()</span></tt> method.</p>
 <p>Assemblies do not directly hold surfaces, but only other assemblies or optical
 objects.</p>
-<p>See also <a class="reference external" href="assembly.html"><em>The assembly module</em></a>.</p>
+<p>See also <a class="reference internal" href="assembly.html"><em>The assembly module</em></a>.</p>
 </div>
 <div class="section" id="optical-objects">
 <h2>Optical Objects<a class="headerlink" href="#optical-objects" title="Permalink to this headline">¶</a></h2>
@@ -98,7 +104,7 @@ a ray. The standard AssembledObject never owns anything and marks all rays as
 relevant, but derived classes may change this: <tt class="docutils literal"><span class="pre">tracer.models.one_sided_mirror</span></tt>
 for example, marks its sole surface as irrelevant for rays that originate from
 it.</p>
-<p>See also <a class="reference external" href="object.html"><em>The object module</em></a></p>
+<p>See also <a class="reference internal" href="object.html"><em>The object module</em></a></p>
 </div>
 <div class="section" id="surfaces">
 <h2>Surfaces<a class="headerlink" href="#surfaces" title="Permalink to this headline">¶</a></h2>
@@ -118,7 +124,12 @@ GeometryManager class and the optics_callable module documentation details the
 required interfaces. The optics callable is a python callable object (e.g. a
 function or a class with the <tt class="docutils literal"><span class="pre">__call__()</span></tt> method) which handles the required
 interface.</p>
-<p>See also: <a class="reference external" href="surface.html"><em>The surface module</em></a></p>
+<p>See also:</p>
+<ul class="simple">
+<li><a class="reference internal" href="surface.html"><em>The surface module</em></a></li>
+<li><a class="reference internal" href="opt_call.html"><em>The optics_callables module</em></a></li>
+<li><a class="reference internal" href="trace_protocol.html"><em>Tracer-surface communication protocol</em></a></li>
+</ul>
 </div>
 </div>
 
@@ -128,41 +139,41 @@ interface.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-            <h3><a href="index.html">Table Of Contents</a></h3>
-            <ul>
-<li><a class="reference external" href="">Constructing an Optical System</a><ul>
-<li><a class="reference external" href="#spatial-representation">Spatial Representation</a></li>
-<li><a class="reference external" href="#assemblies">Assemblies</a></li>
-<li><a class="reference external" href="#optical-objects">Optical Objects</a></li>
-<li><a class="reference external" href="#surfaces">Surfaces</a></li>
+  <h3><a href="doc-main.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Constructing an Optical System</a><ul>
+<li><a class="reference internal" href="#spatial-representation">Spatial Representation</a></li>
+<li><a class="reference internal" href="#assemblies">Assemblies</a></li>
+<li><a class="reference internal" href="#optical-objects">Optical Objects</a></li>
+<li><a class="reference internal" href="#surfaces">Surfaces</a></li>
 </ul>
 </li>
 </ul>
 
-            <h4>Previous topic</h4>
-            <p class="topless"><a href="tutorial.html"
-                                  title="previous chapter">The Tracer Tutorial</a></p>
-            <h4>Next topic</h4>
-            <p class="topless"><a href="tracer.html"
-                                  title="next chapter">Tracer Package</a></p>
-            <h3>This Page</h3>
-            <ul class="this-page-menu">
-              <li><a href="_sources/opt_sys_construct.txt"
-                     rel="nofollow">Show Source</a></li>
-            </ul>
-          <div id="searchbox" style="display: none">
-            <h3>Quick search</h3>
-              <form class="search" action="search.html" method="get">
-                <input type="text" name="q" size="18" />
-                <input type="submit" value="Go" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
-              </form>
-              <p class="searchtip" style="font-size: 90%">
-              Enter search terms or a module, class or function name.
-              </p>
-          </div>
-          <script type="text/javascript">$('#searchbox').show(0);</script>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">The Tracer Tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="trace_protocol.html"
+                        title="next chapter">Tracer-surface communication protocol</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/opt_sys_construct.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -174,20 +185,20 @@ interface.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="modindex.html" title="Global Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="tracer.html" title="Tracer Package"
+          <a href="trace_protocol.html" title="Tracer-surface communication protocol"
              >next</a> |</li>
         <li class="right" >
           <a href="tutorial.html" title="The Tracer Tutorial"
              >previous</a> |</li>
-        <li><a href="index.html">Tracer v0.1 documentation</a> &raquo;</li> 
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2010, Yosef Meller, Jasmine Florentine.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+        &copy; Copyright 2010-2013, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

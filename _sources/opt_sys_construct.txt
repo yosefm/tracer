@@ -83,5 +83,9 @@ required interfaces. The optics callable is a python callable object (e.g. a
 function or a class with the ``__call__()`` method) which handles the required
 interface.
 
-See also: :doc:`surface`
+See also:
+
+* :doc:`surface`
+* :doc:`opt_call`
+* :doc:`trace_protocol`
 

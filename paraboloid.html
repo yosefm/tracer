@@ -1,0 +1,187 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The paraboloid module &mdash; Tracer 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tracer 0.2 documentation" href="index.html" />
+    <link rel="up" title="Surface geometry managers" href="geometry.html" />
+    <link rel="next" title="The cylinder module" href="cylinder.html" />
+    <link rel="prev" title="The sphere_surface module" href="sphere_surface.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cylinder.html" title="The cylinder module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sphere_surface.html" title="The sphere_surface module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" >Tracer Package</a> &raquo;</li>
+          <li><a href="geometry.html" accesskey="U">Surface geometry managers</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="the-paraboloid-module">
+<h1>The <tt class="docutils literal"><span class="pre">paraboloid</span></tt> module<a class="headerlink" href="#the-paraboloid-module" title="Permalink to this headline">¶</a></h1>
+<p>Supplies an infinite paraboloid as a base, and two derived parabolic dishes,
+with circular or hexagonal aperture.</p>
+<span class="target" id="module-tracer.paraboloid"></span><dl class="class">
+<dt id="tracer.paraboloid.HexagonalParabolicDishGM">
+<em class="property">class </em><tt class="descclassname">tracer.paraboloid.</tt><tt class="descname">HexagonalParabolicDishGM</tt><big>(</big><em>diameter</em>, <em>focal_length</em><big>)</big><a class="headerlink" href="#tracer.paraboloid.HexagonalParabolicDishGM" title="Permalink to this definition">¶</a></dt>
+<dd><p>A paraboloid that marks rays outside a regular hexagon perimeter as
+missing. The parameters for the paraboloid&#8217;s equation are determined
+from the focal length. The hexagon is oriented with two parallel to the
+Y axis.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>diameter: of the circle bounding the regular hexagonal aperture of the
+dish.</li>
+<li>focal_length: distance of the focal point from the origin.</li>
+</ul>
+</dd></dl>
+
+<dl class="class">
+<dt id="tracer.paraboloid.ParabolicDishGM">
+<em class="property">class </em><tt class="descclassname">tracer.paraboloid.</tt><tt class="descname">ParabolicDishGM</tt><big>(</big><em>diameter</em>, <em>focal_length</em><big>)</big><a class="headerlink" href="#tracer.paraboloid.ParabolicDishGM" title="Permalink to this definition">¶</a></dt>
+<dd><p>A paraboloid that marks rays outside its diameter as missing. The
+parameters for the paraboloid&#8217;s equation are determined from the focal
+length.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>diameter: of the circular aperture created by cutting the paraboloid
+with a plane parallel to the xy plane.</li>
+<li>focal_length: distance of the focal point from the origin.</li>
+</ul>
+<dl class="method">
+<dt id="tracer.paraboloid.ParabolicDishGM.mesh">
+<tt class="descname">mesh</tt><big>(</big><em>resolution</em><big>)</big><a class="headerlink" href="#tracer.paraboloid.ParabolicDishGM.mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represent the surface as a mesh in local coordinates. Uses polar
+bins, i.e. the points are equally distributed by angle and radius,
+not by x,y.</p>
+<p><em>Arguments</em></p>
+<ul class="simple">
+<li>resolution: in points per unit length (so the number of points 
+returned is O(A*resolution**2) for area A)</li>
+</ul>
+<p><em>Returns</em></p>
+<p>x, y, z - each a 2D array holding in its (i,j) cell the x, y, and z
+coordinate (respectively) of point (i,j) in the mesh.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tracer.paraboloid.Paraboloid">
+<em class="property">class </em><tt class="descclassname">tracer.paraboloid.</tt><tt class="descname">Paraboloid</tt><big>(</big><em>a=1.0</em>, <em>b=1.0</em><big>)</big><a class="headerlink" href="#tracer.paraboloid.Paraboloid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements the geometry of a circular paraboloid surface</p>
+<p><em>Arguments</em></p>
+<p>a, b - describe the paraboloid as z = (x/a)**2 + (y/b)**2
+(sorry, legacy)</p>
+<p>Private attributes:
+a, b - describe the paraboloid as z = a*x**2 + b*y**2</p>
+<dl class="method">
+<dt id="tracer.paraboloid.Paraboloid.get_ABC">
+<tt class="descname">get_ABC</tt><big>(</big><em>ray_bundle</em><big>)</big><a class="headerlink" href="#tracer.paraboloid.Paraboloid.get_ABC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the variables forming the relevant quadric equation, [1]</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sphere_surface.html"
+                        title="previous chapter">The <tt class="docutils literal docutils literal"><span class="pre">sphere_surface</span></tt> module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cylinder.html"
+                        title="next chapter">The <tt class="docutils literal docutils literal"><span class="pre">cylinder</span></tt> module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/paraboloid.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cylinder.html" title="The cylinder module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sphere_surface.html" title="The sphere_surface module"
+             >previous</a> |</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li>
+          <li><a href="tracer.html" >Tracer Package</a> &raquo;</li>
+          <li><a href="geometry.html" >Surface geometry managers</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2013, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

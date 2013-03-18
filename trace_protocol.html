@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Tracer Package &mdash; Tracer 0.2 documentation</title>
+    <title>Tracer-surface communication protocol &mdash; Tracer 0.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -26,8 +26,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Tracer 0.2 documentation" href="index.html" />
-    <link rel="next" title="The ray_bundle module" href="ray_bundle.html" />
-    <link rel="prev" title="Tracer-surface communication protocol" href="trace_protocol.html" /> 
+    <link rel="next" title="Tracer Package" href="tracer.html" />
+    <link rel="prev" title="Constructing an Optical System" href="opt_sys_construct.html" /> 
   </head>
   <body>
     <div class="related">
@@ -40,10 +40,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ray_bundle.html" title="The ray_bundle module"
+          <a href="tracer.html" title="Tracer Package"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="trace_protocol.html" title="Tracer-surface communication protocol"
+          <a href="opt_sys_construct.html" title="Constructing an Optical System"
              accesskey="P">previous</a> |</li>
         <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li> 
       </ul>
@@ -54,31 +54,29 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-tracer">
-<span id="tracer-package"></span><h1>Tracer Package<a class="headerlink" href="#module-tracer" title="Permalink to this headline">¶</a></h1>
-<p><tt class="docutils literal"><span class="pre">tracer</span></tt> is the master package for the Tracer project. It contains a</p>
+  <div class="section" id="tracer-surface-communication-protocol">
+<h1>Tracer-surface communication protocol<a class="headerlink" href="#tracer-surface-communication-protocol" title="Permalink to this headline">¶</a></h1>
+<p>The communication between the tracer engine and the surfaces happens in the
+following stages:</p>
+<ol class="arabic simple">
+<li>The tracer calls a function register_incoming() on a surface, passing in a ray
+bundle object. In return, the surface gives an array where for each incoming ray
+the parametric position along the ray where the ray hits is returned; rays that
+don&#8217;t hit the surface are marked with infinity.</li>
+<li>The engine decides, for each ray, which of the surfaces in the scene has the
+closest intersection with that ray; it then informs the surface that only these
+rays will be queried next, using Surface.select_rays().</li>
+<li>The engine calls each surface&#8217;s get_outgoing() routine, with a selector
+specifying which of the incoming rays to answer about. The surface is expected to
+already have all the information needed for the answer. The surface replies with a
+new RayBundle object which may include reflected and refracted rays.</li>
+<li>The engine then takes all the answers, welds them into a new ray bundle, and
+uses that bundle for the next iteration.</li>
+</ol>
 <ul class="simple">
-<li>ray: tracing engine (tracer_engine.py), a ray-bundle class (in ray_bundle.py),
-and several classes for modeling an optical system.</li>
+<li>Either after 3 or, if no rays intersected a surface after 1, the ray tracer
+calls the surface&#8217;s done() method to allow it to clear memory.</li>
 </ul>
-<p>The subpackage tracer.models contains some often-used optical systems.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ray_bundle.html">The <tt class="docutils literal"><span class="pre">ray_bundle</span></tt> module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="has_frame.html">The <tt class="docutils literal"><span class="pre">has_frame</span></tt> module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="assembly.html">The <tt class="docutils literal"><span class="pre">assembly</span></tt> module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="object.html">The <tt class="docutils literal"><span class="pre">object</span></tt> module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="surface.html">The <tt class="docutils literal"><span class="pre">surface</span></tt> module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="opt_call.html">The <tt class="docutils literal"><span class="pre">optics_callables</span></tt> module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html">Surface geometry managers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="flat_surface.html">The <tt class="docutils literal"><span class="pre">flat_surface</span></tt> module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sphere_surface.html">The <tt class="docutils literal"><span class="pre">sphere_surface</span></tt> module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paraboloid.html">The <tt class="docutils literal"><span class="pre">paraboloid</span></tt> module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cylinder.html">The <tt class="docutils literal"><span class="pre">cylinder</span></tt> module</a></li>
-</ul>
-</li>
-</ul>
-</div>
 </div>
 
 
@@ -88,14 +86,14 @@ and several classes for modeling an optical system.</li>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="trace_protocol.html"
-                        title="previous chapter">Tracer-surface communication protocol</a></p>
+  <p class="topless"><a href="opt_sys_construct.html"
+                        title="previous chapter">Constructing an Optical System</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="ray_bundle.html"
-                        title="next chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">ray_bundle</span></tt> module</a></p>
+  <p class="topless"><a href="tracer.html"
+                        title="next chapter">Tracer Package</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/tracer.txt"
+    <li><a href="_sources/trace_protocol.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -125,10 +123,10 @@ and several classes for modeling an optical system.</li>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ray_bundle.html" title="The ray_bundle module"
+          <a href="tracer.html" title="Tracer Package"
              >next</a> |</li>
         <li class="right" >
-          <a href="trace_protocol.html" title="Tracer-surface communication protocol"
+          <a href="opt_sys_construct.html" title="Constructing an Optical System"
              >previous</a> |</li>
         <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li> 
       </ul>
