@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Screenshots</title><style type="text/css"></style><link rel="stylesheet" href="site-front.css" type="text/css"></head><body>
+<h1>Screenshots</h1>
+<p>Below are screenshots taken from example code using Tracer. The
+example code is in the examples/ directory of the source distribution.</p>
+<h2>Heliostat Field and Tower<br>
+</h2>
+<p>The following snapshot is from examples/tower_gui.py. It shows a
+solar tower (also known as "power tower") composed of the heliostat
+field model from the models subpackage, and a square receiver. On the
+left is a 3D view of the field, on the right a map of flux distribution
+on the receiver.<br>
+<img style="width: 1028px; height: 632px;" alt="Power Tower GUI example" title="Power Tower GUI example" src="images/tower_gui.png"><br>
+</p>
+<h2>Parabolic Dish</h2>
+<p>This is a demonstration of a circular-aperture parabolic dish with a
+square homogenizer (in red). Only 10 rays are shown, as the 3D viewing
+of rays is still slow. For real simulations withoput 3D view, timing of
+as low as 1.7 seconds was registered to do 100,000 rays for this model
+(one core of an Intel quad-core).<br>
+</p>
+<p>The snapshot is taken from examples/parabolic_dish_gui.py.<br>
+<br>
+</p>
+<p><img style="width: 514px; height: 564px;" alt="Parabolic dish example" src="images/dish_gui.png"><br>
+</p>
+<h2>Flux Map</h2>
+<p>The picture below shows the flux map on the receiver of a parabolic
+dish with homogenizer, as shown above. The trace, using 500,000 rays,
+does not take too long, but starts to strain memory (for 2GiB systems,
+about 400,000 rays seem to be the limit)<br>
+</p>
+<p>Taken using examples/test_case.py.<br>
+<img style="width: 812px; height: 612px;" alt="Flux map on a receiver in a parabolic dish assembly" src="images/flux_map5e5rays.png"><br>
+</p>
+</body></html>

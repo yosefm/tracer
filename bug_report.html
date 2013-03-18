@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Bug reporting guidelines</title><style type="text/css">
+#subversion {
+  font-style: italic;
+  font-size: 0.8em;
+}
+
+</style><link rel="stylesheet" href="site-front.css" type="text/css"></head><body>
+<h1>Reporting Bugs</h1>
+
+
+<div class="h2" id="reporting-bugs">We all want to fix bugs fast and
+well; however, fixing bugs takes time and effort, which are in short
+supply among volunteers. To ensure that a bug is dealt with as speedily
+and efficiently as possible, please follow the instructions below.<br>
+<p>First, make sure it's a bug.  If Tracer does not behave the way
+you expect, look in the <a href="http://tracer.berlios.de/doc-main.html">documentation</a> and <a href="https://lists.berlios.de/pipermail/tracer-user/">mailing list archives</a> for
+evidence that it should behave the way you expect. You should
+also <a href="https://developer.berlios.de/bugs/?group_id=11702">search in the bug tracker</a>
+to see if anyone has already reported
+this bug. Just to be sure, check that you are running the latest
+version of Tracer - maybe the bug has already been found and fixed.<br>
+</p>
+
+<p>Once you've established that it's a bug, and that we don't know
+about it already, the most important thing you can do is come up with
+a <span style="font-weight: bold;">simple description</span> and <span style="font-weight: bold;">reproduction recipe</span>.  For example, if the
+bug, as you initially found it, involves five files over ten commits,
+try to make it happen with just one file and one commit.  The simpler
+the reproduction recipe, the more likely a developer is to
+successfully reproduce the bug and fix it.</p>
+
+<p>When you write up the reproduction recipe, don't just write a prose
+description of what you did to make the bug happen.  Instead, give a
+literal transcript of the exact series of commands you ran, and their
+output.  Use cut-and-paste to do this.  If there are files involved,
+be sure to include the names of the files, and even their content if
+you think it might be relevant.&nbsp;</p>In addition to the reproduction recipe, we'll also need a complete
+description of the environment in which you reproduced the bug.  That
+means:
+
+<ul><li>Your operating system, Python version, and other relevant infrastructure.<br>
+</li><li>The release of Tracer, or the Git repository and commit from which you are running Tracer.<br>
+</li><li>Any private modifications you made to your version of Tracer.<br>
+</li><li>Anything else that could possibly be relevant.  Err on the side
+    of too much information, rather than too little.</li></ul>
+
+<p>Once you have all this, you're ready to write the report.  Start
+out with a clear description of what the bug is.  That is, say how you
+expected Tracer to behave, and contrast that with how it actually
+behaved.  While the bug may seem obvious to you, it may not be so
+obvious to someone else, so it's best to avoid a guessing game.
+Follow that with the environment description, and the reproduction
+recipe.  If you also want to include speculation as to the cause, and
+even a patch to fix the bug, that's great&nbsp;&#8212; see the <a href="dev_guidelines.html">developer guidelines</a>.</p>
+
+<p>Post all of this information to the <a href="https://lists.berlios.de/mailman/listinfo/tracer-user">mailing list</a><a href="mailto:dev@subversion.apache.org"></a>, or if you have already been there and
+been asked to file an issue, then go to the <a href="https://developer.berlios.de/bugs/?group_id=11702">bug tracker</a>&nbsp; <span style="text-decoration: underline;"></span>and follow the instructions there.</p>
+
+<p>Thanks.  We know it's a lot of work to file an effective bug
+report, but a good report can save hours of a developer's time, and
+make the bug much more likely to get fixed.</p>
+
+</div>
+  
+<div id="subversion">The above instructions are adapted from the <a href="http://subversion.apache.org/docs/community-guide/issues.html">fine example</a> given by the <a href="http://subversion.apache.org/">Subversion</a> project.<br>
+</div>
+</body></html>

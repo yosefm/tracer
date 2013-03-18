@@ -1,142 +1,107 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Welcome to Tracer’s documentation! &mdash; Tracer v0.1 documentation</title>
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '0.1',
-        COLLAPSE_MODINDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Tracer v0.1 documentation" href="" />
-    <link rel="next" title="The Tracer Tutorial" href="tutorial.html" /> 
-  </head>
-  <body>
-    <div class="related">
-      <h3>Navigation</h3>
+
+
+
+  
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Tracer home</title>
+  
+
+  
+  
+  <link rel="stylesheet" href="site-front.css" type="text/css"></head><body style="color: rgb(0, 0, 0); background-color: white;" alink="#000099" link="#000099" vlink="#990099">
+<h1><span style="font-weight: bold;"></span>Tracer</h1>
+
+<p>Tracer is a ray-tracing package for Python. It is geared toward
+solar energy research; written for extensibility and scriptability, it
+is particularly suitable for use together with optimization programs,
+but your imagination is the limit.</p>
+
+<p>Tracer is free-software, distributed under the GPL v3.0 license. You
+are free to use, review the code or help improve it.<br>
+</p>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; width: 50%;">
+      <h2>Screenshots</h2>Example code is supplied with the package, <a href="screenshots.html">take a look</a> at the results!<br>
+      <h2>Features</h2>
+
+
+
+      <p>The package contains two parts: a set of modules for building and
+running ray tracing scenes; and a set of pre-assembled models. </p>
+
+
+The scene construction part provides:<br>
+
+
       <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="modindex.html" title="Global Module Index"
-             accesskey="M">modules</a> |</li>
-        <li class="right" >
-          <a href="tutorial.html" title="The Tracer Tutorial"
-             accesskey="N">next</a> |</li>
-        <li><a href="">Tracer v0.1 documentation</a> &raquo;</li> 
+<li>Assemblies of arbitrary complexity</li><li>Surfaces with flat, spherical, cylindrical or paraboloidal shapes; API for
+developing other shapes.</li><li>Surface materials with specular-reflective or refractive
+surfaces; API for developing more complex models<br>
+  </li><li>Receiver surfaces for output collection.<br>
+  </li>
       </ul>
-    </div>  
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
-  <div class="section" id="welcome-to-tracer-s-documentation">
-<h1>Welcome to Tracer&#8217;s documentation!<a class="headerlink" href="#welcome-to-tracer-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>In here you will find tutorials, concept explanations and reference material.</p>
-<p>Contents:</p>
-<ul>
-<li class="toctree-l1"><a class="reference external" href="tutorial.html">The Tracer Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference external" href="tutorial.html#building-blocks">Building Blocks</a></li>
-<li class="toctree-l2"><a class="reference external" href="tutorial.html#setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference external" href="tutorial.html#output">Output</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference external" href="opt_sys_construct.html">Constructing an Optical System</a><ul>
-<li class="toctree-l2"><a class="reference external" href="opt_sys_construct.html#spatial-representation">Spatial Representation</a></li>
-<li class="toctree-l2"><a class="reference external" href="opt_sys_construct.html#assemblies">Assemblies</a></li>
-<li class="toctree-l2"><a class="reference external" href="opt_sys_construct.html#optical-objects">Optical Objects</a></li>
-<li class="toctree-l2"><a class="reference external" href="opt_sys_construct.html#surfaces">Surfaces</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference external" href="tracer.html">Reference</a><ul>
-<li class="toctree-l2"><a class="reference external" href="has_frame.html">The <tt class="docutils literal"><span class="pre">has_frame</span></tt> module</a></li>
-<li class="toctree-l2"><a class="reference external" href="assembly.html">The <tt class="docutils literal"><span class="pre">assembly</span></tt> module</a></li>
-<li class="toctree-l2"><a class="reference external" href="object.html">The <tt class="docutils literal"><span class="pre">object</span></tt> module</a></li>
-<li class="toctree-l2"><a class="reference external" href="surface.html">The <tt class="docutils literal"><span class="pre">surface</span></tt> module</a></li>
-</ul>
-</li>
-</ul>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference external" href="genindex.html"><em>Index</em></a></li>
-<li><a class="reference external" href="modindex.html"><em>Module Index</em></a></li>
-<li><a class="reference external" href="search.html"><em>Search Page</em></a></li>
-</ul>
-</div>
 
 
-          </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-            <h3><a href="">Table Of Contents</a></h3>
-            <ul>
-<li><a class="reference external" href="">Welcome to Tracer&#8217;s documentation!</a><ul>
-</ul>
-</li>
-<li><a class="reference external" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
+The models included in the second part:<br>
 
-            <h4>Next topic</h4>
-            <p class="topless"><a href="tutorial.html"
-                                  title="next chapter">The Tracer Tutorial</a></p>
-            <h3>This Page</h3>
-            <ul class="this-page-menu">
-              <li><a href="_sources/index.txt"
-                     rel="nofollow">Show Source</a></li>
-            </ul>
-          <div id="searchbox" style="display: none">
-            <h3>Quick search</h3>
-              <form class="search" action="search.html" method="get">
-                <input type="text" name="q" size="18" />
-                <input type="submit" value="Go" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
-              </form>
-              <p class="searchtip" style="font-size: 90%">
-              Enter search terms or a module, class or function name.
-              </p>
-          </div>
-          <script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
+
       <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="modindex.html" title="Global Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="tutorial.html" title="The Tracer Tutorial"
-             >next</a> |</li>
-        <li><a href="">Tracer v0.1 documentation</a> &raquo;</li> 
+<li>One-sided mirror</li><li>Rectangular kaleidoscope light-guide</li><li>Parabolic dishes with circular or hexagonal apertures.</li>
+        <li>Heliostat field (<span style="color: red;">new in v0.2</span>).</li>
+        <li>Spherical lens - any plano/convex/concave combination (<span style="color: red;">new in v0.2</span>).</li>
+
       </ul>
-    </div>
-    <div class="footer">
-      &copy; Copyright 2010, Yosef Meller, Jasmine Florentine.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
-    </div>
-  </body>
-</html>
+      </td>
+      <td style="vertical-align: top;">
+      <h2>Download</h2>
+
+
+      <p>
+
+Tracer 0.2 is <a href="https://developer.berlios.de/project/showfiles.php?group_id=11702">available from BerliOS</a><br>
+</p>
+
+
+      <p>The latest code is stored in a Git repository: <a href="http://github.com/yosefm/tracer/">http://github.com/yosefm/tracer/</a><br>
+</p>
+      <h2>Develop</h2>
+      <p>We gladly accept improvements, bug reports and fixes.
+Contributing your changes to the community will help you stay
+concurrent with new developments contributed by others, and get review and advice.<br>
+      </p>
+      <p>To reduce the load on the volunteer maintainer of the code, be sure to read the <a href="dev_guidelines.html">developer guidelines</a> first.<br>
+      </p>
+      <p>Before reporting a bug, please read the <a href="bug_report.html">bug-report guidelines</a>.<br>
+      </p>
+      <p>
+      </p>
+
+
+
+
+
+      <h2>Documentation and Resources<br>
+      </h2>
+
+      <p>
+
+The <a href="doc-main.html">user documentation</a> section contains a
+tutorial, usage instructions and reference material for the package.</p>
+      <p>
+If you have questions, or want to get involved in development, please
+use our mailing list, <a href="https://lists.berlios.de/mailman/listinfo/tracer-user">tracer-user</a> (or <a href="https://lists.berlios.de/pipermail/tracer-user/">search its archives</a>).<br>
+      </p>
+
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<a href="http://developer.berlios.de">
+<img src="http://developer.berlios.de/bslogo.php?group_id=11702" alt="BerliOS Logo" border="0" height="32" width="124"></a>
+</body></html>
