@@ -53,7 +53,7 @@ class TracerScene(t_api.HasTraits):
         for surf_id, mapping in self._meshes.iteritems():
             if mapping[1] is not None:
                 mapping[1].remove()
-            meshes[surf_id] = (mapping[0], None)
+            self._meshes[surf_id] = (mapping[0], None)
         
     def set_assembly(self, asm):
         """
