@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Tracer 0.2 documentation" href="index.html" />
-    <link rel="next" title="Constructing an Optical System" href="opt_sys_construct.html" />
+    <link rel="next" title="Overview" href="design.html" />
     <link rel="prev" title="Welcome to Tracer’s documentation!" href="doc-main.html" /> 
   </head>
   <body>
@@ -40,7 +40,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="opt_sys_construct.html" title="Constructing an Optical System"
+          <a href="design.html" title="Overview"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="doc-main.html" title="Welcome to Tracer’s documentation!"
@@ -112,7 +112,7 @@ that directs all rays to the receiver and is placed before the receiver.</p>
 <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <span class="n">direction</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">])</span>
 <span class="n">radius_sun</span> <span class="o">=</span> <span class="mf">2.5</span>
-<span class="n">ang_range</span> <span class="o">=</span> <span class="mf">0.0005</span> <span class="c"># 5 milirad, approx. the sun&#39;s range.</span>
+<span class="n">ang_range</span> <span class="o">=</span> <span class="mf">0.005</span> <span class="c"># 5 milirad, approx. the sun&#39;s range.</span>
 
 <span class="n">sun</span> <span class="o">=</span> <span class="n">solar_disk_bundle</span><span class="p">(</span><span class="n">num_rays</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">radius_sun</span><span class="p">,</span> <span class="n">ang_range</span><span class="p">)</span>
 <span class="n">sun</span><span class="o">.</span><span class="n">set_energy</span><span class="p">(</span><span class="n">N</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">num_rays</span><span class="p">))</span>
@@ -167,8 +167,8 @@ We use this method:</p>
   <p class="topless"><a href="doc-main.html"
                         title="previous chapter">Welcome to Tracer&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="opt_sys_construct.html"
-                        title="next chapter">Constructing an Optical System</a></p>
+  <p class="topless"><a href="design.html"
+                        title="next chapter">Overview</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/tutorial.txt"
@@ -201,7 +201,7 @@ We use this method:</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="opt_sys_construct.html" title="Constructing an Optical System"
+          <a href="design.html" title="Overview"
              >next</a> |</li>
         <li class="right" >
           <a href="doc-main.html" title="Welcome to Tracer’s documentation!"

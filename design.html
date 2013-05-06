@@ -1,0 +1,226 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Some design notes &mdash; Tracer 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tracer 0.2 documentation" href="index.html" />
+    <link rel="next" title="Constructing an Optical System" href="opt_sys_construct.html" />
+    <link rel="prev" title="The Tracer Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="opt_sys_construct.html" title="Constructing an Optical System"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="The Tracer Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="some-design-notes">
+<h1>Some design notes<a class="headerlink" href="#some-design-notes" title="Permalink to this headline">¶</a></h1>
+<p>This document is meant to explain a bit about the design of the tracer, its
+components and goals.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The tracer is concerned with a scene in which light rays can
+move about freely. In the scene we have objects that rays may interact with. A ray
+in free space may interact with an object by intersecting with its surface, at
+which point it can be reflected or refracted.</p>
+<p>Tracing a ray is a question of selecting which surface is intersected by which
+rays, and at what point along the ray. This is the purpose of the TracerEngine
+class; Surface subclasses interact with the tracer engine through a communication
+protocol that the surfaces are expected to follow.</p>
+</div>
+<div class="section" id="communication-protocol">
+<h2>Communication protocol<a class="headerlink" href="#communication-protocol" title="Permalink to this headline">¶</a></h2>
+<p>The communication between the tracer engine and the surfaces happens in the
+following stages:</p>
+<p>1. The tracer calls a function register_incoming() on a surface, passing in a ray
+bundle object. In return, the surface gives an array where for each incoming ray
+the parametric position along the ray where the ray hits is returned; rays that
+don&#8217;t hit the surface are marked with infinity.</p>
+<p>2. The engine decides, for each ray, which of the surfaces in the scene has the
+closest intersection with that ray; it then informs the surface that only these
+rays will be queried next, using Surface.select_rays().</p>
+<p>3. The engine calls each surface&#8217;s get_outgoing() routine, with a selector
+specifying which of the incoming rays to answer about. The surface is expected to
+already have all the information needed for the answer. The surface replies with a
+new RayBundle object which may include reflected and refracted rays.</p>
+<p>4. The engine then takes all the answers, welds them into a new ray bundle, and
+uses that bundle for the next iteration.</p>
+<ul class="simple">
+<li>Either after 3 or, if no rays intersected a surface after 1, the ray tracer
+calls the surface&#8217;s done() method to allow it to clear memory.</li>
+</ul>
+</div>
+<div class="section" id="energy-bundles">
+<h2>Energy bundles<a class="headerlink" href="#energy-bundles" title="Permalink to this headline">¶</a></h2>
+<p>A ray-tracing algorithm cab work with two different kinds of rays: ones with
+discrete amounts of energy (&#8220;energy bundles&#8221;) and ones with continuous
+(floating-point) amounts of energy. For the first case, statistical rules are
+used to determine absorption, reflectance, etc. This software uses the second
+method.</p>
+<p>Working with continuous energy, each ray&#8217;s intersection with a surface may
+cause several new rays to be created, according to the laws of reflection and
+refraction, and given Fresnel&#8217;s formulae (only specular reflections are
+currently supported). A resulting ray may be discarded if it carries energy
+lower than a user-defined threshold.</p>
+</div>
+<div class="section" id="surface-culling">
+<h2>Surface culling<a class="headerlink" href="#surface-culling" title="Permalink to this headline">¶</a></h2>
+<p>It is up to enclosed objects to determine which of their surfaces are relevant
+for future intersection finding. Given a set of intersections, get_outgoing()
+is when the surface calculates the outgoing rays, at which point it is possible
+to know which rays will not intersect surfaces in this object at the next
+iteration. Alternatively, it is possible to know, as in a lens, that only this
+object needs to be checked at the next iteration.</p>
+<p>So, for each ray we need two answers: a list of relevant surfaces; and a
+boolean &#8220;ownership&#8221; flag stating that the object takes ownership for the next
+iteration.</p>
+<ul class="simple">
+<li>One-sided mirror: simple. Never owns, both surfaces irrelevant after next
+iteration.</li>
+<li>Lens: refracted rays owned, reflected rays disowned, for rays coming from the
+outside. Opposite for rays moving inside the lens. For rays going in, all
+surfaces are relevant except (perhaps) the starting surfaces, and opposite
+for rays going outside.</li>
+</ul>
+<p>Who knows what:
+* object knows what policy to take
+* surface knows what was reflected or refracted and to which side
+* object knows which refractive index to expect.</p>
+<p>So: a general lens needs to have cooperative surfaces. Possibility: change
+RefractiveHomogenous to mark the rays in the RayBundle instance as refracted/
+reflected. Maybe change all GMs to mark the side of outgoing rays, so if the
+object knows which side is which (and it should), we&#8217;re independent of
+refractive index.</p>
+<p>A simple homogenous lens only requires the refractive index of the ray,
+although the more general solution won&#8217;t suffer from index-matching issues.</p>
+<p>A reflective object requires no co-operation.</p>
+<p>A default object: owns nothing, all surfaces relevant.
+One-sided mirror: own nothing, all surfaces irrelevant.</p>
+</div>
+<div class="section" id="meshes">
+<h2>Meshes<a class="headerlink" href="#meshes" title="Permalink to this headline">¶</a></h2>
+<p>In the current architecture, all knowledge about a surface is encapsualted in
+the Surface object or its geometry manager and optics manager. The only exposed
+information about it is its transform. It might be desired by some external
+tool to handle assemblies in a way that requires some knowledge about the
+surfaces, without having that knowledge in advance; off the top of my head I
+can think of scene graph manipulation, volume and extent calculations, or (the
+use case that prompted this) drawing the assembly in a UI.</p>
+<p>Since future uses are hard to predict, meshes are a tool that gives some very
+general information about a surface, from which a lot of information can be
+gleaned. Therefore, surfaces will have a mesh() method that provides a mesh
+representing the object in a given resolution.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="doc-main.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Some design notes</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#communication-protocol">Communication protocol</a></li>
+<li><a class="reference internal" href="#energy-bundles">Energy bundles</a></li>
+<li><a class="reference internal" href="#surface-culling">Surface culling</a></li>
+<li><a class="reference internal" href="#meshes">Meshes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">The Tracer Tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opt_sys_construct.html"
+                        title="next chapter">Constructing an Optical System</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="opt_sys_construct.html" title="Constructing an Optical System"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="The Tracer Tutorial"
+             >previous</a> |</li>
+        <li><a href="doc-main.html">Tracer 0.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2013, Yosef Meller, Jasmine Florentine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
