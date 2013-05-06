@@ -66,7 +66,7 @@ To make the sun shine, we set the center, direction, radius and angular range
     x = -1/(math.sqrt(2))
     direction = N.array([0,x,x])
     radius_sun = 2.5
-    ang_range = 0.0005 # 5 milirad, approx. the sun's range.
+    ang_range = 0.005 # 5 milirad, approx. the sun's range.
     
     sun = solar_disk_bundle(num_rays, center, direction, radius_sun, ang_range)
     sun.set_energy(N.ones(num_rays))
