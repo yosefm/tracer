@@ -14,6 +14,7 @@ Contents:
    :maxdepth: 2
    
    tutorial
+   Some design notes <design>
    opt_sys_construct
    trace_protocol
    Reference <tracer>

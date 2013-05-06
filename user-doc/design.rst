@@ -1,3 +1,5 @@
+Some design notes
+=================
 
 This document is meant to explain a bit about the design of the tracer, its 
 components and goals.
