@@ -39,7 +39,7 @@ master_doc = 'doc-main'
 
 # General information about the project.
 project = u'Tracer'
-copyright = u'2010, Yosef Meller, Jasmine Florentine'
+copyright = u'2010-2013, Yosef Meller, Jasmine Florentine'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
