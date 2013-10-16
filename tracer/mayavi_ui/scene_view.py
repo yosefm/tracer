@@ -37,7 +37,7 @@ class TracerScene(t_api.HasTraits):
         self._source = source
         
         # First plot:
-        self._lines = []
+        self._lines = None
         self.plot_ray_trace()
         
         # Default view:
@@ -49,7 +49,7 @@ class TracerScene(t_api.HasTraits):
         removing elements one by one.
         """
         self._scene.mlab.clf()
-        self._lines = []
+        self._lines = None
         for surf_id, mapping in self._meshes.iteritems():
             if mapping[1] is not None:
                 mapping[1].remove()
@@ -122,8 +122,9 @@ class TracerScene(t_api.HasTraits):
         self._scene.disable_render = True
         
         # Remove previous rays:
-        for line in self._lines:
-            line.remove()
+        if self._lines is not None:
+            self._lines.remove()
+            self._lines = None
         
         # Trace new rays:
         engine = TracerEngine(self._asm)
