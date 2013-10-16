@@ -198,33 +198,40 @@ def show_rays(scene, tree, escaping_len):
     lines - a list of plot3d objects, each representing a ray segment on the
         scene.
     """
-    lines = []
+    points = [tree[0].get_vertices()]
+    accum_points = [0, tree[0].get_num_rays()]
+    connections = []
     
     for level in xrange(tree.num_bunds()):
         start_rays = tree[level]
-        sv = start_rays.get_vertices()
-        sd = start_rays.get_directions()
         se = start_rays.get_energy()
+        non_degenerate = se != 0
+        sv = start_rays.get_vertices()[:,non_degenerate]
+        sd = start_rays.get_directions()[:,non_degenerate]
         
         if level == tree.num_bunds() - 1:
-            parents = []
+            # Make endpoints for escaping rays
+            ev = sv + sd*escaping_len
+            parents = N.arange(ev.shape[1])
         else:
             end_rays = tree[level + 1]
-            ev = end_rays.get_vertices()
-            parents = end_rays.get_parents()
-
-        for ray in xrange(start_rays.get_num_rays()):
-            if se[ray] == 0:
-                continue
+            escaping = ~N.any(
+                N.arange(sv.shape[1]) == end_rays.get_parents()[:,None], 0)
+            escaping_endpoints = sv[:,escaping] + sd[:,escaping]*escaping_len
             
-            if ray in parents:
-                # Has a hit on another surface
-                first_child = N.where(ray == parents)[0][0]
-                endpoints = N.c_[sv[:,ray], ev[:,first_child]]
-            else:
-                # Escaping ray.
-                endpoints = N.c_[sv[:,ray], sv[:,ray] + sd[:,ray]*escaping_len]
+            ev = N.hstack((end_rays.get_vertices(), escaping_endpoints))
+            parents = N.hstack((end_rays.get_parents(), N.nonzero(escaping)[0]))
             
-            lines.append(scene.mlab.plot3d(*endpoints, tube_radius=None))
+        points.append(ev)
+        accum_points.append(accum_points[-1] + ev.shape[1])
+        
+        connections.append(N.hstack((accum_points[level] + parents[:,None],
+            accum_points[level + 1] + N.arange(ev.shape[1])[:,None] )) )
+    
+    points = N.hstack(points)
+    connections = N.vstack(connections)
+    lines = scene.mlab.pipeline.scalar_scatter(*points)
+    lines.mlab_source.dataset.lines = connections
+    lines = scene.mlab.pipeline.surface(lines, line_width=1)
     return lines
 

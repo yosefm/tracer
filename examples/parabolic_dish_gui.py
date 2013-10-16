@@ -24,7 +24,7 @@ class DishScene(TracerScene):
     """
     refl = t_api.Float(1., label='Edge reflections')
     concent = t_api.Float(450, label='Concentration')
-    disp_num_rays = t_api.Int(10)
+    disp_num_rays = t_api.Int(1000)
     
     def __init__(self):
         dish, source = self.create_dish_source()
@@ -55,6 +55,7 @@ class DishScene(TracerScene):
         Makes sure that the scene is redrawn upon dish design changes.
         """
         dish, source = self.create_dish_source()
+        self.clear_scene()
         self.set_assembly(dish)
         self.set_source(source)
     
