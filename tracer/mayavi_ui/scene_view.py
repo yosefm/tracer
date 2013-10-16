@@ -119,6 +119,8 @@ class TracerScene(t_api.HasTraits):
         if self._source is None:
             return
         
+        self._scene.disable_render = True
+        
         # Remove previous rays:
         for line in self._lines:
             line.remove()
@@ -127,6 +129,8 @@ class TracerScene(t_api.HasTraits):
         engine = TracerEngine(self._asm)
         params = engine.ray_tracer(self._source, 20000000, .05)[0]
         self._lines = show_rays(self._scene, engine.tree, self._esc)
+        
+        self._scene.disable_render = False
     
     @staticmethod
     def scene_view_item(height=400, width=300):
