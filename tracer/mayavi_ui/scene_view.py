@@ -170,7 +170,7 @@ class TracerScene(t_api.HasTraits):
             height=height, width=width, show_label=False)
 
     def show_assembly(self, colour=(0.5, 0.5, 0.5), resolution=10,
-        update=None):
+        update=None, opacity=1.):
         """
         Add to a scene meshes for the surfaces composing an assembly
         The colour used is that given as an argument, unless a surface is
@@ -199,13 +199,18 @@ class TracerScene(t_api.HasTraits):
                 scol = surf.colour
             else:
                 scol = colour
+            if hasattr(surf, 'opacity'):
+                sop = surf.opacity
+            else:
+                sop = opacity
             
             # Delete existing mesh:
             if mesh is not None:
                 mesh.remove()
             
             # Replace:
-            mesh = self._scene.mlab.mesh(*surf.mesh(sres), color=scol)
+            mesh = self._scene.mlab.mesh(*surf.mesh(sres), color=scol, 
+                opacity=sop)
             self._meshes[surf_id] = (surf, mesh)
 
 def show_rays(scene, tree, escaping_len, ray_selector=None):
