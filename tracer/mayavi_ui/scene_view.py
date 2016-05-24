@@ -17,7 +17,7 @@ from ..tracer_engine import TracerEngine
 class TracerScene(t_api.HasTraits):
     _scene = t_api.Instance(MlabSceneModel, ())
     
-    def __init__(self, assembly, source):
+    def __init__(self, assembly, source, escaping=1.):
         """
         TracerScene manages a MayaVi scene with one tracer assembly and one
         tracer ray bundle. It redraws the assembly whenever it is replaced, 
@@ -31,10 +31,14 @@ class TracerScene(t_api.HasTraits):
         source - a RayBundle instance with the rays to trace.
         """
         t_api.HasTraits.__init__(self)
-        self._esc = 1.
+        self._esc = escaping
         
         self.set_assembly(assembly)
         self._source = source
+        
+        # Trace control:
+        self._num_trace_iters = 200000000 # default to infinity, pretty much
+        self._min_energy = 0.05
         
         # First plot:
         self._lines = None
@@ -109,6 +113,23 @@ class TracerScene(t_api.HasTraits):
         """
         self._scene.background = bg
     
+    def trace_control(self):
+        """
+        Returns a tuple (max. iterations, min. energy) used in ray tracing.
+        """
+        return self._num_trace_iters, self._min_energy
+    
+    def set_trace_control(self, **kwds):
+        """
+        Sets various ray tracing parameters. Currently supported keywords:
+        max_iter - maximum number of trace iterations.
+        min_energy - discontinue rays with energy lower than this.
+        """
+        if 'max_iter' in kwds:
+            self._num_trace_iters = kwds['max_iter']
+        if 'min_energy' in kwds:
+            self._min_energy = kwds['min_energy']
+    
     def plot_ray_trace(self):
         """
         Removes any previously plotted ray sections from the last trace of rays
@@ -128,7 +149,8 @@ class TracerScene(t_api.HasTraits):
         
         # Trace new rays:
         engine = TracerEngine(self._asm)
-        params = engine.ray_tracer(self._source, 20000000, .05)[0]
+        params = engine.ray_tracer(self._source, 
+            self._num_trace_iters, self._min_energy)[0]
         self._lines = show_rays(self._scene, engine.tree, self._esc)
         
         self._scene.disable_render = False
