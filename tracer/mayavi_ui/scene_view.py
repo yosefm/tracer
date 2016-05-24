@@ -239,7 +239,7 @@ def show_rays(scene, tree, escaping_len):
         else:
             end_rays = tree[level + 1]
             escaping = ~N.any(
-                N.arange(sv.shape[1]) == end_rays.get_parents()[:,None], 0)
+                N.nonzero(non_degenerate)[0] == end_rays.get_parents()[:,None], 0)
             escaping_endpoints = sv[:,escaping] + sd[:,escaping]*escaping_len
             
             ev = N.hstack((end_rays.get_vertices(), escaping_endpoints))
