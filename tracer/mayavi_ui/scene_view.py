@@ -17,7 +17,7 @@ from ..tracer_engine import TracerEngine
 class TracerScene(t_api.HasTraits):
     _scene = t_api.Instance(MlabSceneModel, ())
     
-    def __init__(self, assembly, source, escaping=1.):
+    def __init__(self, assembly, source, escaping=1., ray_selector=None):
         """
         TracerScene manages a MayaVi scene with one tracer assembly and one
         tracer ray bundle. It redraws the assembly whenever it is replaced, 
@@ -42,6 +42,7 @@ class TracerScene(t_api.HasTraits):
         
         # First plot:
         self._lines = None
+        self._ray_selector = ray_selector
         self.plot_ray_trace()
         
         # Default view:
@@ -151,7 +152,8 @@ class TracerScene(t_api.HasTraits):
         engine = TracerEngine(self._asm)
         params = engine.ray_tracer(self._source, 
             self._num_trace_iters, self._min_energy)[0]
-        self._lines = show_rays(self._scene, engine.tree, self._esc)
+        self._lines = show_rays(self._scene, engine.tree, self._esc, 
+            self._ray_selector)
         
         self._scene.disable_render = False
     
@@ -206,7 +208,7 @@ class TracerScene(t_api.HasTraits):
             mesh = self._scene.mlab.mesh(*surf.mesh(sres), color=scol)
             self._meshes[surf_id] = (surf, mesh)
 
-def show_rays(scene, tree, escaping_len):
+def show_rays(scene, tree, escaping_len, ray_selector=None):
     """
     Given the tree data structure from the ray tracing engine, 
     3D-plot the rays.
@@ -216,6 +218,8 @@ def show_rays(scene, tree, escaping_len):
     tree - a tree of rays, as constructed by the tracer engine
     escaping_len - the length of the arrow indicating the direction of rays
         that don't intersect any surface (leaf rays).
+    ray_selector (optional) - a function that takes a ray bundle and returns a
+        boolean array stating whether to show each ray.
     
     Returns:
     lines - a list of plot3d objects, each representing a ray segment on the
@@ -228,7 +232,11 @@ def show_rays(scene, tree, escaping_len):
     for level in xrange(tree.num_bunds()):
         start_rays = tree[level]
         se = start_rays.get_energy()
+        
         non_degenerate = se != 0
+        if ray_selector is not None:
+            non_degenerate &= ray_selector(start_rays)
+        
         sv = start_rays.get_vertices()[:,non_degenerate]
         sd = start_rays.get_directions()[:,non_degenerate]
         
